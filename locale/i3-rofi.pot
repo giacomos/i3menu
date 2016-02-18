@@ -1,0 +1,82 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: i3-rofi\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-10-15 18:34+0000\n"
+"PO-Revision-Date: 2014-10-15 20:38+0100\n"
+"Last-Translator: Giacomo Spettoli <giacomo.spettoli@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"Language: it\n"
+"X-Generator: Poedit 1.6.9\n"
+
+#: i3_rofi.py:89
+msgid "Go to workspace:"
+msgstr ""
+
+#: i3_rofi.py:97
+msgid "Move focused window to workspace:"
+msgstr ""
+
+#: i3_rofi.py:105
+msgid "Move active workspace to output:"
+msgstr ""
+
+#: i3_rofi.py:115
+msgid "Rename workspace:"
+msgstr ""
+
+#: i3_rofi.py:130
+msgid "Choose window:"
+msgstr ""
+
+#: i3_rofi.py:138
+msgid "1: Move to workspace ->"
+msgstr ""
+
+#: i3_rofi.py:142
+msgid "2: Floating (toggle)"
+msgstr ""
+
+#: i3_rofi.py:145
+msgid "3: Fullscreen (toggle)"
+msgstr ""
+
+#: i3_rofi.py:148
+msgid "4: Sticky (toggle)"
+msgstr ""
+
+#: i3_rofi.py:151
+msgid "5: Move to Scratchpad"
+msgstr ""
+
+#: i3_rofi.py:154
+msgid "6: Move window to this workspace"
+msgstr ""
+
+#: i3_rofi.py:158
+msgid "7: Quit"
+msgstr ""
+
+#: i3_rofi.py:162
+msgid "Window actions:"
+msgstr ""
+
+#: i3_rofi.py:174
+msgid "1: Go to workspace ->"
+msgstr ""
+
+#: i3_rofi.py:178
+msgid "2: Move workspace to output ->"
+msgstr ""
+
+#: i3_rofi.py:182
+msgid "3: Rename workspace ->"
+msgstr ""
+
+#: i3_rofi.py:189
+msgid "Workspace actions:"
+msgstr ""
