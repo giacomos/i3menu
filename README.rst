@@ -41,11 +41,15 @@ go_to_workspace
 
 move_window_to_workspace
 ------------------------
-...
+
+.. figure:: docs/screenshots/i3-rofi-move-window-to-workspace.png
+    :align: center
 
 move_window_to_this_workspace
 -----------------------------
-...
+
+.. figure:: docs/screenshots/i3-rofi-move-window-to-this-workspace.png
+    :align: center
 
 move_workspace_to_output
 ------------------------
@@ -53,7 +57,9 @@ move_workspace_to_output
 
 rename_workspace
 ----------------
-...
+
+.. figure:: docs/screenshots/i3-rofi-rename-workspace.png
+    :align: center
 
 window_actions
 --------------
