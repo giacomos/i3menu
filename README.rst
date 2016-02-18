@@ -63,8 +63,12 @@ rename_workspace
 
 window_actions
 --------------
-...
+
+.. figure:: docs/screenshots/i3-rofi-window-actions.png
+    :align: center
 
 workspace_actions
 -----------------
-...
+
+.. figure:: docs/screenshots/i3-rofi-workspace-actions.png
+    :align: center
