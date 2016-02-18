@@ -36,41 +36,41 @@ The complete list of menus includes:
 go_to_workspace
 ----------------
 
-.. figure:: docs/screenshots/i3-rofi-go-to-workspace.png
+.. figure:: http://raw.githubusercontent.com/giacomos/i3-rofi/master/docs/screenshots/i3-rofi-go-to-workspace.png
     :align: center
 
 move_window_to_workspace
 ------------------------
 
-.. figure:: docs/screenshots/i3-rofi-move-window-to-workspace.png
+.. figure:: http://raw.githubusercontent.com/giacomos/i3-rofi/master/docs/screenshots/i3-rofi-move-window-to-workspace.png
     :align: center
 
 move_window_to_this_workspace
 -----------------------------
 
-.. figure:: docs/screenshots/i3-rofi-move-window-to-this-workspace.png
+.. figure:: http://raw.githubusercontent.com/giacomos/i3-rofi/master/docs/screenshots/i3-rofi-move-window-to-this-workspace.png
     :align: center
 
 move_workspace_to_output
 ------------------------
 
-.. figure:: docs/screenshots/i3-rofi-move-workspace-to-output.png
+.. figure:: http://raw.githubusercontent.com/giacomos/i3-rofi/master/docs/screenshots/i3-rofi-move-workspace-to-output.png
     :align: center
 
 rename_workspace
 ----------------
 
-.. figure:: docs/screenshots/i3-rofi-rename-workspace.png
+.. figure:: http://raw.githubusercontent.com/giacomos/i3-rofi/master/docs/screenshots/i3-rofi-rename-workspace.png
     :align: center
 
 window_actions
 --------------
 
-.. figure:: docs/screenshots/i3-rofi-window-actions.png
+.. figure:: http://raw.githubusercontent.com/giacomos/i3-rofi/master/docs/screenshots/i3-rofi-window-actions.png
     :align: center
 
 workspace_actions
 -----------------
 
-.. figure:: docs/screenshots/i3-rofi-workspace-actions.png
+.. figure:: http://raw.githubusercontent.com/giacomos/i3-rofi/master/docs/screenshots/i3-rofi-workspace-actions.png
     :align: center

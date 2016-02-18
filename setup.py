@@ -23,13 +23,12 @@ def read(*rnames):
 setup(
     name='i3-rofi',
     version=version,
-    description="",
+    description="a set of menus based on Rofi to interact with i3wm",
     long_description=read('README.rst') + '\n' + read('docs/HISTORY.rst'),
     # Get more strings from
     # http://pypi.python.org/pypi?:action=list_classifiers
     classifiers=[
         "Programming Language :: Python",
-        "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: 2.7",
     ],
     keywords='i3 i3wm rofi',
