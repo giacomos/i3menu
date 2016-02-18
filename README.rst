@@ -33,10 +33,32 @@ Menus
 =====
 The complete list of menus includes:
 
-* go_to_workspace
-* move_window_to_workspace
-* move_window_to_this_workspace
-* move_workspace_to_output
-* rename_workspace
-* window_actions
-* workspace_actions
+go_to_workspace
+----------------
+
+.. figure:: docs/screenshots/i3-rofi-go-to-workspace.png
+    :align: center
+
+move_window_to_workspace
+------------------------
+...
+
+move_window_to_this_workspace
+-----------------------------
+...
+
+move_workspace_to_output
+------------------------
+...
+
+rename_workspace
+----------------
+...
+
+window_actions
+--------------
+...
+
+workspace_actions
+-----------------
+...
