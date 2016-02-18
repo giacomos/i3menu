@@ -11,7 +11,7 @@ DEFAULT_TITLE = 'Select:'
 class I3Rofi(object):
 
     def _rofi_menu(self, options, title='Select'):
-        cmd = 'echo "{options}" | rofi -location 2 -dmenu -p "{title}"'.format(
+        cmd = 'echo "{options}" | rofi -dmenu -p "{title}"'.format(
             options='\n'.join(options),
             title=title
         )
