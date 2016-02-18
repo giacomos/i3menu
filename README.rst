@@ -1,11 +1,12 @@
 Introduction
 ============
 
-**i3-rofi** provides a useful set of menus based on
-`Rofi<https://davedavenport.github.io/rofi`_ to interact with i3.
+**i3-rofi** provides a useful set of menus based on `Rofi
+<https://davedavenport.github.io/rofi`_ to interact with `i3wm
+<http://i3wm.org>`_.
 
 Installation
--------------
+============
 
     $ sudo pip install i3-rofi
 
