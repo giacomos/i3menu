@@ -6,17 +6,12 @@ from setuptools import find_packages
 version = '1.0'
 install_requires = [
     'setuptools',
-    'i3-py'
+    'i3-py',
+    'argparse'
 ]
 
 console_scripts = [
-    'i3_go_to_workspace = i3_rofi:go_to_workspace',
-    'i3_move_window_to_workspace = i3_rofi:move_window_to_workspace',
-    'i3_move_window_to_this_workspace = i3_rofi:move_window_to_this_workspace',
-    'i3_move_workspace_to_output = i3_rofi:move_workspace_to_output',
-    'i3_rename_workspace = i3_rofi:rename_workspace',
-    'i3_window_actions = i3_rofi:window_actions',
-    'i3_workspace_actions = i3_rofi:workspace_actions',
+    'i3-rofi = cli:run',
 ]
 
 

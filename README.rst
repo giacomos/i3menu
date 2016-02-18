@@ -13,15 +13,19 @@ Installation
 This will automatically create a set of console scripts that can be used
 in your i3 config. For example::
 
-    bindsym $mod+w exec --no-startup-id i3_window_actions
+    bindsym $mod+w exec --no-startup-id i3-rofi --menu=go_to_workspace
+
+or::
+
+    bindsym $mod+w exec --no-startup-id i3-rofi -m go_to_workspace
 
 
-The complete list of scripts includes:
+The complete list of menus includes:
 
-* i3_go_to_workspace
-* i3_move_window_to_workspace
-* i3_move_window_to_this_workspace
-* i3_move_workspace_to_output
-* i3_rename_workspace
-* i3_window_actions
-* i3_workspace_actions
+* go_to_workspace
+* move_window_to_workspace
+* move_window_to_this_workspace
+* move_workspace_to_output
+* rename_workspace
+* window_actions
+* workspace_actions

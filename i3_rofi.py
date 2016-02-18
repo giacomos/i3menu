@@ -188,38 +188,3 @@ class I3Rofi(object):
         if res == GO_BACK_SIGNAL:
             self.workspace_actions()
         return
-
-
-def go_to_workspace():
-    conn = I3Rofi()
-    conn.go_to_workspace()
-
-
-def move_window_to_workspace():
-    conn = I3Rofi()
-    conn.move_window_to_workspace()
-
-
-def move_window_to_this_workspace():
-    conn = I3Rofi()
-    conn.move_window_to_this_workspace()
-
-
-def move_workspace_to_output():
-    conn = I3Rofi()
-    conn.move_workspace_to_output()
-
-
-def rename_workspace():
-    conn = I3Rofi()
-    conn.rename_workspace()
-
-
-def window_actions():
-    conn = I3Rofi()
-    conn.window_actions()
-
-
-def workspace_actions():
-    conn = I3Rofi()
-    conn.workspace_actions()
