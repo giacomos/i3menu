@@ -11,7 +11,7 @@ install_requires = [
 ]
 
 console_scripts = [
-    'i3-rofi = cli:run',
+    'i3-rofi = i3_rofi.cli:run',
 ]
 
 
@@ -24,7 +24,7 @@ setup(
     name='i3-rofi',
     version=version,
     description="",
-    long_description=read('README.rst') + '\n' + read('HISTORY.rst'),
+    long_description=read('README.rst') + '\n' + read('docs/HISTORY.rst'),
     # Get more strings from
     # http://pypi.python.org/pypi?:action=list_classifiers
     classifiers=[
