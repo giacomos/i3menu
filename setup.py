@@ -7,7 +7,7 @@ version = '1.0'
 install_requires = [
     'setuptools',
     'i3-py',
-    'argparse'
+    'argparse',
 ]
 
 console_scripts = [

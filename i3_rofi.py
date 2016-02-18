@@ -7,6 +7,9 @@ GO_BACK_OPTION = '<- go back'
 GO_BACK_SIGNAL = '<go back>'
 DEFAULT_TITLE = 'Select:'
 
+import i18n
+_ = i18n.language.gettext
+
 
 class I3Rofi(object):
 
@@ -83,7 +86,7 @@ class I3Rofi(object):
 
     def go_to_workspace(self, submenu=False):
         choice = self._rofi_select_workspace(
-            'Go to workspace:',
+            _('Go to workspace:'),
             submenu=submenu)
         if not choice or choice == GO_BACK_OPTION:
             return GO_BACK_SIGNAL
@@ -91,7 +94,7 @@ class I3Rofi(object):
 
     def move_window_to_workspace(self, submenu=False):
         choice = self._rofi_select_workspace(
-            'Move focused window to workspace:',
+            _('Move focused window to workspace:'),
             submenu=submenu)
         if not choice or choice == GO_BACK_OPTION:
             return GO_BACK_SIGNAL
@@ -99,7 +102,7 @@ class I3Rofi(object):
 
     def move_workspace_to_output(self, submenu=False):
         choice = self._rofi_select_output(
-            'Move active workspace to output:',
+            _('Move active workspace to output:'),
             submenu=submenu)
         if not choice or choice == GO_BACK_OPTION:
             return GO_BACK_SIGNAL
@@ -107,7 +110,9 @@ class I3Rofi(object):
 
     def rename_workspace(self, submenu=False):
         ws = self._i3_get_focused_workspace()
-        choice = self._rofi_menu([ws['name']], 'Rename workspace:')
+        choice = self._rofi_menu(
+            [ws['name']],
+            _('Rename workspace:'))
         if not choice or choice == GO_BACK_OPTION:
             return GO_BACK_SIGNAL
         return i3.rename('workspace to "%s"' % choice)
@@ -122,7 +127,7 @@ class I3Rofi(object):
             workspace = workspace[0]
             all_windows.extend(i3.filter(workspace, nodes=[]))
         window_classes = [w['window_properties']['class'] for w in all_windows]
-        choice = self._rofi_menu(window_classes, 'Choose window:')
+        choice = self._rofi_menu(window_classes, _('Choose window:'))
         if not choice or choice == GO_BACK_OPTION:
             return GO_BACK_SIGNAL
         return i3.command(
@@ -130,31 +135,31 @@ class I3Rofi(object):
 
     def window_actions(self):
         actions = {
-            '1: Move to workspace ->': {
+            _('1: Move to workspace ->'): {
                 'callback': self.move_window_to_workspace,
                 'submenu': True
             },
-            '2: Floating (toggle)': {
+            _('2: Floating (toggle)'): {
                 'callback': lambda x: i3.floating('toggle'),
             },
-            '3: Fullscreen (toggle)': {
+            _('3: Fullscreen (toggle)'): {
                 'callback': lambda x: i3.fullscreen(),
             },
-            '4: Sticky (toggle)': {
+            _('4: Sticky (toggle)'): {
                 'callback': lambda x: i3.sticky('toggle'),
             },
-            '5: Move to Scratchpad': {
+            _('5: Move to Scratchpad'): {
                 'callback': lambda x: i3.move('scratchpad'),
             },
-            '5: Move window to this workspace': {
+            _('6: Move window to this workspace'): {
                 'callback': self.move_window_to_this_workspace,
                 'submenu': True
             },
-            '6: Quit': {
+            _('7: Quit'): {
                 'callback': lambda x: i3.kill(),
             }
         }
-        choice = self._rofi_menu(sorted(actions.keys()), 'Window actions:')
+        choice = self._rofi_menu(sorted(actions.keys()), _('Window actions:'))
         if not choice:
             return
         callback = actions[choice]['callback']
@@ -166,20 +171,22 @@ class I3Rofi(object):
 
     def workspace_actions(self):
         actions = {
-            '1: Go to workspace ->': {
+            _('1: Go to workspace ->'): {
                 'callback': self.go_to_workspace,
                 'submenu': True
             },
-            '2: Move workspace to output ->': {
+            _('2: Move workspace to output ->'): {
                 'callback': self.move_workspace_to_output,
                 'submenu': True
             },
-            '3: Rename workspace ->': {
+            _('3: Rename workspace ->'): {
                 'callback': self.rename_workspace,
                 'submenu': True
             },
         }
-        choice = self._rofi_menu(sorted(actions.keys()), 'Workspace actions:')
+        choice = self._rofi_menu(
+            sorted(actions.keys()),
+            _('Workspace actions:'))
         if not choice:
             return
         callback = actions[choice]['callback']
