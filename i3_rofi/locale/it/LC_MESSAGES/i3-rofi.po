@@ -15,70 +15,44 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: i3-rofi\n"
 
-#: i3_rofi.py:89
+msgid "Select:"
+msgstr "Seleziona:"
+
 msgid "Go to workspace:"
 msgstr "Vai al workspace:"
 
-#: i3_rofi.py:97
-msgid "Move focused window to workspace:"
+msgid "Move window to workspace:"
 msgstr "Sposta la finestra attiva sul workspace:"
 
-#: i3_rofi.py:105
 msgid "Move active workspace to output:"
 msgstr "Sposta il workspace attivo sul output:"
 
-#: i3_rofi.py:115
 msgid "Rename workspace:"
 msgstr "Rinomina il workspace:"
 
-#: i3_rofi.py:130
 msgid "Choose window:"
 msgstr "Scegli la finestra:"
 
-#: i3_rofi.py:138
-msgid "1: Move to workspace ->"
-msgstr "1: Vai al workspace ->"
+msgid "Floating (toggle)"
+msgstr "Galleggiante (inverti)"
 
-#: i3_rofi.py:142
-msgid "2: Floating (toggle)"
-msgstr "2: Galleggiante (inverti)"
+msgid "Fullscreen (toggle)"
+msgstr "Schermo intero (inverti)"
 
-#: i3_rofi.py:145
-msgid "3: Fullscreen (toggle)"
-msgstr "3: Schermo intero (inverti)"
+msgid "Sticky (toggle)"
+msgstr "Appiccicosa (inverti)"
 
-#: i3_rofi.py:148
-msgid "4: Sticky (toggle)"
-msgstr "4: Appiccicosa (inverti)"
+msgid "Move to Scratchpad"
+msgstr "Sposta sullo scratchpad"
 
-#: i3_rofi.py:151
-msgid "5: Move to Scratchpad"
-msgstr "5: Sposta sullo scratchpad"
+msgid "Move window to this workspace"
+msgstr "Sposta una finestra su questo workspace"
 
-#: i3_rofi.py:154
-msgid "6: Move window to this workspace"
-msgstr "6: Sposta una finestra su questo workspace"
+msgid "Quit"
+msgstr "Chiudi"
 
-#: i3_rofi.py:158
-msgid "7: Quit"
-msgstr "7: Chiudi"
-
-#: i3_rofi.py:162
 msgid "Window actions:"
 msgstr "Azioni sulla finestra:"
 
-#: i3_rofi.py:174
-msgid "1: Go to workspace ->"
-msgstr "1: Vai al workspace ->"
-
-#: i3_rofi.py:178
-msgid "2: Move workspace to output ->"
-msgstr "2: Sposta il workspace su un output ->"
-
-#: i3_rofi.py:182
-msgid "3: Rename workspace ->"
-msgstr "3: Rinomina il workspace"
-
-#: i3_rofi.py:189
 msgid "Workspace actions:"
 msgstr "Azioni sul workspace:"

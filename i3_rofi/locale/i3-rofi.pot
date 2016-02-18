@@ -13,70 +13,44 @@ msgstr ""
 "Language: it\n"
 "X-Generator: Poedit 1.6.9\n"
 
-#: i3_rofi.py:89
+msgid "Select:"
+msgstr ""
+
 msgid "Go to workspace:"
 msgstr ""
 
-#: i3_rofi.py:97
-msgid "Move focused window to workspace:"
+msgid "Move window to workspace:"
 msgstr ""
 
-#: i3_rofi.py:105
 msgid "Move active workspace to output:"
 msgstr ""
 
-#: i3_rofi.py:115
 msgid "Rename workspace:"
 msgstr ""
 
-#: i3_rofi.py:130
 msgid "Choose window:"
 msgstr ""
 
-#: i3_rofi.py:138
-msgid "1: Move to workspace ->"
+msgid "Floating (toggle)"
 msgstr ""
 
-#: i3_rofi.py:142
-msgid "2: Floating (toggle)"
+msgid "Fullscreen (toggle)"
 msgstr ""
 
-#: i3_rofi.py:145
-msgid "3: Fullscreen (toggle)"
+msgid "Sticky (toggle)"
 msgstr ""
 
-#: i3_rofi.py:148
-msgid "4: Sticky (toggle)"
+msgid "Move to Scratchpad"
 msgstr ""
 
-#: i3_rofi.py:151
-msgid "5: Move to Scratchpad"
+msgid "Move window to this workspace"
 msgstr ""
 
-#: i3_rofi.py:154
-msgid "6: Move window to this workspace"
+msgid "Quit"
 msgstr ""
 
-#: i3_rofi.py:158
-msgid "7: Quit"
-msgstr ""
-
-#: i3_rofi.py:162
 msgid "Window actions:"
 msgstr ""
 
-#: i3_rofi.py:174
-msgid "1: Go to workspace ->"
-msgstr ""
-
-#: i3_rofi.py:178
-msgid "2: Move workspace to output ->"
-msgstr ""
-
-#: i3_rofi.py:182
-msgid "3: Rename workspace ->"
-msgstr ""
-
-#: i3_rofi.py:189
 msgid "Workspace actions:"
 msgstr ""
