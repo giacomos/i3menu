@@ -53,7 +53,9 @@ move_window_to_this_workspace
 
 move_workspace_to_output
 ------------------------
-...
+
+.. figure:: docs/screenshots/i3-rofi-move-workspace-to-output.png
+    :align: center
 
 rename_workspace
 ----------------
