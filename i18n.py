@@ -24,8 +24,7 @@ if lc:
 # Concat all languages (env + default locale),
 #  and here we have the languages and location of the translations
 #
-# languages += DEFAULT_LANGUAGES
-languages = ['it']
+languages += DEFAULT_LANGUAGES
 mo_location = LOCALE_DIR
 
 # Lets tell those details to gettext
