@@ -3,23 +3,17 @@ from i3_rofi import I3Rofi
 
 
 def run():
-    conn = I3Rofi()
-    menus = {
-        'go_to_workspace': conn.go_to_workspace,
-        'move_window_to_workspace': conn.move_window_to_workspace,
-        'move_window_to_this_workspace': conn.move_window_to_this_workspace,
-        'move_workspace_to_output': conn.move_workspace_to_output,
-        'rename_workspace': conn.rename_workspace,
-        'window_actions': conn.window_actions,
-        'workspace_actions': conn.workspace_actions
-    }
+    i3rofi = I3Rofi()
     parser = argparse.ArgumentParser(
         description='Provides rofi menus to interact with i3')
     parser.add_argument(
-        "-m", "--menu", dest="menu",
-        help="Menu to display. Available menus: %s" % ', '.join(menus.keys())
+        "-m", "--menu", dest="menu", required=True,
+        choices=i3rofi.menus,
+        help="Menu to display"
+    )
+    parser.add_argument(
+        "-d", "--debug", action='store_true',
+        help="Display debug infos"
     )
     args = parser.parse_args()
-    if args.menu in menus:
-        menu = menus[args.menu]
-        menu()
+    i3rofi.run(args)
