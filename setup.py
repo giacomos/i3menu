@@ -6,7 +6,7 @@ from setuptools import find_packages
 version = '1.0'
 install_requires = [
     'setuptools',
-    'i3-py',
+    'i3ipc',
     'argparse',
 ]
 
