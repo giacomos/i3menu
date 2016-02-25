@@ -1,19 +1,10 @@
 # -*- coding: utf-8 -*-
 import sys
 import errno
-from utils import which
-from utils import safe_list_get
-from utils import rofi
-from utils import i3_command
-from utils import select
-from utils import select_output
-from utils import select_workspace
-from utils import select_window
-from utils import select_bar
-import i18n
-
-_ = i18n.language.gettext
-DEFAULT_TITLE = _('Select:')
+from .utils import which
+from .utils import safe_list_get
+from . import api
+from . import _
 
 COMMANDS_ACTIONS = {
     'sticky': [
@@ -63,108 +54,111 @@ class I3Rofi(object):
             sys.exit(errno.EINVAL)
 
     def go_to_workspace(self, debug=False):
-        ws = select_workspace(_('Go to workspace:'))
+        ws = api.rofi_select_workspace(_('Go to workspace:'))
         cmd = 'workspace "{ws}"'.format(ws=ws.name)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def move_window_to_workspace(self, debug=False):
-        ws = select_workspace(_('Move window to workspace:'))
+        ws = api.rofi_select_workspace(_('Move window to workspace:'))
         cmd = 'move window to workspace "{ws}"'.format(ws=ws.name)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def move_workspace_to_output(self, debug=False):
-        out = select_output(_('Move active workspace to output:'))
+        out = api.rofi_select_output(_('Move active workspace to output:'))
         cmd = 'move workspace to output "{output}"'.format(output=out.name)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def rename_workspace(self, debug=False):
-        ws = select_workspace(filter_fnc=lambda x: x.focused)
-        choice = rofi(
-            [ws.name.encode('utf-8')], _('Rename workspace:'), **{'format': 's'})
+        ws = api.rofi_select_workspace(filter_fnc=lambda x: x.focused)
+        choice = api._rofi(
+            [ws.name.encode('utf-8')],
+            _('Rename workspace:'),
+            **{'format': 's'}
+        )
         if not choice:
             return
         cmd = 'rename workspace to "{output}"'.format(output=choice)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def move_window_to_this_workspace(self, debug=False):
-        win = select_window(
+        win = api.rofi_select_window(
             _('Select a window to move to this workspace:'))
         cmd = '[id="{id}"] move window to workspace current'.format(
             id=win.window)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def floating(self, action=None, debug=False):
         """ http://i3wm.org/docs/userguide.html#_manipulating_layout
         """
         actions = COMMANDS_ACTIONS['floating']
         if not action or action not in actions:
-            action = select(actions, title='action:')
+            action = api.rofi_select(actions, title='action:')
         cmd = 'floating {action}'.format(action=action)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def fullscreen(self, action=None, debug=False):
         """ http://i3wm.org/docs/userguide.html#_manipulating_layout
         """
         actions = COMMANDS_ACTIONS['fullscreen']
         if not action or action not in actions:
-            action = select(actions, title='action:')
+            action = api.rofi_select(actions, title='action:')
         cmd = 'fullscreen {action}'.format(action=action)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def sticky(self, action=None, debug=False):
         """ http://i3wm.org/docs/userguide.html#_sticky_floating_windows
         """
         actions = COMMANDS_ACTIONS['sticky']
         if not action or action not in actions:
-            action = select(actions, title='action:')
+            action = api.rofi_select(actions, title='action:')
         cmd = 'sticky {action}'.format(action=action)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def kill(self, debug=False):
         cmd = 'kill'
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def move_to_scratchpad(self, debug=False):
         cmd = 'move to scratchpad'
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def scratchpad_show(self, debug=False):
-        win = select_window(
+        win = api.rofi_select_window(
             _('Select a window to show:'),
             scratchpad=True)
         cmd = '[id="{id}"] scratchpad show'.format(id=win.window)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def bar_hidden_state(self, action=None, debug=False):
         """ http://i3wm.org/docs/userguide.html#_i3bar_control
         """
-        bar_id = select_bar(_('Select bar:'))
+        bar_id = api.rofi_select_bar(_('Select bar:'))
         actions = COMMANDS_ACTIONS['bar_hidden_state']
         if not action or action not in actions:
-            action = select(actions, title='action:')
+            action = api.rofi_select(actions, title='action:')
         cmd = 'bar hidden_state {action} "{bar_id}"'.format(
             action=action, bar_id=bar_id)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def bar_mode(self, action=None, debug=False):
         """ http://i3wm.org/docs/userguide.html#_i3bar_control
         """
-        bar_id = select_bar(_('Select bar:'))
+        bar_id = api.rofi_select_bar(_('Select bar:'))
         actions = COMMANDS_ACTIONS['bar_mode']
         if not action or action not in actions:
-            action = select(actions, title='action:')
+            action = api.rofi_select(actions, title='action:')
         cmd = 'bar mode {action} "{bar_id}"'.format(
             action=action, bar_id=bar_id)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def layout(self, action=None, debug=False):
         """ http://i3wm.org/docs/userguide.html#_manipulating_layout
         """
         actions = COMMANDS_ACTIONS['layout']
         if not action or action not in actions:
-            action = select(actions, title='action:')
+            action = api.rofi_select(actions, title='action:')
         cmd = 'layout {action}'.format(action=action)
-        return i3_command(cmd, debug=debug)
+        return api.i3_command(cmd, debug=debug)
 
     def bar_actions(self, debug=False):
         """ http://i3wm.org/docs/userguide.html#_i3bar_control
@@ -177,8 +171,8 @@ class I3Rofi(object):
         ]
         entries = [
             '%s: %s' % (idx + 1, i['title'])
-            for idx,i in enumerate(actions)]
-        idx = rofi(entries, _('Bar actions:'))
+            for idx, i in enumerate(actions)]
+        idx = api._rofi(entries, _('Bar actions:'))
         action = safe_list_get(actions, idx, None)
         callback = action['callback']
         callback(debug=debug)
@@ -195,8 +189,8 @@ class I3Rofi(object):
         ]
         entries = [
             '%s: %s' % (idx + 1, i['title'])
-            for idx,i in enumerate(actions)]
-        idx = rofi(entries, _('Window actions:'))
+            for idx, i in enumerate(actions)]
+        idx = api._rofi(entries, _('Window actions:'))
         action = safe_list_get(actions, idx, None)
         callback = action['callback']
         callback(debug=debug)
@@ -221,8 +215,8 @@ class I3Rofi(object):
         ]
         entries = [
             '%s: %s' % (idx + 1, i['title'])
-            for idx,i in enumerate(actions)]
-        idx = rofi(entries, _('Window actions:'))
+            for idx, i in enumerate(actions)]
+        idx = api._rofi(entries, _('Window actions:'))
         action = safe_list_get(actions, idx, None)
         callback = action['callback']
         callback(debug=debug)
@@ -241,8 +235,8 @@ class I3Rofi(object):
         ]
         entries = [
             '%s: %s' % (idx + 1, i['title'])
-            for idx,i in enumerate(actions)]
-        idx = rofi(entries, _('Workspace actions:'))
+            for idx, i in enumerate(actions)]
+        idx = api._rofi(entries, _('Workspace actions:'))
         action = safe_list_get(actions, idx, None)
         callback = action['callback']
         callback(debug=debug)
