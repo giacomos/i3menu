@@ -21,15 +21,6 @@ def which(program):
 
     return None
 
-
-def safe_list_get(l, idx, default):
-    try:
-        idx = int(idx)
-        return l[idx]
-    except Exception as e:
-        print (e)
-        return default
-
 try:
     dict.iteritems
 except AttributeError:

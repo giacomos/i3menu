@@ -3,8 +3,8 @@ import i3ipc
 import subprocess
 import sys
 from i3menu import _
+from i3menu import logger
 from i3menu.utils import which
-from i3menu.utils import safe_list_get
 from i3menu.utils import iteritems
 
 PROMPT_PREFIX = '(i3menu)'
@@ -74,19 +74,18 @@ def i3_get_bar_ids():
     return i3.get_bar_config_list()
 
 
-def i3_command(cmd, debug=False):
-    if debug:
-        print(cmd)
+def i3_command(cmd, context=None):
+    if context and context.get('debug'):
+        logger.info(cmd)
     res = i3.command(cmd)
     return res
 
 
-def _menu(cmd, options, title=DEFAULT_TITLE, **kwargs):
+def _menu(cmd, options, title=DEFAULT_TITLE, context=None):
     title = ' '.join([PROMPT_PREFIX, title])
     safe_title = '"%s"' % title
     # cmd_args = {'format': 'i'}
     cmd_args = {}
-    cmd_args.update(kwargs)
     cmd_args_list = ['-p', safe_title]
     if 'rofi' in cmd:
         cmd_args_list = ['-dmenu'] + cmd_args_list
@@ -102,41 +101,35 @@ def _menu(cmd, options, title=DEFAULT_TITLE, **kwargs):
         options='\n'.join(options),
         title=title,
     )
+    if context and context.get('debug'):
+        print cmd
     proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
     label = proc.stdout.read().decode('utf-8').strip('\n')
     return options.get(label)
 
 
-def menu(options, title=DEFAULT_TITLE, **kwargs):
+def menu(options, title=DEFAULT_TITLE, context=None):
     cmd = None
-    if which('rofi'):
+    if context and context.get('menu_provider'):
+        cmd = which(context.get('menu_provider'))
+    elif which('rofi'):
         cmd = which('rofi')
     elif which('dmenu'):
         cmd = which('dmenu')
     else:
         sys.exit('Either dmenu or rofi commands are required')
-    return _menu(cmd, options, title=title, **kwargs)
+    return _menu(cmd, options, title=title, context=context)
 
 
-def select(options, title=DEFAULT_TITLE):
-    if len(options) == 1:
-        return options[0]
-    idx = menu(options, title=title)
-    option = safe_list_get(options, idx, None)
-    if not option:
-        sys.exit()
-    return option
-
-
-def select_bar(title=DEFAULT_TITLE, filter_fnc=None):
+def select_bar(title=DEFAULT_TITLE, filter_fnc=None, context=None):
     entries_list = i3_get_bar_ids()
     if len(entries_list) == 1:
         return entries_list[0]
     options = {i: i for i in sorted(entries_list)}
-    return menu(options, title=title)
+    return menu(options, title=title, context=context)
 
 
-def select_workspace(title=DEFAULT_TITLE, filter_fnc=None):
+def select_workspace(title=DEFAULT_TITLE, filter_fnc=None, context=None):
     entries_list = i3_get_workspaces()
     entries_list = sorted(entries_list, key=lambda x: x.name)
     if filter_fnc:
@@ -150,10 +143,10 @@ def select_workspace(title=DEFAULT_TITLE, filter_fnc=None):
     if len(options.keys()) == 1:
         return options.values()[0]
     else:
-        return menu(options, title=title)
+        return menu(options, title=title, context=context)
 
 
-def select_output(title=DEFAULT_TITLE, filter_fnc=None):
+def select_output(title=DEFAULT_TITLE, filter_fnc=None, context=None):
     entries_list = i3_get_active_outputs()
     entries_list = sorted(entries_list, key=lambda x: x.get('name'))
     entries_list = xrandr_directions + entries_list
@@ -171,10 +164,10 @@ def select_output(title=DEFAULT_TITLE, filter_fnc=None):
     if len(options.keys()) == 1:
         return options.values()[0]
     else:
-        return menu(options, title=title)
+        return menu(options, title=title, context=context)
 
 
-def select_window(title=DEFAULT_TITLE, scratchpad=False):
+def select_window(title=DEFAULT_TITLE, scratchpad=False, context=None):
     entries = []
     entries_list = i3_get_windows()
     if scratchpad:
@@ -190,4 +183,4 @@ def select_window(title=DEFAULT_TITLE, scratchpad=False):
     if len(options.keys()) == 1:
         return options.values()[0]
     else:
-        return menu(options, title=title)
+        return menu(options, title=title, context=context)

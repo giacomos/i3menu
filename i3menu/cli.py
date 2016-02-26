@@ -11,10 +11,11 @@ def run():
     if not which('rofi'):
         sys.exit(errno.EINVAL)
     all_commands = commands.all_commands()
+    all_menus = menus.all_menus()
     all_actions = set()
     for k, cmd in iteritems(all_commands):
         all_actions |= set(cmd._actions)
-    all_menus = menus.all_menus()
+    options = menus.all_menus().keys() + commands.all_commands().keys()
 
     parser = argparse.ArgumentParser(
         description='Provides rofi menus to interact with i3',
@@ -23,49 +24,43 @@ def run():
         "-d", "--debug", action='store_true',
         help="Debug, print the i3 command before executing it"
     )
-    # parser.add_argument(
-    #     "action",
-    #     choices=all_actions,
-    #     help=""
-    # )
-
-    mutgrp = parser.add_mutually_exclusive_group()
-    mutgrp.add_argument(
-        "-m", "--menu", dest="menu", help="Menu to display", metavar='<menu>',
-        choices=all_menus.keys()
+    parser.add_argument(
+        "--menu-provider", dest='menu_provider',
+        choices=['dmenu', 'rofi'],
+        help="Force the use of a menu provider"
     )
-    mutgrp.add_argument(
-        "-c", "--command", dest="command", help="Command to execute", metavar='<command>',
-        choices=all_commands.keys()
+    parser.add_argument(
+        "--action", dest='action', metavar='<action>',
+        choices=all_actions,
+        help="""Command action. Depending on the command not all action
+may be available. Allowed values are: """ + ", ".join(all_actions),
     )
-    for k, cmd in iteritems(all_commands):
-        mutgrp.add_argument(
-            '--' + k, help=cmd._description,
-            dest='cmd', action='append_const', const=cmd)
+    parser.add_argument(
+        "menu",
+        choices=options,
+        help="Menu to be executed. Allowed values are: " + ", ".join(options),
+        metavar='<menu>')
     args = parser.parse_args()
     res = []
+    context = {}
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
-    if args.cmd:
-        Command = args.cmd[0]
-        if args.action in Command._actions:
-            cmd = Command(args.action)
-        else:
-            cmd = Command()
-        res = cmd(debug=args.debug)
-    elif args.menu:
-        Menu = all_menus.get(args.menu)
-        if not Menu:
-            sys.exit(errno.EINVAL)
-        menu = Menu()
-        res = menu(debug=args.debug)
-    elif args.command:
-        Command = all_commands.get(args.command)
-        if not Command:
-            sys.exit(errno.EINVAL)
-        cmd = Command()
-        res = cmd(debug=args.debug)
+    if args.debug:
+        context['debug'] = True
+    if args.menu_provider:
+        context['menu_provider'] = args.menu_provider
+    if args.action:
+        context['action'] = args.action
+
+    menu = args.menu
+    if menu in all_commands:
+        Command = all_commands[menu]
+        cmd = Command(context=context)
+    elif menu in all_menus:
+        Menu = all_menus[menu]
+        cmd = Menu(context=context)
+    res = cmd()
     if not res:
         sys.exit(errno.EINVAL)
     res = res[0]
