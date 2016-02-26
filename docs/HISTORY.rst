@@ -1,14 +1,14 @@
 Changelog
 =========
 
-1.1 (unreleased)
+2.0 (2016-02-26)
 ----------------
 
-- major code styles
-- add scratchpad actions
-- add bar actions
-- add layout action
-- switch from i3-py to i3ipc as base since it's more powerful and updated
+- major code restyle
+- add all the i3-msg commands
+- major improvement of the command line interface
+- use both rofi and dmenu as menu providers
+- name changed: i3-rofi -> i3menu
   [giacomos]
 
 1.0 (2016-02-18)
