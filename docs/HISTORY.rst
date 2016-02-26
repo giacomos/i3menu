@@ -1,6 +1,20 @@
 Changelog
 =========
 
+2.0.3 (2016-02-26)
+------------------
+
+- fix a typo that prevented to use the package without rofi installed [giacomos]
+
+2.0.2 (2016-02-26)
+------------------
+- fix an error with missing history by adding a MANIFEST.in [giacomos]
+
+2.0.1 (2016-02-26)
+------------------
+
+- nothis to see here [giacomos]
+
 2.0 (2016-02-26)
 ----------------
 
