@@ -8,9 +8,22 @@ Introduction
 
 Installation
 ============
-::
+`i3menu` can be installed in a `virtualenv <https://pypi.python.org/pypi/virtualenv>`_ ::
+    
+    $ pip install virtualenv
+    $ virtualenv venv
+    $ source venv/bin/activate
+    $ pip install i3menu
+    $ i3menu -h
+
+If you use a virtualenv, remember to always source you virtual env in order
+to have the `i3menu` command in your $PATH.
+
+If you are comfortable with installing it system-wide, it can also be
+installe using::
 
     $ sudo pip install i3menu
+    $ i3menu -h
 
 Usage
 =====

@@ -8,8 +8,6 @@ from i3menu.utils import iteritems
 
 
 def run():
-    if not which('rofi'):
-        sys.exit(errno.EINVAL)
     all_commands = commands.all_commands()
     all_menus = menus.all_menus()
     all_actions = set()
