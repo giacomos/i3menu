@@ -30,6 +30,8 @@ class MenuWindowActions(AbstractMenu):
     _entries = [
         {'title': _('Move window to workspace:'),
          'callback': commands.CmdMoveWindowToWorkspace()},
+        {'title': _('Border'),
+         'callback': commands.CmdBorder()},
         {'title': _('Floating (toggle)'),
          'callback': commands.CmdFloating(action='toggle')},
         {'title': _('Fullscreen (toggle)'),
@@ -101,10 +103,28 @@ class MenuGotoActions(AbstractMenu):
     ]
 
 
+class MenuGlobalActions(AbstractMenu):
+    _name = 'global_actions'
+
+    _entries = [
+        {'title': _('Debug log'),
+         'callback': commands.CmdDebuglog()},
+        {'title': _('Shared memory log'),
+         'callback': commands.CmdShmlog()},
+        {'title': _('Restart i3'),
+         'callback': commands.CmdRestart()},
+        {'title': _('Reload i3'),
+         'callback': commands.CmdReload()},
+        {'title': _('Exit i3'),
+         'callback': commands.CmdExit()},
+    ]
+
+
 def all_menus():
     menus = [
         MenuBarActions,
         MenuGotoActions,
+        MenuGlobalActions,
         MenuTargetWindowActions,
         MenuTargetWorkspaceActions,
         MenuWindowActions,

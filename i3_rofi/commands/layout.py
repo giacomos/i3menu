@@ -7,7 +7,9 @@ class CmdLayout(AbstractCmd):
     """
 
     _name = 'layout'
-    _actions = ['default', 'tabbed', 'stacking', 'splitv', 'splith']
+    _actions = [
+        'default', 'tabbed', 'stacking', 'splitv', 'splith',
+        'toggle split', 'toggle all']
 
     def cmd(self):
         return 'layout {action}'.format(action=self.action)
