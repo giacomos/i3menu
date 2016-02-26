@@ -3,7 +3,7 @@ from .base import AbstractWindowCmd
 
 
 class CmdSplit(AbstractWindowCmd):
-    """ http://i3wm.org/docs/userguide.html#_manipulating_layout
+    """ http://i3wm.org/docs/userguide.html#_splitting_containers
     """
 
     _name = 'split'
