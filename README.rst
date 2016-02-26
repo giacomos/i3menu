@@ -28,3 +28,15 @@ You can add i3menu to your i3 config. For example::
 or::
 
     bindsym $mod+w exec --no-startup-id i3menu -m go_to_workspace
+
+Credits
+=======
+
+* partially inspired by `quickswitch-i3
+<https://pypi.python.org/pypi/quickswitch-i3>`_
+
+License
+========
+
+**Disclaimer: i3menu is a third party script and in no way affiliated
+with the i3 project, the dmenu project or the rofi project.**
