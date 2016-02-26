@@ -19,7 +19,7 @@ class AbstractMenu(object):
         entries = [
             '%s: %s' % (idx + 1, i['title'])
             for idx, i in enumerate(self._entries)]
-        idx = api._rofi(entries, _(self._prompt))
+        idx = api.menu(entries, _(self._prompt))
         action = safe_list_get(self._entries, idx, None)
         callback = action['callback']
         return callback(target=target, debug=debug)
@@ -53,7 +53,7 @@ class MenuTargetWindowActions(MenuWindowActions):
 
     @property
     def target(self):
-        return api.rofi_select_window(title=_('Select target window:'))
+        return api.select_window(title=_('Select target window:'))
 
 
 class MenuWorkspaceActions(AbstractMenu):
@@ -73,7 +73,7 @@ class MenuTargetWorkspaceActions(MenuWorkspaceActions):
 
     @property
     def target(self):
-        return api.rofi_select_workspace(title=_('Select target workspace:'))
+        return api.select_workspace(title=_('Select target workspace:'))
 
 
 class MenuBarActions(AbstractMenu):

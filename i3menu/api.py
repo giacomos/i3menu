@@ -104,23 +104,34 @@ def _rofi(options, title=DEFAULT_TITLE, **kwargs):
     return proc.stdout.read().decode('utf-8').strip('\n')
 
 
-def rofi_select(options, title=DEFAULT_TITLE):
+def _dmenu(options, title=DEFAULT_TITLE, **kwargs):
+    pass
+
+
+def menu(options, title=DEFAULT_TITLE, **kwargs):
+    if which('rofi'):
+        return _rofi(options, title=title, **kwargs)
+    elif which('dmenu'):
+        return _dmenu(options, title=title, **kwargs)
+
+
+def select(options, title=DEFAULT_TITLE):
     if len(options) == 1:
         return options[0]
-    idx = _rofi(options, title=title)
+    idx = menu(options, title=title)
     option = safe_list_get(options, idx, None)
     if not option:
         sys.exit()
     return option
 
 
-def rofi_select_bar(title=DEFAULT_TITLE, filter_fnc=None):
+def select_bar(title=DEFAULT_TITLE, filter_fnc=None):
     entries_list = i3_get_bar_ids()
     options = sorted(entries_list)
-    return rofi_select(options, title=title)
+    return select(options, title=title)
 
 
-def rofi_select_workspace(title=DEFAULT_TITLE, filter_fnc=None):
+def select_workspace(title=DEFAULT_TITLE, filter_fnc=None):
     entries_list = i3_get_workspaces()
     entries_list = sorted(entries_list, key=lambda x: x.name)
     if filter_fnc:
@@ -134,14 +145,14 @@ def rofi_select_workspace(title=DEFAULT_TITLE, filter_fnc=None):
     if len(options) == 1:
         idx = 0
     else:
-        idx = _rofi(options, title=title)
+        idx = menu(options, title=title)
     ws = safe_list_get(entries_list, idx, None)
     if not ws:
         sys.exit()
     return ws
 
 
-def rofi_select_output(title=DEFAULT_TITLE, filter_fnc=None):
+def select_output(title=DEFAULT_TITLE, filter_fnc=None):
     entries_list = i3_get_active_outputs()
     entries_list = sorted(entries_list, key=lambda x: x.get('name'))
     entries_list = xrandr_directions + entries_list
@@ -159,14 +170,14 @@ def rofi_select_output(title=DEFAULT_TITLE, filter_fnc=None):
     if len(options) == 1:
         idx = 0
     else:
-        idx = _rofi(options, title=title)
+        idx = menu(options, title=title)
     ws = safe_list_get(entries_list, idx, None)
     if not ws:
         sys.exit()
     return ws
 
 
-def rofi_select_window(title=DEFAULT_TITLE, scratchpad=False):
+def select_window(title=DEFAULT_TITLE, scratchpad=False):
     entries = []
     entries_list = i3_get_windows()
     if scratchpad:
@@ -182,7 +193,7 @@ def rofi_select_window(title=DEFAULT_TITLE, scratchpad=False):
     if len(options) == 1:
         idx = 0
     else:
-        idx = _rofi(options, title=title)
+        idx = menu(options, title=title)
     ws = safe_list_get(entries_list, idx, None)
     if not ws:
         sys.exit()

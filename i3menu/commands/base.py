@@ -24,22 +24,22 @@ class AbstractCmd(object):
     def action(self):
         action = self._action
         if not action or action not in self._actions:
-            action = api.rofi_select(
+            action = api.select(
                 self._actions,
                 title=self._name + ' - action:')
         return action
 
     @property
     def selected_window(self):
-        return api.rofi_select_window()
+        return api.select_window()
 
     @property
     def selected_workspace(self):
-        return api.rofi_select_workspace()
+        return api.select_workspace()
 
     @property
     def selected_output(self):
-        return api.rofi_select_output()
+        return api.select_output()
 
     def __call__(self, target=None, debug=False, *args, **kwargs):
         self._target = target
@@ -60,7 +60,7 @@ class AbstractScratchpadWindowCmd(AbstractCmd):
 
     @property
     def target(self):
-        return self._target or api.rofi_select_window(scratchpad=True)
+        return self._target or api.select_window(scratchpad=True)
 
 
 class AbstractWorkspaceCmd(AbstractCmd):
@@ -74,4 +74,4 @@ class AbstractBarCmd(AbstractCmd):
 
     @property
     def target(self):
-        return self._target or api.rofi_select_bar(_('Select bar:'))
+        return self._target or api.select_bar(_('Select bar:'))
