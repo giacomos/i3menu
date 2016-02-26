@@ -14,7 +14,7 @@ class AbstractMenu(object):
     def target(self):
         return self._target
 
-    def __call__(self):
+    def __call__(self, debug=False):
         target = self.target
         entries = [
             '%s: %s' % (idx + 1, i['title'])
@@ -22,7 +22,7 @@ class AbstractMenu(object):
         idx = api._rofi(entries, _(self._prompt))
         action = safe_list_get(self._entries, idx, None)
         callback = action['callback']
-        return callback(target=target)
+        return callback(target=target, debug=debug)
 
 
 class MenuWindowActions(AbstractMenu):
@@ -33,6 +33,8 @@ class MenuWindowActions(AbstractMenu):
          'callback': commands.CmdMoveWindowToWorkspace()},
         {'title': _('Border style'),
          'callback': commands.CmdBorder()},
+        {'title': _('Split'),
+         'callback': commands.CmdSplit()},
         {'title': _('Floating (toggle)'),
          'callback': commands.CmdFloating(action='toggle')},
         {'title': _('Fullscreen (toggle)'),

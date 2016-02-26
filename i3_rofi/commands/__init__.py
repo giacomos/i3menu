@@ -17,6 +17,7 @@ from .rename_workspace import CmdRenameWorkspace
 from .restart import CmdRestart
 from .scratchpad_show import CmdScratchpadShow
 from .shmlog import CmdShmlog
+from .split import CmdSplit
 from .sticky import CmdSticky
 
 
@@ -40,6 +41,7 @@ def all_commands():
         CmdRestart,
         CmdScratchpadShow,
         CmdShmlog,
+        CmdSplit,
         CmdSticky,
     ]
     return {cmd._name: cmd for cmd in cmds}

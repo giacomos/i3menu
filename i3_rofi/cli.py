@@ -31,10 +31,10 @@ def run():
     if opt in all_menus.keys():
         Menu = all_menus[opt]
         menu = Menu()
-        menu()
+        menu(debug=args.debug)
     elif opt in all_commands.keys():
         Command = all_commands[opt]
         cmd = Command()
-        cmd()
+        cmd(debug=args.debug)
     else:
         sys.exit(errno.EINVAL)

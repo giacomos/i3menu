@@ -7,10 +7,9 @@ class AbstractCmd(object):
     _name = "AbstractCmd"
     _actions = []
 
-    def __init__(self, action=None, debug=False, **kwargs):
+    def __init__(self, action=None, **kwargs):
         self._target = None
         self._action = action
-        self.debug = debug
 
     def cmd(self):
         raise NotImplemented
@@ -38,12 +37,12 @@ class AbstractCmd(object):
     def selected_output(self):
         return api.rofi_select_output()
 
-    def __call__(self, target=None, *args, **kwargs):
+    def __call__(self, target=None, debug=False, *args, **kwargs):
         self._target = target
         cmd = self.cmd()
         if not cmd:
             return
-        return api.i3_command(cmd, debug=self.debug)
+        return api.i3_command(cmd, debug=debug)
 
 
 class AbstractWindowCmd(AbstractCmd):
