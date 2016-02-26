@@ -11,6 +11,20 @@ ROFI_PREFIX = '(i3-rofi)'
 i3 = i3ipc.Connection()
 
 
+class FakeOutput(object):
+    name = ''
+
+    def __init__(self, name):
+        self.name = name
+
+xrandr_directions = [
+    FakeOutput(u'left'),
+    FakeOutput(u'right'),
+    FakeOutput(u'up'),
+    FakeOutput(u'down'),
+]
+
+
 def i3_get_workspaces():
     return i3.get_workspaces()
 
@@ -127,15 +141,17 @@ def rofi_select_workspace(title=DEFAULT_TITLE, filter_fnc=None):
 def rofi_select_output(title=DEFAULT_TITLE, filter_fnc=None):
     entries_list = i3_get_active_outputs()
     entries_list = sorted(entries_list, key=lambda x: x.get('name'))
+    entries_list = xrandr_directions + entries_list
     if filter_fnc:
         entries_list = [e for e in filter(filter_fnc, entries_list)]
     options = []
     focused_output = i3_get_focused_output()
     for i, out in enumerate(entries_list):
-        current = out['name'] == focused_output \
-            and '(current)' or ''
-        label = '{idx}: {name} {current}'.format(
-            idx=i, name=out['name'], current=current)
+        name = isinstance(out, FakeOutput) and '<%s>' % out.name or out.name
+        name += out.name == focused_output.name \
+            and ' (current)' or ''
+        label = '{idx}: {name}'.format(
+            idx=i, name=name)
         options.append(label)
     if len(options) == 1:
         idx = 0

@@ -27,10 +27,11 @@ class AbstractMenu(object):
 
 class MenuWindowActions(AbstractMenu):
     _name = 'window_actions'
+    _prompt = "Window actions:"
     _entries = [
-        {'title': _('Move window to workspace:'),
+        {'title': _('Move window to workspace'),
          'callback': commands.CmdMoveWindowToWorkspace()},
-        {'title': _('Border'),
+        {'title': _('Border style'),
          'callback': commands.CmdBorder()},
         {'title': _('Floating (toggle)'),
          'callback': commands.CmdFloating(action='toggle')},
@@ -55,11 +56,12 @@ class MenuTargetWindowActions(MenuWindowActions):
 
 class MenuWorkspaceActions(AbstractMenu):
     _name = 'workspace_actions'
+    _prompt = "Workspace actions:"
 
     _entries = [
-        {'title': _('Move workspace to output:'),
+        {'title': _('Move workspace to output'),
          'callback': commands.CmdMoveWorkspaceToOutput()},
-        {'title': _('Rename workspace:'),
+        {'title': _('Rename workspace'),
          'callback': commands.CmdRenameWorkspace()},
     ]
 
@@ -74,6 +76,7 @@ class MenuTargetWorkspaceActions(MenuWorkspaceActions):
 
 class MenuBarActions(AbstractMenu):
     _name = 'bar_actions'
+    _prompt = "Bar actions:"
 
     _entries = [
         {'title': _('hidden_state'),
@@ -85,6 +88,7 @@ class MenuBarActions(AbstractMenu):
 
 class MenuScratchpadActions(AbstractMenu):
     _name = 'scratchpad_actions'
+    _prompt = "Scratchpad actions:"
 
     _entries = [
         {'title': _('Move window to the scratchpad'),
@@ -96,6 +100,7 @@ class MenuScratchpadActions(AbstractMenu):
 
 class MenuGotoActions(AbstractMenu):
     _name = 'goto_actions'
+    _prompt = "Go to actions:"
 
     _entries = [
         {'title': _('Go to workspace'),
@@ -105,6 +110,7 @@ class MenuGotoActions(AbstractMenu):
 
 class MenuGlobalActions(AbstractMenu):
     _name = 'global_actions'
+    _prompt = "Global actions:"
 
     _entries = [
         {'title': _('Debug log'),
