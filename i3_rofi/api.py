@@ -23,12 +23,16 @@ def i3_get_windows():
     return i3.get_tree().leaves()
 
 
+def i3_get_window():
+    return i3.get_tree().find_focused()
+
+
 def i3_get_scratchpad_windows():
     return i3.get_tree().scratchpad().leaves()
 
 
 def i3_get_focused_workspace():
-    win = i3.get_tree().find_focused()
+    win = i3_get_window()
     return win.workspace()
 
 

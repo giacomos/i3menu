@@ -1,13 +1,24 @@
 import argparse
+import sys
+import errno
 from i3_rofi import I3Rofi
+from . import commands
+from .utils import which
 
 
 def run():
+    if not which('rofi'):
+        sys.exit(errno.EINVAL)
+    i3rofi = I3Rofi()
+    all_commands = commands.all_commands()
+    all_menus = commands.all_menus()
+    all_choices = all_commands.keys() + all_menus.keys()
+
     parser = argparse.ArgumentParser(
         description='Provides rofi menus to interact with i3')
     parser.add_argument(
         "-m", "--menu", dest="menu", required=True,
-        choices=I3Rofi.menus,
+        choices=all_choices,
         help="Menu to display"
     )
     parser.add_argument(
@@ -15,5 +26,14 @@ def run():
         help="Display debug infos"
     )
     args = parser.parse_args()
-    i3rofi = I3Rofi(menu=args.menu, debug=args.debug)
-    i3rofi()
+    opt = args.menu
+    if opt in all_menus.keys():
+        Menu = all_menus[opt]
+        menu = Menu()
+        menu()
+    elif opt in all_commands.keys():
+        Command = all_commands[opt]
+        cmd = Command()
+        cmd()
+    else:
+        sys.exit(errno.EINVAL)
