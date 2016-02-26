@@ -32,8 +32,8 @@ or::
 Credits
 =======
 
-* partially inspired by `quickswitch-i3
-<https://pypi.python.org/pypi/quickswitch-i3>`_
+* partially inspired by `quickswitch-i3 <https://pypi.python.org/pypi/quickswitch-i3>`_
+
 
 License
 ========
