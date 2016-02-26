@@ -23,7 +23,7 @@ def read(*rnames):
 setup(
     name='i3menu',
     version=version,
-    description="a set of menus based on Rofi to interact with i3wm",
+    description="a set of menus based on Rofi or dmenu to interact with i3wm",
     long_description=read('README.rst') + '\n' + read('docs/HISTORY.rst'),
     # Get more strings from
     # http://pypi.python.org/pypi?:action=list_classifiers
@@ -32,7 +32,7 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.4",
     ],
-    keywords='i3 i3wm rofi',
+    keywords='i3 i3wm rofi dmenu',
     author='Giacomo Spettoli',
     author_email='giacomo.spettoli@gmail.com',
     url='https://github.com/giacomos/i3menu',
