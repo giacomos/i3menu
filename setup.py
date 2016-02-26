@@ -3,7 +3,7 @@ import codecs
 from setuptools import setup
 from setuptools import find_packages
 
-version = '2.0'
+version = '2.0.1'
 install_requires = [
     'setuptools',
     'i3ipc',
@@ -29,7 +29,7 @@ setup(
     # http://pypi.python.org/pypi?:action=list_classifiers
     classifiers=[
         "Development Status :: 4 - Beta",
-        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: Unix",
         "Topic :: Desktop Environment :: Window Managers",
         "Programming Language :: Python",
