@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .base import AbstractWorkspaceCmd
+from i3menu.commands.base import AbstractWorkspaceCmd
 from i3menu import api
 from i3menu import _
 

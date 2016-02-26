@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .base import AbstractCmd
+from i3menu.commands.base import AbstractCmd
 
 
 class CmdRestart(AbstractCmd):

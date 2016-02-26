@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .base import AbstractBarCmd
+from i3menu.commands.base import AbstractBarCmd
 
 
 class CmdBarHiddenState(AbstractBarCmd):

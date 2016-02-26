@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .base import AbstractScratchpadWindowCmd
+from i3menu.commands.base import AbstractScratchpadWindowCmd
 
 
 class CmdScratchpadShow(AbstractScratchpadWindowCmd):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .base import AbstractWindowCmd
+from i3menu.commands.base import AbstractWindowCmd
 
 
 class CmdMoveWindowToScratchpad(AbstractWindowCmd):

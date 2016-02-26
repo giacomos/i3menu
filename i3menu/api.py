@@ -2,12 +2,13 @@
 import i3ipc
 import subprocess
 import sys
-from . import DEFAULT_TITLE
-from .utils import which
-from .utils import safe_list_get
+from i3menu import _
+from i3menu.utils import which
+from i3menu.utils import safe_list_get
 from i3menu.utils import iteritems
 
 ROFI_PREFIX = '(i3menu)'
+DEFAULT_TITLE = _('Select:')
 
 i3 = i3ipc.Connection()
 

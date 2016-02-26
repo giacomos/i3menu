@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from . import api
-from . import _
-from .utils import safe_list_get
-from . import commands
+from i3menu import _
+from i3menu import api
+from i3menu import commands
+from i3menu.utils import safe_list_get
 
 
 class AbstractMenu(object):
