@@ -24,9 +24,8 @@ class AbstractCmd(object):
     def action(self):
         action = self._action
         if not action or action not in self._actions:
-            action = api.select(
-                self._actions,
-                title=self._name + ' - action:')
+            options = {a: a for a in self._actions}
+            action = api.menu(options, title=self._name + ' - action:')
         return action
 
     @property

@@ -7,7 +7,7 @@ from i3menu.utils import which
 from i3menu.utils import safe_list_get
 from i3menu.utils import iteritems
 
-ROFI_PREFIX = '(i3menu)'
+PROMPT_PREFIX = '(i3menu)'
 DEFAULT_TITLE = _('Select:')
 
 i3 = i3ipc.Connection()
@@ -81,38 +81,41 @@ def i3_command(cmd, debug=False):
     return res
 
 
-def _rofi(options, title=DEFAULT_TITLE, **kwargs):
-    rofi_cmd = which('rofi')
-    title = ' '.join([ROFI_PREFIX, title])
+def _menu(cmd, options, title=DEFAULT_TITLE, **kwargs):
+    title = ' '.join([PROMPT_PREFIX, title])
     safe_title = '"%s"' % title
-    rofi_args = {'format': 'i'}
-    rofi_args.update(kwargs)
-    rofi_args_list = ['-dmenu', '-p', safe_title]
-    for k, v in iteritems(rofi_args):
-        rofi_args_list.append('-' + k)
+    # cmd_args = {'format': 'i'}
+    cmd_args = {}
+    cmd_args.update(kwargs)
+    cmd_args_list = ['-p', safe_title]
+    if 'rofi' in cmd:
+        cmd_args_list = ['-dmenu'] + cmd_args_list
+    for k, v in iteritems(cmd_args):
+        cmd_args_list.append('-' + k)
         if isinstance(v, str):
-            rofi_args_list.append(v)
+            cmd_args_list.append(v)
         else:
-            rofi_args_list.extend(list(v))
-    cmd = 'echo "{options}" | {rofi} {rofi_args}'.format(
-        rofi=rofi_cmd,
-        rofi_args=' '.join(rofi_args_list),
+            cmd_args_list.extend(list(v))
+    cmd = 'echo "{options}" | {cmd} {cmd_args}'.format(
+        cmd=cmd,
+        cmd_args=' '.join(cmd_args_list),
         options='\n'.join(options),
         title=title,
     )
     proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
-    return proc.stdout.read().decode('utf-8').strip('\n')
-
-
-def _dmenu(options, title=DEFAULT_TITLE, **kwargs):
-    pass
+    label = proc.stdout.read().decode('utf-8').strip('\n')
+    return options.get(label)
 
 
 def menu(options, title=DEFAULT_TITLE, **kwargs):
+    cmd = None
     if which('rofi'):
-        return _rofi(options, title=title, **kwargs)
+        cmd = which('rofi')
     elif which('dmenu'):
-        return _dmenu(options, title=title, **kwargs)
+        cmd = which('dmenu')
+    else:
+        sys.exit('Either dmenu or rofi commands are required')
+    return _menu(cmd, options, title=title, **kwargs)
 
 
 def select(options, title=DEFAULT_TITLE):
@@ -127,8 +130,10 @@ def select(options, title=DEFAULT_TITLE):
 
 def select_bar(title=DEFAULT_TITLE, filter_fnc=None):
     entries_list = i3_get_bar_ids()
-    options = sorted(entries_list)
-    return select(options, title=title)
+    if len(entries_list) == 1:
+        return entries_list[0]
+    options = {i: i for i in sorted(entries_list)}
+    return menu(options, title=title)
 
 
 def select_workspace(title=DEFAULT_TITLE, filter_fnc=None):
@@ -136,20 +141,16 @@ def select_workspace(title=DEFAULT_TITLE, filter_fnc=None):
     entries_list = sorted(entries_list, key=lambda x: x.name)
     if filter_fnc:
         entries_list = [e for e in filter(filter_fnc, entries_list)]
-    options = []
+    options = {}
     for ws in entries_list:
         current = ws['focused'] and ' (current)' or ''
         label = '{name} {current}'.format(
             name=ws['name'], current=current)
-        options.append(label)
-    if len(options) == 1:
-        idx = 0
+        options[label] = ws
+    if len(options.keys()) == 1:
+        return options.values()[0]
     else:
-        idx = menu(options, title=title)
-    ws = safe_list_get(entries_list, idx, None)
-    if not ws:
-        sys.exit()
-    return ws
+        return menu(options, title=title)
 
 
 def select_output(title=DEFAULT_TITLE, filter_fnc=None):
@@ -158,7 +159,7 @@ def select_output(title=DEFAULT_TITLE, filter_fnc=None):
     entries_list = xrandr_directions + entries_list
     if filter_fnc:
         entries_list = [e for e in filter(filter_fnc, entries_list)]
-    options = []
+    options = {}
     focused_output = i3_get_focused_output()
     for i, out in enumerate(entries_list):
         name = isinstance(out, FakeOutput) and '<%s>' % out.name or out.name
@@ -166,15 +167,11 @@ def select_output(title=DEFAULT_TITLE, filter_fnc=None):
             and ' (current)' or ''
         label = '{idx}: {name}'.format(
             idx=i, name=name)
-        options.append(label)
-    if len(options) == 1:
-        idx = 0
+        options[label] = out
+    if len(options.keys()) == 1:
+        return options.values()[0]
     else:
-        idx = menu(options, title=title)
-    ws = safe_list_get(entries_list, idx, None)
-    if not ws:
-        sys.exit()
-    return ws
+        return menu(options, title=title)
 
 
 def select_window(title=DEFAULT_TITLE, scratchpad=False):
@@ -187,14 +184,10 @@ def select_window(title=DEFAULT_TITLE, scratchpad=False):
             winclass=win.window_class.encode('utf-8'),
             title=win.name.encode('utf-8'))
         entries.append(entry)
-    options = [
-        '{idx}: {entry}'.format(idx=i + 1, entry=e)
-        for i, e in enumerate(entries)]
-    if len(options) == 1:
-        idx = 0
+    options = {
+        '{idx}: {entry}'.format(idx=i + 1, entry=e): e
+        for i, e in enumerate(entries)}
+    if len(options.keys()) == 1:
+        return options.values()[0]
     else:
-        idx = menu(options, title=title)
-    ws = safe_list_get(entries_list, idx, None)
-    if not ws:
-        sys.exit()
-    return ws
+        return menu(options, title=title)
