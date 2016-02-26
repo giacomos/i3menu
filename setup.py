@@ -30,6 +30,7 @@ setup(
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
     ],
     keywords='i3 i3wm rofi',
     author='Giacomo Spettoli',
