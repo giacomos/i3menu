@@ -4,6 +4,7 @@ import errno
 from i3menu import commands
 from i3menu import menus
 from i3menu.utils import which
+from i3menu.utils import iteritems
 
 
 def run():
@@ -11,7 +12,7 @@ def run():
         sys.exit(errno.EINVAL)
     all_commands = commands.all_commands()
     all_actions = set()
-    for k, cmd in all_commands.iteritems():
+    for k, cmd in iteritems(all_commands):
         all_actions |= set(cmd._actions)
     all_menus = menus.all_menus()
 
@@ -37,12 +38,12 @@ def run():
         "-c", "--command", dest="command", help="Command to execute", metavar='<command>',
         choices=all_commands.keys()
     )
-    for k, cmd in all_commands.iteritems():
+    for k, cmd in iteritems(all_commands):
         mutgrp.add_argument(
             '--' + k, help=cmd._description,
             dest='cmd', action='append_const', const=cmd)
     args = parser.parse_args()
-    res = {}
+    res = []
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
@@ -67,6 +68,7 @@ def run():
         res = cmd(debug=args.debug)
     if not res:
         sys.exit(errno.EINVAL)
+    res = res[0]
     if res.get('success'):
         sys.exit()
     else:

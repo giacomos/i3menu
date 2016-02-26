@@ -5,6 +5,7 @@ import sys
 from . import DEFAULT_TITLE
 from .utils import which
 from .utils import safe_list_get
+from i3menu.utils import iteritems
 
 ROFI_PREFIX = '(i3menu)'
 
@@ -86,7 +87,7 @@ def _rofi(options, title=DEFAULT_TITLE, **kwargs):
     rofi_args = {'format': 'i'}
     rofi_args.update(kwargs)
     rofi_args_list = ['-dmenu', '-p', safe_title]
-    for k, v in rofi_args.iteritems():
+    for k, v in iteritems(rofi_args):
         rofi_args_list.append('-' + k)
         if isinstance(v, str):
             rofi_args_list.append(v)
@@ -99,7 +100,7 @@ def _rofi(options, title=DEFAULT_TITLE, **kwargs):
         title=title,
     )
     proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
-    return proc.stdout.read().strip('\n')
+    return proc.stdout.read().decode('utf-8').strip('\n')
 
 
 def rofi_select(options, title=DEFAULT_TITLE):
