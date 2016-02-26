@@ -1,0 +1,6 @@
+include *.rst
+
+graft docs
+graft i3menu
+
+global-exclude *.pyc
