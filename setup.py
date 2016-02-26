@@ -11,7 +11,7 @@ install_requires = [
 ]
 
 console_scripts = [
-    'i3-rofi = i3_rofi.cli:run',
+    'i3menu = i3menu.cli:run',
 ]
 
 
@@ -21,7 +21,7 @@ def read(*rnames):
 
 
 setup(
-    name='i3-rofi',
+    name='i3menu',
     version=version,
     description="a set of menus based on Rofi to interact with i3wm",
     long_description=read('README.rst') + '\n' + read('docs/HISTORY.rst'),
@@ -34,7 +34,7 @@ setup(
     keywords='i3 i3wm rofi',
     author='Giacomo Spettoli',
     author_email='giacomo.spettoli@gmail.com',
-    url='https://github.com/giacomos/i3-rofi',
+    url='https://github.com/giacomos/i3menu',
     license='GPL',
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,

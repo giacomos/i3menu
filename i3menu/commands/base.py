@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from i3_rofi import api
-from i3_rofi import _
+from i3menu import api
+from i3menu import _
 
 
 class AbstractCmd(object):

@@ -1,9 +1,9 @@
 import argparse
 import sys
 import errno
-from i3_rofi import commands
-from i3_rofi import menus
-from i3_rofi.utils import which
+from i3menu import commands
+from i3menu import menus
+from i3menu.utils import which
 
 
 def run():
@@ -17,7 +17,7 @@ def run():
 
     parser = argparse.ArgumentParser(
         description='Provides rofi menus to interact with i3',
-        prog='i3-rofi', version='2.0')
+        prog='i3menu', version='2.0')
     parser.add_argument(
         "-d", "--debug", action='store_true',
         help="Debug, print the i3 command before executing it"
@@ -43,7 +43,7 @@ def run():
             dest='cmd', action='append_const', const=cmd)
     args = parser.parse_args()
     res = {}
-    if len(sys.argv)==1:
+    if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
     if args.cmd:

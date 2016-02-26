@@ -4,7 +4,7 @@ import gettext
 
 # https://wiki.maemo.org/Internationalize_a_Python_application
 
-APP_NAME = "i3-rofi"
+APP_NAME = "i3menu"
 
 APP_DIR = os.getcwd()
 LOCALE_DIR = os.path.join(APP_DIR, 'locale')

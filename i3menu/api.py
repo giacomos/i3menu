@@ -6,7 +6,7 @@ from . import DEFAULT_TITLE
 from .utils import which
 from .utils import safe_list_get
 
-ROFI_PREFIX = '(i3-rofi)'
+ROFI_PREFIX = '(i3menu)'
 
 i3 = i3ipc.Connection()
 
@@ -74,7 +74,7 @@ def i3_get_bar_ids():
 
 def i3_command(cmd, debug=False):
     if debug:
-        print cmd
+        print(cmd)
     res = i3.command(cmd)
     return res
 
