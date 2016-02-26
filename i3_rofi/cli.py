@@ -1,7 +1,6 @@
 import argparse
 import sys
 import errno
-from i3_rofi import I3Rofi
 from . import commands
 from . import menus
 from .utils import which
@@ -10,7 +9,6 @@ from .utils import which
 def run():
     if not which('rofi'):
         sys.exit(errno.EINVAL)
-    i3rofi = I3Rofi()
     all_commands = commands.all_commands()
     all_menus = menus.all_menus()
     all_choices = all_commands.keys() + all_menus.keys()
