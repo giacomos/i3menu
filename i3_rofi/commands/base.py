@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-from .. import api
-from .. import _
+from i3_rofi import api
+from i3_rofi import _
 
 
 class AbstractCmd(object):
+    """ Abstract command """
     _name = "AbstractCmd"
+    _description = ''
     _actions = []
 
     def __init__(self, action=None, **kwargs):
@@ -22,7 +24,9 @@ class AbstractCmd(object):
     def action(self):
         action = self._action
         if not action or action not in self._actions:
-            action = api.rofi_select(self._actions, title='action:')
+            action = api.rofi_select(
+                self._actions,
+                title=self._name + ' - action:')
         return action
 
     @property

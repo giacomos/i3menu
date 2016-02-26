@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from .base import AbstractWorkspaceCmd
-from .. import api
-from .. import _
+from i3_rofi import api
+from i3_rofi import _
 
 
 class CmdRenameWorkspace(AbstractWorkspaceCmd):

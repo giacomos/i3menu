@@ -75,7 +75,8 @@ def i3_get_bar_ids():
 def i3_command(cmd, debug=False):
     if debug:
         print cmd
-    i3.command(cmd)
+    res = i3.command(cmd)
+    return res
 
 
 def _rofi(options, title=DEFAULT_TITLE, **kwargs):

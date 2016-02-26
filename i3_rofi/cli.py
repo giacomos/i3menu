@@ -1,38 +1,76 @@
 import argparse
 import sys
 import errno
-from . import commands
-from . import menus
-from .utils import which
+from i3_rofi import commands
+from i3_rofi import menus
+from i3_rofi.utils import which
 
 
 def run():
     if not which('rofi'):
         sys.exit(errno.EINVAL)
     all_commands = commands.all_commands()
+    all_actions = set()
+    for k, cmd in all_commands.iteritems():
+        all_actions |= set(cmd._actions)
     all_menus = menus.all_menus()
-    all_choices = all_commands.keys() + all_menus.keys()
 
     parser = argparse.ArgumentParser(
-        description='Provides rofi menus to interact with i3')
-    parser.add_argument(
-        "-m", "--menu", dest="menu", required=True,
-        choices=all_choices,
-        help="Menu to display"
-    )
+        description='Provides rofi menus to interact with i3',
+        prog='i3-rofi', version='2.0')
     parser.add_argument(
         "-d", "--debug", action='store_true',
-        help="Display debug infos"
+        help="Debug, print the i3 command before executing it"
     )
+    # parser.add_argument(
+    #     "action",
+    #     choices=all_actions,
+    #     help=""
+    # )
+
+    mutgrp = parser.add_mutually_exclusive_group()
+    mutgrp.add_argument(
+        "-m", "--menu", dest="menu", help="Menu to display", metavar='<menu>',
+        choices=all_menus.keys()
+    )
+    mutgrp.add_argument(
+        "-c", "--command", dest="command", help="Command to execute", metavar='<command>',
+        choices=all_commands.keys()
+    )
+    for k, cmd in all_commands.iteritems():
+        mutgrp.add_argument(
+            '--' + k, help=cmd._description,
+            dest='cmd', action='append_const', const=cmd)
     args = parser.parse_args()
-    opt = args.menu
-    if opt in all_menus.keys():
-        Menu = all_menus[opt]
+    res = {}
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit(1)
+    if args.cmd:
+        Command = args.cmd[0]
+        if args.action in Command._actions:
+            cmd = Command(args.action)
+        else:
+            cmd = Command()
+        res = cmd(debug=args.debug)
+    elif args.menu:
+        Menu = all_menus.get(args.menu)
+        if not Menu:
+            sys.exit(errno.EINVAL)
         menu = Menu()
-        menu(debug=args.debug)
-    elif opt in all_commands.keys():
-        Command = all_commands[opt]
+        res = menu(debug=args.debug)
+    elif args.command:
+        Command = all_commands.get(args.command)
+        if not Command:
+            sys.exit(errno.EINVAL)
         cmd = Command()
-        cmd(debug=args.debug)
-    else:
+        res = cmd(debug=args.debug)
+    if not res:
         sys.exit(errno.EINVAL)
+    if res.get('success'):
+        sys.exit()
+    else:
+        sys.exit('Error: ' + res.get('error'))
+
+if __name__ == '__main__':
+    run()

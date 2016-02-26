@@ -3,10 +3,12 @@ from .base import AbstractWindowCmd
 
 
 class CmdFloating(AbstractWindowCmd):
-    """ http://i3wm.org/docs/userguide.html#_manipulating_layout
+    """ To make the current window floating (or tiling again)
+        use floating enable respectively floating disable (or floating toggle)
     """
 
     _name = 'floating'
+    _doc_url = 'http://i3wm.org/docs/userguide.html#_manipulating_layout'
     _actions = ['enable', 'disable', 'toggle']
 
     def cmd(self):
