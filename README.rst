@@ -3,7 +3,7 @@ Introduction
 
 **i3menu** provides a useful set of menus based on `Rofi
 <https://davedavenport.github.io/rofi>`_  and `dmenu
-<http://tools.suckless.org/dmenu/>`_ to interact with `i3wm
+<http://tools.suckless.org/dmenu/>`_ that will help you manage you `i3wm
 <http://i3wm.org>`_.
 
 Requirements
@@ -17,7 +17,7 @@ dmenu is pretty easy to install::
 
     sudo apt-get install suckless-tools
 
-But `Rofi` is way much nicer. To install it follow its the `installation guide
+But `Rofi` is way much nicer. To install it follow its `installation guide
 <https://davedavenport.github.io/rofi/p08-INSTALL.html>`_.
 
 Installation
@@ -38,13 +38,16 @@ path::
 
 Usage
 =====
-You can use i3menu directly from the command line::
+For a complete list of the command line parameters you can check the help::
 
     $ i3menu --help
 
-or::
+Any available menu can be run like this::
 
     $ i3menu window_actions
+
+I3WM config
+================
 
 You can add i3menu to your i3 config. For example::
 
