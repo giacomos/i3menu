@@ -36,6 +36,12 @@ path::
 
     $ PATH=$PATH:~/.local/bin
 
+To make this change permanent, you can add to your `.profile` file this::
+
+    if [ -d "$HOME/.local/bin" ] ; then
+        PATH="$PATH:$HOME/.local/bin"
+    fi
+
 Usage
 =====
 For a complete list of the command line parameters you can check the help::
