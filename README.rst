@@ -22,11 +22,18 @@ But `Rofi` is way much nicer. To install it follow its `installation guide
 
 Installation
 ============
-`i3menu` can be installed with ::
+`i3menu` can be installed directly from `pypi
+<https://pypi.python.org/pypi/i3menu>`_ like this::
     
     $ pip install i3menu
 
-This will add a script in your local bin path, `~/.local/bin`. If your $PATH
+Or from source code like this::
+
+    $ git clone https://github.com/giacomos/i3menu.git
+    $ cd i3menu
+    $ make install
+
+Whatever installation method you choosed, you will end up having a script in your local bin path, `~/.local/bin`. If your $PATH
 is set up correctly, now you should be able to run i3menu::
 
     $ i3menu -h
