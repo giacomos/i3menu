@@ -1,9 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import argparse
 import sys
 import errno
 from i3menu import commands
 from i3menu import menus
-from i3menu.utils import which
 from i3menu.utils import iteritems
 
 

@@ -4,15 +4,6 @@ from setuptools import setup
 from setuptools import find_packages
 
 version = '2.0.3'
-install_requires = [
-    'setuptools',
-    'i3ipc',
-    'argparse',
-]
-
-console_scripts = [
-    'i3menu = i3menu.cli:run',
-]
 
 
 def read(*rnames):
@@ -24,7 +15,10 @@ setup(
     name='i3menu',
     version=version,
     description="a set of menus based on Rofi or dmenu to interact with i3wm",
-    long_description=read('README.rst') + '\n' + read('docs/HISTORY.rst'),
+    long_description='\n\n'.join((
+        read('README.rst'),
+        read('docs/HISTORY.rst')
+    )),
     # Get more strings from
     # http://pypi.python.org/pypi?:action=list_classifiers
     classifiers=[
@@ -44,6 +38,13 @@ setup(
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     zip_safe=False,
-    install_requires=install_requires,
-    entry_points={'console_scripts': console_scripts}
+    install_requires=[
+        'setuptools',
+        'i3ipc',
+        'argparse',
+    ],
+    scripts=['i3menu/i3menu'],
+    entry_points="""
+          # -*- Entry points: -*-
+        """,
 )
