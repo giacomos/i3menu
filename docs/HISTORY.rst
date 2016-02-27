@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.0.5 (2016-02-27)
+------------------
+
+- move script to bin dir and source code under lib [giacomos]
+
 2.0.4 (2016-02-27)
 ------------------
 

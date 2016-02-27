@@ -1,9 +1,18 @@
 import os
+import sys
 import codecs
-from setuptools import setup
-from setuptools import find_packages
 
-version = '2.0.4'
+sys.path.insert(0, os.path.abspath('lib'))
+from i3menu import __version__, __author__
+
+try:
+    from setuptools import setup
+    from setuptools import find_packages
+except ImportError:
+    print("i3menu needs setuptools in order to build. Install it using"
+          " your package manager (usually python-setuptools) or via pip (pip"
+          " install setuptools).")
+    sys.exit(1)
 
 
 def read(*rnames):
@@ -13,7 +22,7 @@ def read(*rnames):
 
 setup(
     name='i3menu',
-    version=version,
+    version=__version__,
     description="a set of menus based on Rofi or dmenu to interact with i3wm",
     long_description='\n\n'.join((
         read('README.rst'),
@@ -31,11 +40,12 @@ setup(
         "Programming Language :: Python :: 3",
     ],
     keywords='i3 i3wm rofi dmenu',
-    author='Giacomo Spettoli',
+    author=__author__,
     author_email='giacomo.spettoli@gmail.com',
     url='https://github.com/giacomos/i3menu',
-    license='GPL',
-    packages=find_packages(exclude=['ez_setup']),
+    license='GPLv3',
+    package_dir={'': 'lib'},
+    packages=find_packages('lib'),
     include_package_data=True,
     zip_safe=False,
     install_requires=[
@@ -43,7 +53,9 @@ setup(
         'i3ipc',
         'argparse',
     ],
-    scripts=['i3menu/i3menu'],
+    scripts=[
+        'bin/i3menu'
+    ],
     entry_points="""
           # -*- Entry points: -*-
         """,

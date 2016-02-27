@@ -3,6 +3,7 @@
 import argparse
 import sys
 import errno
+from i3menu import __version__
 from i3menu import commands
 from i3menu import menus
 from i3menu.utils import iteritems
@@ -18,7 +19,7 @@ def run():
 
     parser = argparse.ArgumentParser(
         description='Provides rofi menus to interact with i3',
-        prog='i3menu', version='2.0')
+        prog='i3menu', version=__version__)
     parser.add_argument(
         "-d", "--debug", action='store_true',
         help="Debug, print the i3 command before executing it"

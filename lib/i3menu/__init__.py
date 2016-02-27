@@ -6,3 +6,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 _ = i18n.language.gettext
+
+__version__ = '2.0.5'
+__author__ = 'Giacomo Spettoli'

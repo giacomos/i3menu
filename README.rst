@@ -42,6 +42,8 @@ To make this change permanent, you can add to your `.profile` file this::
         PATH="$PATH:$HOME/.local/bin"
     fi
 
+This change will be permanent at your next login.
+
 Usage
 =====
 For a complete list of the command line parameters you can check the help::
