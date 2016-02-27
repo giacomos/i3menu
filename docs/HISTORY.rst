@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.0.4 (2016-02-27)
+------------------
+
+- move from console_scripts to script, cli.py -> i3menu, improve README [giacomos]
+
 2.0.3 (2016-02-26)
 ------------------
 
