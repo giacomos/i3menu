@@ -6,6 +6,20 @@ Introduction
 <http://tools.suckless.org/dmenu/>`_ to interact with `i3wm
 <http://i3wm.org>`_.
 
+Requirements
+============
+
+`i3menu` requires either `Rofi
+<https://davedavenport.github.io/rofi>`_  or `dmenu
+<http://tools.suckless.org/dmenu/>`_ to work.
+
+dmenu is pretty easy to install::
+
+    sudo apt-get install suckless-tools
+
+But `Rofi` is way much nicer. To install it follow its the `installation guide
+<https://davedavenport.github.io/rofi/p08-INSTALL.html>`_.
+
 Installation
 ============
 `i3menu` can be installed with ::
