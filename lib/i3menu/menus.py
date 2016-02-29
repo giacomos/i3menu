@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 from i3menu import _
 from i3menu import api
 from i3menu import commands
@@ -7,18 +8,22 @@ from i3menu import commands
 class AbstractMenu(object):
     _entries = []
     _prompt = 'Menu:'
-    _target = None
-
-    @property
-    def target(self):
-        return self._target
 
     def __init__(self, context=None):
         self.context = context
 
+    @property
+    def target(self):
+        return self.context.get('target')
+
     def __call__(self):
-        options = {i['title']: i['callback']for i in self._entries}
-        Command = api.menu(options, _(self._prompt))
+        options = OrderedDict()
+        for i in self._entries:
+            options[i['title']] = i['callback']
+        self.context['target'] = self.target
+        Command = api.select(options, _(self._prompt))
+        if not Command:
+            return
         cmd = Command(context=self.context)
         return cmd()
 

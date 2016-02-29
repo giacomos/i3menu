@@ -7,5 +7,5 @@ logger = logging.getLogger(__name__)
 
 _ = i18n.language.gettext
 
-__version__ = '2.0.5'
+__version__ = '2.0.6.dev0'
 __author__ = 'Giacomo Spettoli'

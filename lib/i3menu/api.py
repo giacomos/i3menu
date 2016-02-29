@@ -2,6 +2,7 @@
 import i3ipc
 import subprocess
 import sys
+from collections import OrderedDict
 from i3menu import _
 from i3menu import logger
 from i3menu.utils import which
@@ -9,21 +10,23 @@ from i3menu.utils import iteritems
 
 PROMPT_PREFIX = '(i3menu)'
 DEFAULT_TITLE = _('Select:')
+LABEL_GENERIC = '{idx}: {entry}'
+LABEL_WINDOW = '{idx}: {window_class}\t{name}'
+LABEL_OUTPUT = '{idx}: {name}{current}'
+LABEL_WORKSPACE = '{name}{current}'
 
 i3 = i3ipc.Connection()
 
+XRANDR_DIRECTION_LEFT = {'name': u'left'}
+XRANDR_DIRECTION_RIGHT = {'name': u'right'}
+XRANDR_DIRECTION_UP = {'name': u'up'}
+XRANDR_DIRECTION_DOWN = {'name': u'down'}
 
-class FakeOutput(object):
-    name = ''
-
-    def __init__(self, name):
-        self.name = name
-
-xrandr_directions = [
-    FakeOutput(u'left'),
-    FakeOutput(u'right'),
-    FakeOutput(u'up'),
-    FakeOutput(u'down'),
+XRANDR_DIRECTIONS = [
+    XRANDR_DIRECTION_LEFT,
+    XRANDR_DIRECTION_RIGHT,
+    XRANDR_DIRECTION_UP,
+    XRANDR_DIRECTION_DOWN
 ]
 
 
@@ -121,66 +124,85 @@ def menu(options, title=DEFAULT_TITLE, context=None):
     return _menu(cmd, options, title=title, context=context)
 
 
+def select(entries, title=DEFAULT_TITLE, context=None):
+    options = OrderedDict()
+    idx = 1
+    for k, v in iteritems(entries):
+        params = {}
+        params['idx'] = idx
+        params['entry'] = k
+        label = LABEL_GENERIC.format(**params)
+        options[label] = v
+        idx += 1
+    return menu(options, title=title, context=context)
+
+
 def select_bar(title=DEFAULT_TITLE, filter_fnc=None, context=None):
     entries_list = i3_get_bar_ids()
     if len(entries_list) == 1:
         return entries_list[0]
-    options = {i: i for i in sorted(entries_list)}
+    options = OrderedDict()
+    for i in sorted(entries_list):
+        options[i] = i
     return menu(options, title=title, context=context)
 
 
 def select_workspace(title=DEFAULT_TITLE, filter_fnc=None, context=None):
-    entries_list = i3_get_workspaces()
-    entries_list = sorted(entries_list, key=lambda x: x.name)
+    workspaces = i3_get_workspaces()
+    workspaces = sorted(workspaces, key=lambda x: x.name)
     if filter_fnc:
-        entries_list = [e for e in filter(filter_fnc, entries_list)]
-    options = {}
-    for ws in entries_list:
-        current = ws['focused'] and ' (current)' or ''
-        label = '{name} {current}'.format(
-            name=ws['name'], current=current)
+        workspaces = [e for e in filter(filter_fnc, workspaces)]
+    if len(workspaces) == 1:
+        return workspaces[0]
+    options = OrderedDict()
+    for i, ws in enumerate(workspaces):
+        params = ws.copy()
+        params['idx'] = i + 1
+        params['current'] = ws['focused'] and ' (current)' or ''
+        label = LABEL_WORKSPACE.format(**params)
         options[label] = ws
-    if len(options.keys()) == 1:
-        return options.values()[0]
-    else:
-        return menu(options, title=title, context=context)
+    return menu(options, title=title, context=context)
 
 
 def select_output(title=DEFAULT_TITLE, filter_fnc=None, context=None):
-    entries_list = i3_get_active_outputs()
-    entries_list = sorted(entries_list, key=lambda x: x.get('name'))
-    entries_list = xrandr_directions + entries_list
+    outputs = i3_get_active_outputs()
+    outputs = sorted(outputs, key=lambda x: x.get('name'))
+    outputs = XRANDR_DIRECTIONS + outputs
     if filter_fnc:
-        entries_list = [e for e in filter(filter_fnc, entries_list)]
-    options = {}
+        outputs = [e for e in filter(filter_fnc, outputs)]
+    if len(outputs) == 1:
+        return outputs[0]
+    options = OrderedDict()
     focused_output = i3_get_focused_output()
-    for i, out in enumerate(entries_list):
-        name = isinstance(out, FakeOutput) and '<%s>' % out.name or out.name
-        name += out.name == focused_output.name \
+    for i, out in enumerate(outputs):
+        params = out.copy()
+        params['idx'] = i + 1
+        params['current'] = out.get('name') == focused_output.name \
             and ' (current)' or ''
-        label = '{idx}: {name}'.format(
-            idx=i, name=name)
+        label = LABEL_OUTPUT.format(**params)
         options[label] = out
-    if len(options.keys()) == 1:
-        return options.values()[0]
-    else:
-        return menu(options, title=title, context=context)
+    return menu(options, title=title, context=context)
 
 
 def select_window(title=DEFAULT_TITLE, scratchpad=False, context=None):
-    entries = []
-    entries_list = i3_get_windows()
+    wins = i3_get_windows()
     if scratchpad:
-        entries_list = i3_get_scratchpad_windows()
-    for win in entries_list:
-        entry = '{winclass}\t{title}'.format(
-            winclass=win.window_class.encode('utf-8'),
-            title=win.name.encode('utf-8'))
-        entries.append(entry)
-    options = {
-        '{idx}: {entry}'.format(idx=i + 1, entry=e): e
-        for i, e in enumerate(entries)}
-    if len(options.keys()) == 1:
-        return options.values()[0]
-    else:
-        return menu(options, title=title, context=context)
+        wins = i3_get_scratchpad_windows()
+    wins = sorted(wins, key=lambda x: x.window_class)
+    if len(wins) == 1:
+        return wins[0]
+    options = OrderedDict()
+    current_win = i3_get_window()
+    for i, win in enumerate(wins):
+        params = {
+            'window_class': win.window_class.encode('utf-8'),
+            'name': win.name.encode('utf-8'),
+            'idx': i + 1,
+            'type': win.type,
+            'window': win.window,
+            'window_instance': win.window_instance,
+            'current': win == current_win and ' (current)' or ''
+        }
+        label = LABEL_WINDOW.format(**params)
+        options[label] = win
+    return menu(options, title=title, context=context)

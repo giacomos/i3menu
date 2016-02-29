@@ -10,8 +10,6 @@ class AbstractCmd(object):
     _actions = []
 
     def __init__(self, context=None):
-        self._target = context.get('target')
-        self._action = context.get('action')
         self.context = context
 
     def cmd(self):
@@ -19,14 +17,14 @@ class AbstractCmd(object):
 
     @property
     def target(self):
-        return self._target
+        return self.context.get('target')
 
     @property
     def action(self):
-        action = self._action
+        action = self.context.get('action')
         if not action or action not in self._actions:
             options = {a: a for a in self._actions}
-            action = api.menu(
+            action = api.select(
                 options,
                 title=self._name + ' - action:',
                 context=self.context)
@@ -44,8 +42,7 @@ class AbstractCmd(object):
     def selected_output(self):
         return api.select_output(context=self.context)
 
-    def __call__(self, target=None):
-        self._target = target
+    def __call__(self):
         cmd = self.cmd()
         if not cmd:
             return
@@ -56,14 +53,14 @@ class AbstractWindowCmd(AbstractCmd):
 
     @property
     def target(self):
-        return self._target or api.i3_get_window()
+        return self.context.get('target') or api.i3_get_window()
 
 
 class AbstractScratchpadWindowCmd(AbstractCmd):
 
     @property
     def target(self):
-        return self._target or api.select_window(
+        return self.context.get('target') or api.select_window(
             scratchpad=True, context=self.context)
 
 
@@ -78,6 +75,6 @@ class AbstractBarCmd(AbstractCmd):
 
     @property
     def target(self):
-        return self._target or api.select_bar(
+        return self.context.get('target') or api.select_bar(
             _('Select bar:'),
             context=self.context)
