@@ -11,6 +11,7 @@ PYTHON:=$(shell which python 2>/dev/null)
 PIP:=$(shell which pip 2>/dev/null)
 FLAKE8=$(shell which flake8 2>/dev/null)
 WHEEL=$(shell $(PYTHON) -c "import wheel")
+VIRTUALENV_DIR := $(CURDIR)/venv
 ifndef PYTHON
     $(error "python is not available. For debian like systems you can run: sudo apt-get install python")
 endif
@@ -40,6 +41,15 @@ help:
 	@echo "    PYTHON = $(PYTHON)"
 	@echo "    PIP = $(PIP)"
 
+venv: ${VIRTUALENV_DIR}/bin/activate
+${VIRTUALENV_DIR}/bin/activate:
+	test -d ${VIRTUALENV_DIR} || virtualenv ${VIRTUALENV_DIR}
+	${VIRTUALENV_DIR}/bin/pip install pdbpp
+	touch ${VIRTUALENV_DIR}/bin/activate
+
+develop: venv
+	${VIRTUALENV_DIR}/bin/python setup.py develop
+
 python:
 	$(PYTHON) setup.py build
 
@@ -58,7 +68,7 @@ sdist_upload: clean
 bdist_wheel: clean
 	test -x "$(WHEEL)" || $(PIP) install wheel
 	$(PYTHON) setup.py bdist_wheel --universal
-	
+
 bdist_wheel_upload: clean
 	test -x "$(WHEEL)" || $(PIP) install wheel
 	$(PYTHON) setup.py bdist_wheel --universal upload 2>&1 | tee upload.log
@@ -71,6 +81,7 @@ clean:
 	@echo "Cleaning up distutils stuff"
 	rm -rf build
 	rm -rf dist
+	rm -rf ${VIRTUALENV_DIR}
 	rm -rf lib/i3menu.egg-info/
 	@echo "Cleaning up byte compiled python stuff"
 	find . -type f -regex ".*\.py[co]$$" -delete
