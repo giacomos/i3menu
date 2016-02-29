@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.0.6 (unreleased)
+------------------
+
+- fix targets in windows and workspace actions [giacomos]
+- fix menu ordering and add the entries' numbers [giacomos]
+
 2.0.5 (2016-02-27)
 ------------------
 

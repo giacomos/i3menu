@@ -7,6 +7,7 @@ from i3menu import __version__
 from i3menu import commands
 from i3menu import menus
 from i3menu.utils import iteritems
+from i3menu.config import DEFAULTS
 
 
 def run():
@@ -30,6 +31,24 @@ def run():
         help="Force the use of a menu provider"
     )
     parser.add_argument(
+        "--label-workspace-format", dest='label_workspace_format',
+        default=DEFAULTS.get('label_workspace'), metavar='<format>',
+        help="Custom label format for workspaces menu. Default: \"{default}\"".format(  # noqa
+            default=DEFAULTS.get('label_workspace'))
+    )
+    parser.add_argument(
+        "--label-output-format", dest='label_output_format',
+        default=DEFAULTS.get('label_output'), metavar='<format>',
+        help="Custom label format for outputs menu. Default: \"{default}\"".format(  # noqa
+            default=DEFAULTS.get('label_output'))
+    )
+    parser.add_argument(
+        "--label-window-format", dest='label_window_format',
+        default=DEFAULTS.get('label_window'), metavar='<format>',
+        help="Custom label format for windows menu. Default: \"{default}\"".format(  # noqa
+            default=DEFAULTS.get('label_window'))
+    )
+    parser.add_argument(
         "--action", dest='action', metavar='<action>',
         choices=all_actions,
         help="""Command action. Depending on the command not all action
@@ -42,24 +61,27 @@ may be available. Allowed values are: """ + ", ".join(all_actions),
         metavar='<menu>')
     args = parser.parse_args()
     res = []
-    context = {}
+    config = DEFAULTS.copy()
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
     if args.debug:
-        context['debug'] = True
+        config['debug'] = True
     if args.menu_provider:
-        context['menu_provider'] = args.menu_provider
+        config['menu_provider'] = args.menu_provider
     if args.action:
-        context['action'] = args.action
+        config['action'] = args.action
+    config['label_workspace'] = args.label_workspace_format
+    config['label_output'] = args.label_output_format
+    config['label_window'] = args.label_window_format
 
     menu = args.menu
     if menu in all_commands:
         Command = all_commands[menu]
-        cmd = Command(context=context)
+        cmd = Command(config=config)
     elif menu in all_menus:
         Menu = all_menus[menu]
-        cmd = Menu(context=context)
+        cmd = Menu(config=config)
     res = cmd()
     if not res:
         sys.exit(errno.EINVAL)

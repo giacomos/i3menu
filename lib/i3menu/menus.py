@@ -9,22 +9,22 @@ class AbstractMenu(object):
     _entries = []
     _prompt = 'Menu:'
 
-    def __init__(self, context=None):
-        self.context = context
+    def __init__(self, config=None):
+        self.config = config
 
     @property
     def target(self):
-        return self.context.get('target')
+        return self.config.get('target')
 
     def __call__(self):
         options = OrderedDict()
         for i in self._entries:
             options[i['title']] = i['callback']
-        self.context['target'] = self.target
-        Command = api.select(options, _(self._prompt))
+        self.config['target'] = self.target
+        Command = api.select(options, _(self._prompt), config=self.config)
         if not Command:
             return
-        cmd = Command(context=self.context)
+        cmd = Command(config=self.config)
         return cmd()
 
 
@@ -57,8 +57,8 @@ class MenuTargetWindowActions(MenuWindowActions):
     @property
     def target(self):
         return api.select_window(
-            title=_('Select target window:'),
-            context=self.context)
+            prompt=_('Select target window:'), config=self.config
+        )
 
 
 class MenuWorkspaceActions(AbstractMenu):
@@ -79,8 +79,8 @@ class MenuTargetWorkspaceActions(MenuWorkspaceActions):
     @property
     def target(self):
         return api.select_workspace(
-            title=_('Select target workspace:'),
-            context=self.context)
+            prompt=_('Select target workspace:'), config=self.config
+        )
 
 
 class MenuBarActions(AbstractMenu):

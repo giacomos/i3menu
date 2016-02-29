@@ -3,17 +3,17 @@ import i3ipc
 import subprocess
 import sys
 from collections import OrderedDict
-from i3menu import _
+# from i3menu import _
 from i3menu import logger
 from i3menu.utils import which
 from i3menu.utils import iteritems
 
-PROMPT_PREFIX = '(i3menu)'
-DEFAULT_TITLE = _('Select:')
-LABEL_GENERIC = '{idx}: {entry}'
-LABEL_WINDOW = '{idx}: {window_class}\t{name}'
-LABEL_OUTPUT = '{idx}: {name}{current}'
-LABEL_WORKSPACE = '{name}{current}'
+# PROMPT_PREFIX = '(i3menu)'
+# DEFAULT_TITLE = _('Select:')
+# LABEL_GENERIC = '{idx}: {entry}'
+# LABEL_WINDOW = '{idx}: {window_class}\t{name}'
+# LABEL_OUTPUT = '{idx}: {name}{current}'
+# LABEL_WORKSPACE = '{name}{current}'
 
 i3 = i3ipc.Connection()
 
@@ -77,19 +77,20 @@ def i3_get_bar_ids():
     return i3.get_bar_config_list()
 
 
-def i3_command(cmd, context=None):
-    if context and context.get('debug'):
+def i3_command(cmd, config=None):
+    if config and config.get('debug'):
         logger.info(cmd)
     res = i3.command(cmd)
     return res
 
 
-def _menu(cmd, options, title=DEFAULT_TITLE, context=None):
-    title = ' '.join([PROMPT_PREFIX, title])
-    safe_title = '"%s"' % title
-    # cmd_args = {'format': 'i'}
+def _menu(cmd, options, prompt=None, config=None):
+    if not prompt:
+        prompt = config.get('prompt')
+    prompt = ' '.join([config.get('prompt_prefix'), prompt])
+    safe_prompt = '"%s"' % prompt
     cmd_args = {}
-    cmd_args_list = ['-p', safe_title]
+    cmd_args_list = ['-p', safe_prompt]
     if 'rofi' in cmd:
         cmd_args_list = ['-dmenu'] + cmd_args_list
     for k, v in iteritems(cmd_args):
@@ -102,52 +103,57 @@ def _menu(cmd, options, title=DEFAULT_TITLE, context=None):
         cmd=cmd,
         cmd_args=' '.join(cmd_args_list),
         options='\n'.join(options),
-        title=title,
+        prompt=prompt,
     )
-    if context and context.get('debug'):
+    if config and config.get('debug'):
         print cmd
     proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
     label = proc.stdout.read().decode('utf-8').strip('\n')
     return options.get(label)
 
 
-def menu(options, title=DEFAULT_TITLE, context=None):
+def menu(options, prompt=None, config=None):
     cmd = None
-    if context and context.get('menu_provider'):
-        cmd = which(context.get('menu_provider'))
+    if not prompt:
+        prompt = config.get('prompt')
+    if config and config.get('menu_provider'):
+        cmd = which(config.get('menu_provider'))
     elif which('rofi'):
         cmd = which('rofi')
     elif which('dmenu'):
         cmd = which('dmenu')
     else:
         sys.exit('Either dmenu or rofi commands are required')
-    return _menu(cmd, options, title=title, context=context)
+    return _menu(cmd, options, prompt=prompt, config=config)
 
 
-def select(entries, title=DEFAULT_TITLE, context=None):
+def select(entries, prompt=None, filter_fnc=None, config=None):
     options = OrderedDict()
     idx = 1
+    if filter_fnc:
+        tmp = [e for e in filter(filter_fnc, entries)]
+        entries = tmp
     for k, v in iteritems(entries):
         params = {}
         params['idx'] = idx
         params['entry'] = k
-        label = LABEL_GENERIC.format(**params)
+        label = config.get('label_generic').format(**params)
         options[label] = v
         idx += 1
-    return menu(options, title=title, context=context)
+    return menu(options, prompt=prompt, config=config)
 
 
-def select_bar(title=DEFAULT_TITLE, filter_fnc=None, context=None):
+def select_bar(prompt=None, filter_fnc=None, config=None):
     entries_list = i3_get_bar_ids()
     if len(entries_list) == 1:
         return entries_list[0]
     options = OrderedDict()
     for i in sorted(entries_list):
         options[i] = i
-    return menu(options, title=title, context=context)
+    return menu(options, prompt=prompt, config=config)
 
 
-def select_workspace(title=DEFAULT_TITLE, filter_fnc=None, context=None):
+def select_workspace(prompt=None, filter_fnc=None, config=None):
     workspaces = i3_get_workspaces()
     workspaces = sorted(workspaces, key=lambda x: x.name)
     if filter_fnc:
@@ -159,17 +165,18 @@ def select_workspace(title=DEFAULT_TITLE, filter_fnc=None, context=None):
         params = ws.copy()
         params['idx'] = i + 1
         params['current'] = ws['focused'] and ' (current)' or ''
-        label = LABEL_WORKSPACE.format(**params)
+        label = config.get('label_workspace').format(**params)
         options[label] = ws
-    return menu(options, title=title, context=context)
+    return menu(options, prompt=prompt, config=config)
 
 
-def select_output(title=DEFAULT_TITLE, filter_fnc=None, context=None):
+def select_output(prompt=None, filter_fnc=None, config=None):
     outputs = i3_get_active_outputs()
     outputs = sorted(outputs, key=lambda x: x.get('name'))
     outputs = XRANDR_DIRECTIONS + outputs
     if filter_fnc:
-        outputs = [e for e in filter(filter_fnc, outputs)]
+        tmp = [e for e in filter(filter_fnc, outputs)]
+        outputs = tmp
     if len(outputs) == 1:
         return outputs[0]
     options = OrderedDict()
@@ -179,16 +186,19 @@ def select_output(title=DEFAULT_TITLE, filter_fnc=None, context=None):
         params['idx'] = i + 1
         params['current'] = out.get('name') == focused_output.name \
             and ' (current)' or ''
-        label = LABEL_OUTPUT.format(**params)
+        label = config.get('label_output').format(**params)
         options[label] = out
-    return menu(options, title=title, context=context)
+    return menu(options, prompt=prompt, config=config)
 
 
-def select_window(title=DEFAULT_TITLE, scratchpad=False, context=None):
+def select_window(prompt=None, filter_fnc=None, scratchpad=False, config=None):
     wins = i3_get_windows()
     if scratchpad:
         wins = i3_get_scratchpad_windows()
     wins = sorted(wins, key=lambda x: x.window_class)
+    if filter_fnc:
+        tmp = [e for e in filter(filter_fnc, wins)]
+        wins = tmp
     if len(wins) == 1:
         return wins[0]
     options = OrderedDict()
@@ -203,6 +213,6 @@ def select_window(title=DEFAULT_TITLE, scratchpad=False, context=None):
             'window_instance': win.window_instance,
             'current': win == current_win and ' (current)' or ''
         }
-        label = LABEL_WINDOW.format(**params)
+        label = config.get('label_window').format(**params)
         options[label] = win
-    return menu(options, title=title, context=context)
+    return menu(options, prompt=prompt, config=config)
