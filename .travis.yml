@@ -4,6 +4,11 @@ python:
   - "3.4"
   - "3.5"
 
+addons:
+  apt:
+    packages:
+      - suckless-tools
+
 install:
   - pip install tox
 script:
