@@ -1,11 +1,6 @@
 language: python
 python:
-  - "3.4"
-
-addons:
-  apt:
-    packages:
-      - suckless-tools
+  - "3.5"
 
 install:
   - pip install tox

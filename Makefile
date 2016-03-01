@@ -32,10 +32,10 @@ NOSETESTS ?= nosetests
 NOSETESTS3 ?= nosetests-3.4
 
 tests:
-	PYTHONPATH=./lib $(NOSETESTS3) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
+	PYTHONPATH=./lib $(NOSETESTS) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
 
 tests-py3:
-	PYTHONPATH=./lib $(NOSETESTS3) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
+	PYTHONPATH=./lib $(NOSETESTS) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
 
 help:
 	@echo "Makefile for the 'i3menu' package"
