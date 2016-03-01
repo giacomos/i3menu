@@ -2,6 +2,10 @@
     :target: https://travis-ci.org/giacomos/i3menu
     :alt: TravisCI - i3menu
 
+.. image:: https://coveralls.io/repos/github/giacomos/i3menu/badge.svg?branch=master
+    :target: https://coveralls.io/github/giacomos/i3menu?branch=master
+
+
 .. image:: https://img.shields.io/pypi/v/i3menu.svg
    :target: https://pypi.python.org/pypi/i3menu
 
