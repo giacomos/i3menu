@@ -10,7 +10,10 @@ class I3Connector(object):
         if not config:
             config = DEFAULTS
         self.config = config
-        self.i3 = i3ipc.Connection()
+        try:
+            self.i3 = i3ipc.Connection()
+        except:
+            self.i3 = None
 
     def get_workspaces(self):
         return self.i3.get_workspaces()
