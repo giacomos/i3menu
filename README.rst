@@ -83,6 +83,9 @@ or::
 
     bindsym $mod+w exec --no-startup-id i3menu -m go_to_workspace
 
+For a more complete set of examples, please take a look at my `i3wm config
+<https://github.com/giacomos/i3wm-config>`_
+
 Credits
 =======
 
