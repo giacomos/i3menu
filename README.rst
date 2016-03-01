@@ -1,3 +1,7 @@
+.. image:: https://travis-ci.org/giacomos/i3menu.svg?branch=master
+    :target: https://travis-ci.org/giacomos/i3menu
+    :alt: TravisCI - i3menu
+
 Introduction
 ============
 
