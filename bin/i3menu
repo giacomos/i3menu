@@ -71,9 +71,9 @@ may be available. Allowed values are: """ + ", ".join(all_actions),
         config['menu_provider'] = args.menu_provider
     if args.action:
         config['action'] = args.action
-    config['label_workspace'] = args.label_workspace_format
-    config['label_output'] = args.label_output_format
-    config['label_window'] = args.label_window_format
+    config['label_workspace'] = args.label_workspace_format.decode()
+    config['label_output'] = args.label_output_format.decode()
+    config['label_window'] = args.label_window_format.decode()
 
     menu = args.menu
     if menu in all_commands:

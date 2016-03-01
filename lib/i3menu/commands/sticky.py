@@ -10,5 +10,7 @@ class CmdSticky(AbstractWindowCmd):
     _actions = ['enable', 'disable', 'toggle']
 
     def cmd(self):
+        target = self.get_target()
+        action = self.get_action()
         return '[id="{id}"] sticky {action}'.format(
-            id=self.target.window, action=self.action)
+            id=target.window, action=action)

@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from i3menu import _
-from i3menu import api
+from i3menu.utils import select
+from i3menu.utils import select_window
+from i3menu.utils import select_workspace
 from i3menu import commands
+from i3menu.config import DEFAULTS
 
 
 class AbstractMenu(object):
@@ -10,6 +13,8 @@ class AbstractMenu(object):
     _prompt = 'Menu:'
 
     def __init__(self, config=None):
+        if not config:
+            config = DEFAULTS
         self.config = config
 
     @property
@@ -21,7 +26,7 @@ class AbstractMenu(object):
         for i in self._entries:
             options[i['title']] = i['callback']
         self.config['target'] = self.target
-        Command = api.select(options, _(self._prompt), config=self.config)
+        Command = select(options, _(self._prompt), config=self.config)
         if not Command:
             return
         cmd = Command(config=self.config)
@@ -56,7 +61,7 @@ class MenuTargetWindowActions(MenuWindowActions):
 
     @property
     def target(self):
-        return api.select_window(
+        return select_window(
             prompt=_('Select target window:'), config=self.config
         )
 
@@ -78,7 +83,7 @@ class MenuTargetWorkspaceActions(MenuWorkspaceActions):
 
     @property
     def target(self):
-        return api.select_workspace(
+        return select_workspace(
             prompt=_('Select target workspace:'), config=self.config
         )
 

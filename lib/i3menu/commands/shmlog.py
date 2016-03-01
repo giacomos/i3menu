@@ -11,4 +11,5 @@ class CmdShmlog(AbstractCmd):
     _actions = ['on', 'off', 'toggle']
 
     def cmd(self):
-        return 'shmlog {action}'.format(action=self.action)
+        action = self.get_action()
+        return 'shmlog {action}'.format(action=action)

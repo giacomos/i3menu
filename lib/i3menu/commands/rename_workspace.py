@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from i3menu.commands.base import AbstractWorkspaceCmd
-from i3menu import api
+from i3menu.utils import menu
 from i3menu import _
 
 
@@ -8,8 +8,10 @@ class CmdRenameWorkspace(AbstractWorkspaceCmd):
     _name = 'rename_workspace'
 
     def cmd(self, target=None):
-        newname = api._rofi(
-            [self.target.name.encode('utf-8')],
+        # XXX: this need to use the proper wrapper functions
+        target = self.get_target()
+        newname = menu(
+            [target.name.encode('utf-8')],
             _('Rename workspace:'),
             **{'format': 's'}
         )

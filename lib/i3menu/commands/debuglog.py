@@ -10,4 +10,5 @@ class CmdDebuglog(AbstractCmd):
     _actions = ['on', 'off', 'toggle']
 
     def cmd(self):
-        return 'debuglog {action}'.format(action=self.action)
+        action = self.get_action()
+        return 'debuglog {action}'.format(action=action)

@@ -6,5 +6,7 @@ class CmdMoveWindowToWorkspace(AbstractWindowCmd):
     _name = 'move_window_to_workspace'
 
     def cmd(self, target=None):
+        target = self.get_target()
+        ws = self.get_workspace()
         return '[id="{id}"] move window to workspace "{ws}"'.format(
-            id=self.target.window, ws=self.selected_workspace.name)
+            id=target.window, ws=ws.name)

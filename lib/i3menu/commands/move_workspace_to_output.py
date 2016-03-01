@@ -10,7 +10,6 @@ class CmdMoveWorkspaceToOutput(AbstractWorkspaceCmd):
     def cmd(self, target=None):
         # XXX: it seems that it's not possible to specify a workspace other
         # than the current one. This needs to be investigated further
-        # return 'move workspace "{name}" to output "{output}"'.format(
-        #     name=self.target.name, output=self.selected_output.name)
+        out = self.get_output()
         return 'move workspace to output "{output}"'.format(
-            output=self.selected_output.name)
+            output=out.name)

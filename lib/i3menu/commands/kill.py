@@ -6,4 +6,5 @@ class CmdKill(AbstractWindowCmd):
     _name = 'kill'
 
     def cmd(self):
-        return '[id="{id}"] kill'.format(id=self.target.window)
+        target = self.get_target()
+        return '[id="{id}"] kill'.format(id=target.window)

@@ -10,5 +10,7 @@ class CmdSplit(AbstractWindowCmd):
     _actions = ['vertical', 'horizontal']
 
     def cmd(self):
-        return '[id="{id}"] layout {action}'.format(
-            id=self.target.window, action=self.action)
+        target = self.get_target()
+        action = self.get_action()
+        return '[id="{id}"] split {action}'.format(
+            id=target.window, action=action)

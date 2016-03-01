@@ -5,7 +5,7 @@
 
 .DEFAULT_GOAL = help
 
-.PHONY: help install uninstall python sdist sdist_upload codecheck clean publish
+.PHONY: help install uninstall python sdist sdist_upload codecheck clean publish tests
 
 PYTHON:=$(shell which python 2>/dev/null)
 PIP:=$(shell which pip 2>/dev/null)
@@ -22,6 +22,20 @@ endif
 CHECK_MENU_PROVIDERS := $(if $(shell which 'rofi'),'rofi found',\
 	$(if $(shell which 'dmenu'),'dmenu found',\
 	$(error "No menu provider found. At least one between 'rofi' and 'dmenu' is required")))
+
+# MOCK build parameters
+MOCK_BIN ?= mock
+MOCK_CFG ?=
+
+NOSETESTS ?= nosetests
+
+NOSETESTS3 ?= nosetests-3.4
+
+tests:
+	PYTHONPATH=./lib $(NOSETESTS) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
+
+tests-py3:
+	PYTHONPATH=./lib $(NOSETESTS) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
 
 help:
 	@echo "Makefile for the 'i3menu' package"

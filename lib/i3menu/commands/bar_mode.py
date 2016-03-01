@@ -9,5 +9,7 @@ class CmdBarMode(AbstractBarCmd):
     _actions = ['dock', 'hide', 'invisible', 'toggle']
 
     def cmd(self, action=None):
+        target = self.get_target()
+        action = self.get_action()
         return 'bar mode {action} "{bar_id}"'.format(
-            action=self.action, bar_id=self.target)
+            action=action, bar_id=target)

@@ -12,5 +12,7 @@ class CmdFloating(AbstractWindowCmd):
     _actions = ['enable', 'disable', 'toggle']
 
     def cmd(self):
+        target = self.get_target()
+        action = self.get_action()
         return '[id="{id}"] floating {action}'.format(
-            id=self.target.window, action=self.action)
+            id=target.window, action=action)
