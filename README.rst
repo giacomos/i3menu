@@ -2,6 +2,9 @@
     :target: https://travis-ci.org/giacomos/i3menu
     :alt: TravisCI - i3menu
 
+.. image:: https://img.shields.io/pypi/v/i3menu.svg
+   :target: https://pypi.python.org/pypi/i3menu
+
 Introduction
 ============
 
