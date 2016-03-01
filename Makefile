@@ -19,7 +19,7 @@ ifndef PIP
     $(error "pip is not available. For debian like systems you can run: sudo apt-get install python-pip")
 endif
 
-CHECK_MENU_PROVIDERS := $(if $(shell which 'rofi'),'rofi found',\
+CHECK_MENU_PROVIDERS = $(if $(shell which 'rofi'),'rofi found',\
 	$(if $(shell which 'dmenu'),'dmenu found',\
 	$(error "No menu provider found. At least one between 'rofi' and 'dmenu' is required")))
 
