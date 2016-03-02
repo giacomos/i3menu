@@ -1,37 +1,14 @@
 # Make coding more python3-ish
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
-try:
-    import unittest2 as unittest
-except:
-    import unittest
-
 from i3menu.commands.base import AbstractCmd
 from i3menu import commands
 
 from mock import MagicMock
-
-# dummy_window_id = 12345678
-# dummy_window = {
-#     'id': dummy_window_id,
-#     'window': dummy_window_id,
-#     'name': u'dummy',
-#     'window_instance': u'dummy',
-#     'window_class': u'Dummy',
-#     'fullscreen_mode': 0,
-#     'current_border_width': 2,
-#     'urgent': False,
-#     'num': None,
-#     'border': u'normal',
-#     'orientation': u'none',
-#     'layout': u'splith',
-#     'percent': 1.0,
-#     'mark': None,
-#     'nodes': [],
-#     'type': u'con',
-#     'focused': True,
-#     'floating_nodes': []
-# }
+try:
+    import unittest2 as unittest
+except:
+    import unittest
 
 
 class DummyWindow(object):
@@ -140,6 +117,14 @@ class TestWorkspaceCommands(unittest.TestCase):
         self.assertEqual(
             menu.cmd(), 'move workspace to output "{out}"'.format(
                 out=dummy_output.name))
+
+    def test_layout(self):
+        menu = commands.CmdLayout(config={})
+        for action in menu._actions:
+            menu.get_action = MagicMock(return_value=action)
+            self.assertEqual(
+                menu.cmd(),
+                'layout {action}'.format(action=action))
 
 
 class TestGlobalCommands(unittest.TestCase):
