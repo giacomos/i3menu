@@ -8,10 +8,10 @@ env:
   matrix:
     - TOXENV=check
     - TOXENV=docs
+{% for env, config in tox_environments|dictsort %}{{ '' }}
+    - TOXENV={{ env }}{% if config.cover %},coveralls,codecov{% endif -%}
+{% endfor %}
 
-    - TOXENV=2.7-cover,coveralls,codecov
-    - TOXENV=3.4-cover,coveralls,codecov
-    - TOXENV=3.5-cover,coveralls,codecov
 before_install:
   - python --version
   - uname -a

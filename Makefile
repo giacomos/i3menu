@@ -23,20 +23,6 @@ CHECK_MENU_PROVIDERS = $(if $(shell which 'rofi'),'rofi found',\
 	$(if $(shell which 'dmenu'),'dmenu found',\
 	$(error "No menu provider found. At least one between 'rofi' and 'dmenu' is required")))
 
-# MOCK build parameters
-MOCK_BIN ?= mock
-MOCK_CFG ?=
-
-NOSETESTS ?= nosetests
-
-NOSETESTS3 ?= nosetests-3.4
-
-tests:
-	PYTHONPATH=./lib $(NOSETESTS) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
-
-tests-py3:
-	PYTHONPATH=./lib $(NOSETESTS) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
-
 help:
 	@echo "Makefile for the 'i3menu' package"
 	@echo
@@ -60,6 +46,20 @@ ${VIRTUALENV_DIR}/bin/activate:
 	test -d ${VIRTUALENV_DIR} || virtualenv ${VIRTUALENV_DIR}
 	${VIRTUALENV_DIR}/bin/pip install pdbpp
 	touch ${VIRTUALENV_DIR}/bin/activate
+
+# MOCK build parameters
+MOCK_BIN ?= mock
+MOCK_CFG ?=
+
+NOSETESTS ?= nosetests
+
+NOSETESTS3 ?= nosetests-3.4
+
+tests:
+	PYTHONPATH=./lib $(NOSETESTS) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
+
+tests-py3:
+	PYTHONPATH=./lib $(NOSETESTS3) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
 
 develop: venv
 	${VIRTUALENV_DIR}/bin/python setup.py develop
@@ -95,11 +95,15 @@ clean:
 	@echo "Cleaning up distutils stuff"
 	rm -rf build
 	rm -rf dist
-	rm -rf ${VIRTUALENV_DIR}
+#	rm -rf ${VIRTUALENV_DIR}
 	rm -rf lib/i3menu.egg-info/
+	rm -rf .tox
+	rm -rf .coverage
+	rm -rf .cache
 	@echo "Cleaning up byte compiled python stuff"
 	find . -type f -regex ".*\.py[co]$$" -delete
 	find . -type f -name '*.pyc' -delete
+	find . -name "__pycache__" -delete
 
 push: clean
 	git push origin && git push --tags origin
