@@ -3,7 +3,8 @@ from i3menu.commands.base import AbstractWorkspaceCmd
 
 
 class CmdMoveWorkspaceToOutput(AbstractWorkspaceCmd):
-    """ http://i3wm.org/docs/userguide.html#_moving_workspaces_to_a_different_screen
+    """
+    http://i3wm.org/docs/userguide.html#_moving_workspaces_to_a_different_screen
     """
     _name = 'move_workspace_to_output'
 

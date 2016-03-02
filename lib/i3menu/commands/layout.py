@@ -4,8 +4,9 @@ from i3menu.commands.base import AbstractCmd
 
 class CmdLayout(AbstractCmd):
     """ Use layout toggle split, layout stacking, layout tabbed,
-        layout splitv or layout splith to change the current container layout to
-        splith/splitv, stacking, tabbed layout, splitv or splith, respectively.
+        layout splitv or layout splith to change the current container layout
+        to splith/splitv, stacking, tabbed layout, splitv or splith,
+        respectively.
     """
 
     _name = 'layout'
@@ -15,4 +16,5 @@ class CmdLayout(AbstractCmd):
         'toggle split', 'toggle all']
 
     def cmd(self):
-        return 'layout {action}'.format(action=self.action)
+        action = self.get_action()
+        return 'layout {action}'.format(action=action)
