@@ -7,7 +7,6 @@ env:
     - SEGFAULT_SIGNALS=all
   matrix:
     - TOXENV=check
-    - TOXENV=docs
 {% for env, config in tox_environments|dictsort %}{{ '' }}
     - TOXENV={{ env }}{% if config.cover %},coveralls,codecov{% endif -%}
 {% endfor %}
