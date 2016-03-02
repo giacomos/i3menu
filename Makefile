@@ -47,19 +47,9 @@ ${VIRTUALENV_DIR}/bin/activate:
 	${VIRTUALENV_DIR}/bin/pip install pdbpp
 	touch ${VIRTUALENV_DIR}/bin/activate
 
-# MOCK build parameters
-MOCK_BIN ?= mock
-MOCK_CFG ?=
-
-NOSETESTS ?= nosetests
-
-NOSETESTS3 ?= nosetests-3.4
-
-tests:
-	PYTHONPATH=./lib $(NOSETESTS) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
-
-tests-py3:
-	PYTHONPATH=./lib $(NOSETESTS3) -d -w tests -v --with-coverage --cover-package=i3menu --cover-branches
+tests: develop
+	${VIRTUALENV_DIR}/bin/pip install tox
+	tox -v
 
 develop: venv
 	${VIRTUALENV_DIR}/bin/python setup.py develop
