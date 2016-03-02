@@ -21,12 +21,15 @@ class AbstractMenu(object):
     def target(self):
         return self.config.get('target')
 
-    def __call__(self):
+    def select_entry(self):
         options = OrderedDict()
         for i in self._entries:
             options[i['title']] = i['callback']
         self.config['target'] = self.target
-        Command = select(options, _(self._prompt), config=self.config)
+        return select(options, _(self._prompt), config=self.config)
+
+    def __call__(self):
+        Command = self.select_entry()
         if not Command:
             return
         cmd = Command(config=self.config)
