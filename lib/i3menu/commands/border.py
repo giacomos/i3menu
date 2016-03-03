@@ -18,7 +18,7 @@ class CmdBorder(AbstractWindowCmd):
     _actions = ['none', 'normal', 'pixel 1', 'pixel 3', 'toggle']
 
     def cmd(self):
-        target = self.get_target()
+        target = self.get_target_window()
         action = self.get_action()
         return '[id="{id}"] border {action}'.format(
             id=target.window, action=action)

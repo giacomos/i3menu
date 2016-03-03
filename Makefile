@@ -47,9 +47,9 @@ ${VIRTUALENV_DIR}/bin/activate:
 	${VIRTUALENV_DIR}/bin/pip install pdbpp
 	touch ${VIRTUALENV_DIR}/bin/activate
 
-tests: develop
+tests: venv
 	${VIRTUALENV_DIR}/bin/pip install tox
-	tox -v
+	${VIRTUALENV_DIR}/bin/tox -v
 
 develop: venv
 	${VIRTUALENV_DIR}/bin/python setup.py develop

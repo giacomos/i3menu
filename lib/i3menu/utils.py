@@ -2,9 +2,11 @@
 import os
 import subprocess
 import sys
+import six
 from collections import OrderedDict
 from i3menu.connector import I3Connector
 from i3menu.config import XRANDR_DIRECTIONS
+from i3menu.config import DEFAULTS
 
 
 def which(program):
@@ -26,23 +28,6 @@ def which(program):
 
     return None
 
-try:
-    dict.iteritems
-except AttributeError:
-    # Python 3
-    def itervalues(d):
-        return iter(d.values())
-
-    def iteritems(d):
-        return iter(d.items())
-else:
-    # Python 2
-    def itervalues(d):
-        return d.itervalues()
-
-    def iteritems(d):
-        return d.iteritems()
-
 
 def _menu(cmd, options, prompt=None, config=None):
     if not prompt:
@@ -53,7 +38,7 @@ def _menu(cmd, options, prompt=None, config=None):
     cmd_args_list = ['-p', safe_prompt]
     if 'rofi' in cmd:
         cmd_args_list = ['-dmenu'] + cmd_args_list
-    for k, v in iteritems(cmd_args):
+    for k, v in six.iteritems(cmd_args):
         cmd_args_list.append('-' + k)
         if isinstance(v, str):
             cmd_args_list.append(v)
@@ -78,6 +63,8 @@ def menu(options, prompt=None, config=None):
         @options a dict {'label of the option': value to return}
     """
     cmd = None
+    if not config:
+        config = DEFAULTS
     if not prompt:
         prompt = config.get('prompt')
     if len(options.keys()) == 0:
@@ -95,13 +82,12 @@ def menu(options, prompt=None, config=None):
     return _menu(cmd, options, prompt=prompt, config=config)
 
 
-def select(entries, prompt=None, filter_fnc=None, config=None):
+def select(entries, prompt=None, config=None):
     options = OrderedDict()
     idx = 1
-    if filter_fnc:
-        tmp = [e for e in filter(filter_fnc, entries)]
-        entries = tmp
-    for k, v in iteritems(entries):
+    if not config:
+        config = DEFAULTS
+    for k, v in six.iteritems(entries):
         params = {}
         params['idx'] = idx
         params['entry'] = k
@@ -112,6 +98,8 @@ def select(entries, prompt=None, filter_fnc=None, config=None):
 
 
 def select_bar(prompt=None, filter_fnc=None, config=None):
+    if not config:
+        config = DEFAULTS
     conn = I3Connector(config=config)
     entries_list = conn.get_bar_ids()
     if len(entries_list) == 1:
@@ -123,6 +111,8 @@ def select_bar(prompt=None, filter_fnc=None, config=None):
 
 
 def select_workspace(prompt=None, filter_fnc=None, config=None):
+    if not config:
+        config = DEFAULTS
     conn = I3Connector(config=config)
     workspaces = conn.get_workspaces()
     workspaces = sorted(workspaces, key=lambda x: x.name)
@@ -141,6 +131,8 @@ def select_workspace(prompt=None, filter_fnc=None, config=None):
 
 
 def select_output(prompt=None, filter_fnc=None, config=None):
+    if not config:
+        config = DEFAULTS
     conn = I3Connector(config=config)
     outputs = conn.get_active_outputs()
     outputs = sorted(outputs, key=lambda x: x.get('name'))
@@ -163,6 +155,8 @@ def select_output(prompt=None, filter_fnc=None, config=None):
 
 
 def select_window(prompt=None, filter_fnc=None, scratchpad=False, config=None):
+    if not config:
+        config = DEFAULTS
     conn = I3Connector(config=config)
     wins = conn.get_windows()
     if scratchpad:

@@ -25,9 +25,6 @@ class AbstractCmd(object):
     def cmd(self):
         raise NotImplementedError
 
-    def get_target(self):
-        return self.config.get('target')
-
     def get_action(self):
         action = self.config.get('action')
         if not action or action not in self._actions:
@@ -56,26 +53,26 @@ class AbstractCmd(object):
 
 class AbstractWindowCmd(AbstractCmd):
 
-    def get_target(self):
+    def get_target_window(self):
         return self._target or self.conn.get_focused_window()
 
 
 class AbstractScratchpadWindowCmd(AbstractCmd):
 
-    def get_target(self):
+    def get_target_scratchpad_window(self):
         return self._target or select_window(
             scratchpad=True, config=self.config)
 
 
 class AbstractWorkspaceCmd(AbstractCmd):
 
-    def get_target(self):
+    def get_target_workspace(self):
         return self._target or self.conn.get_focused_workspace()
 
 
 class AbstractBarCmd(AbstractCmd):
 
-    def get_target(self):
+    def get_target_bar(self):
         return self._target or select_bar(
             _('Select bar:'),
             config=self.config)

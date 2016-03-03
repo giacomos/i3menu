@@ -9,7 +9,7 @@ class CmdRenameWorkspace(AbstractWorkspaceCmd):
 
     def cmd(self, target=None):
         # XXX: this need to use the proper wrapper functions
-        target = self.get_target()
+        target = self.get_target_workspace()
         newname = menu(
             [target.name.encode('utf-8')],
             _('Rename workspace:'),

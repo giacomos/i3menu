@@ -9,7 +9,7 @@ class CmdBarHiddenState(AbstractBarCmd):
     _actions = ['hide', 'show', 'toggle']
 
     def cmd(self, action=None):
-        target = self.get_target()
+        target = self.get_target_bar()
         action = self.get_action()
         return 'bar hidden_state {action} "{bar_id}"'.format(
             action=action, bar_id=target)

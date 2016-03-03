@@ -6,5 +6,5 @@ class CmdMoveWindowToScratchpad(AbstractWindowCmd):
     _name = 'move_window_to_scratchpad'
 
     def cmd(self, target=None):
-        target = self.get_target()
+        target = self.get_target_window()
         return '[id="{id}"] move to scratchpad'.format(id=target.window)
