@@ -4,7 +4,7 @@ __metaclass__ = type
 
 import unittest
 import mock
-from . import MOCK_WINDOW1
+from . import MOCK_WORKSPACE1
 from . import MOCK_WINDOWS_LIST
 from . import MOCK_WORKSPACES_LIST
 from . import MOCK_OUTPUTS_LIST
@@ -76,8 +76,8 @@ class TestMenu(unittest.TestCase):
         menu = OutputsMenu('test')
         menu.i3.get_active_outputs = mock.MagicMock(
             return_value=MOCK_OUTPUTS_LIST)
-        menu.i3.get_focused_window = mock.MagicMock(
-            return_value=MOCK_WINDOW1)
+        menu.i3.get_focused_workspace = mock.MagicMock(
+            return_value=MOCK_WORKSPACE1)
         # this is due to the addiction of the 4 xrandr directions
         self.assertEqual(len(menu.entries), len(MOCK_OUTPUTS_LIST) + 4)
         self.assertEqual(menu.entries[-1].value.name, 'MockOutput2')
