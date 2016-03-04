@@ -20,6 +20,8 @@ class Application(object):
         self.config = self.parse_args(args)
         self.i3 = I3Connector()
         self.mp = self.get_menu_provider()
+        if not self.mp:
+            logger.info('No menu provider found. Testing?')
 
     def parse_args(self, params=None):
         config = DEFAULTS
@@ -103,8 +105,6 @@ class Application(object):
             cmd = which('rofi')
         elif which('dmenu'):
             cmd = which('dmenu')
-        else:
-            raise Exception('Either dmenu or rofi commands are required')
         return cmd
 
     def _display_menu(self, menu, prompt=None, filter_fnc=None):
