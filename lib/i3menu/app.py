@@ -58,6 +58,7 @@ class Application(object):
             sys.exit()
         cmd_msg = cmd.cmd(**params)
         logger.info('i3 command: "{cmd}"'.format(cmd=cmd_msg))
+        self.i3.command(cmd_msg)
 
     def collect_command_params(self, cmd):
         required_params = cmd.params()

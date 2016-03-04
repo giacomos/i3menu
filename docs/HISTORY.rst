@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.0 (2016-03-02)
+----------------
+
+- reboot, better code, better tests, better coverage [giacomos]
+
 2.1 (2016-03-02)
 ----------------
 
