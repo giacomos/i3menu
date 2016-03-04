@@ -2,21 +2,11 @@
 # -*- coding: utf-8 -*-
 import argparse
 import sys
-import errno
 from i3menu import __version__
-from i3menu import commands
-from i3menu import menus
-from i3menu.utils import iteritems
-from i3menu.config import DEFAULTS
+from i3menu.app import Application
 
 
 def run():
-    all_commands = commands.all_commands()
-    all_menus = menus.all_menus()
-    all_actions = set()
-    for k, cmd in iteritems(all_commands):
-        all_actions |= set(cmd._actions)
-    options = menus.all_menus().keys() + commands.all_commands().keys()
 
     parser = argparse.ArgumentParser(
         description='Provides rofi menus to interact with i3',
@@ -32,64 +22,33 @@ def run():
     )
     parser.add_argument(
         "--label-workspace-format", dest='label_workspace_format',
-        default=DEFAULTS.get('label_workspace'), metavar='<format>',
-        help="Custom label format for workspaces menu. Default: \"{default}\"".format(  # noqa
-            default=DEFAULTS.get('label_workspace'))
+        help="Custom label format for workspaces menu.",
+        metavar='<format>'
     )
     parser.add_argument(
         "--label-output-format", dest='label_output_format',
-        default=DEFAULTS.get('label_output'), metavar='<format>',
-        help="Custom label format for outputs menu. Default: \"{default}\"".format(  # noqa
-            default=DEFAULTS.get('label_output'))
+        metavar='<format>',
+        help="Custom label format for outputs menu."
     )
     parser.add_argument(
         "--label-window-format", dest='label_window_format',
-        default=DEFAULTS.get('label_window'), metavar='<format>',
-        help="Custom label format for windows menu. Default: \"{default}\"".format(  # noqa
-            default=DEFAULTS.get('label_window'))
+        metavar='<format>',
+        help="Custom label format for windows menu."
     )
-    parser.add_argument(
-        "--action", dest='action', metavar='<action>',
-        choices=all_actions,
-        help="""Command action. Depending on the command not all action
-may be available. Allowed values are: """ + ", ".join(all_actions),
-    )
+#     parser.add_argument(
+#         "--action", dest='action', metavar='<action>',
+#         choices=all_actions,
+#         help="""Command action. Depending on the command not all action
+# may be available. Allowed values are: """ + ", ".join(all_actions),
+#     )
     parser.add_argument(
         "menu",
-        choices=options,
-        help="Menu to be executed. Allowed values are: " + ", ".join(options),
+        # choices=options,
+        # help="Menu to be executed. Allowed values are: " + ", ".join(options),
         metavar='<menu>')
     args = parser.parse_args()
-    res = []
-    config = DEFAULTS.copy()
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
-    if args.debug:
-        config['debug'] = True
-    if args.menu_provider:
-        config['menu_provider'] = args.menu_provider
-    if args.action:
-        config['action'] = args.action
-    config['label_workspace'] = args.label_workspace_format.decode()
-    config['label_output'] = args.label_output_format.decode()
-    config['label_window'] = args.label_window_format.decode()
-
-    menu = args.menu
-    if menu in all_commands:
-        Command = all_commands[menu]
-        cmd = Command(config=config)
-    elif menu in all_menus:
-        Menu = all_menus[menu]
-        cmd = Menu(config=config)
-    res = cmd()
-    if not res:
-        sys.exit(errno.EINVAL)
-    res = res[0]
-    if res.get('success'):
-        sys.exit()
-    else:
-        sys.exit('Error: ' + res.get('error'))
+    app = Application(args)
+    sys.exit(app.run())
 
 if __name__ == '__main__':
     run()

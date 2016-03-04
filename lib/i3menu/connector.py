@@ -10,10 +10,17 @@ class I3Connector(object):
         if not config:
             config = DEFAULTS
         self.config = config
+        # try:
+        #     self.i3 = i3ipc.Connection()
+        # except:
+        #     self.i3 = None
+
+    @property
+    def i3(self):
         try:
-            self.i3 = i3ipc.Connection()
+            return i3ipc.Connection()
         except:
-            self.i3 = None
+            return None
 
     def get_workspaces(self):
         return self.i3.get_workspaces()
@@ -31,7 +38,7 @@ class I3Connector(object):
         return self.i3.get_tree().scratchpad().leaves()
 
     def get_focused_workspace(self):
-        win = self.get_window()
+        win = self.get_focused_window()
         return win.workspace()
 
     def get_active_outputs(self):

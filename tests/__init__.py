@@ -2,6 +2,7 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 import six
+import mock
 
 
 class MockWindow(object):
@@ -13,12 +14,12 @@ class MockWindow(object):
     urgent = False
     num = None
     border = u'normal'
-    id = 37363456
+    id = "11111111"
     orientation = u'none'
     layout = u'splith'
     percent = None
     mark = None
-    window = 23068716
+    window = "00000000"
     nodes = []
     type = u'con'
     focused = False
@@ -55,6 +56,9 @@ class MockOutput(object):
             setattr(self, k, v)
 
 MOCK_OUTPUT1 = MockWorkspace({'name': 'MockOutput1'})
+MOCK_OUTPUT2 = MockWorkspace({'name': 'MockOutput2'})
+
+MOCK_OUTPUTS_LIST = [MOCK_OUTPUT1, MOCK_OUTPUT2]
 
 MOCK_WORKSPACE1 = MockWorkspace({'name': 'MockWorkspace1', 'output': 'XYZ'})
 MOCK_WORKSPACE2 = MockWorkspace({'name': 'MockWorkspace2', 'output': 'XYZ'})
@@ -74,7 +78,8 @@ MOCK_WINDOW2 = MockWindow(
     {
         'window_instance': u'mockwindow2',
         'window_class': u'MockWindow',
-        'name': u'MockWindow2'
+        'name': u'MockWindow2',
+        'focused': True,
     }
 )
 MOCK_WINDOW3 = MockWindow(
@@ -85,3 +90,11 @@ MOCK_WINDOW3 = MockWindow(
     }
 )
 MOCK_WINDOWS_LIST = [MOCK_WINDOW1, MOCK_WINDOW2, MOCK_WINDOW3]
+
+conn = mock.MagicMock()
+conn.i3 = None
+conn.get_windows.return_value = MOCK_WINDOWS_LIST
+conn.get_workspaces.return_value = MOCK_WORKSPACES_LIST
+conn.get_outputs.return_value = MOCK_OUTPUTS_LIST
+
+MOCK_CONNECTOR = conn

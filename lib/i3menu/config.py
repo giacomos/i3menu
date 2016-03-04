@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from i3menu import _
 
+SUBMENU_SIGN = u' ⇲'
+MENUENTRY_SIGN = u' @'
 PROMPT_PREFIX = u'(i3menu)'
 DEFAULT_TITLE = _(u'Select:')
 LABEL_GENERIC = u'{idx}: {entry}'
 # LABEL_WINDOW = u'{idx}: {window_class}\t{name}'
-LABEL_WINDOW = u'{idx}: {window.window_class}\t{window.name}'
-LABEL_OUTPUT = u'{idx}: {name}{current}'
+LABEL_WINDOW = u'{window.window_class}\t{window.name}'
+LABEL_OUTPUT = u'{name}{current}'
 LABEL_WORKSPACE = u'{name}{current}'
 
 DEFAULTS = {

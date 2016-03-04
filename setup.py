@@ -55,7 +55,6 @@ setup(
         'setuptools',
         'i3ipc',
         'argparse',
-        'six',
     ],
     scripts=[
         'bin/i3menu'
