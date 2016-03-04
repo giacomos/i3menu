@@ -35,16 +35,16 @@ class TestCommands(unittest.TestCase):
         cmd = FloatingCmd()
         self.assertEqual(len(cmd.params()), 2)
         res = cmd.cmd(target=MOCK_WINDOW1, action='toggle')
-        self.assertEqual(res, u"[id='00000000'] floating toggle")
+        self.assertEqual(res, u'[id="00000000"] floating toggle')
 
     def test_move_window_to_workspace(self):
         cmd = MoveWindowToWorkspaceCmd()
         self.assertEqual(len(cmd.params()), 2)
         res = cmd.cmd(target=MOCK_WINDOW1, ws=MOCK_WORKSPACE1)
-        self.assertEqual(res, u"[id='00000000'] move window to workspace 'MockWorkspace1'")  # noqa
+        self.assertEqual(res, u'[id="00000000"] move window to workspace "MockWorkspace1"')  # noqa
 
     def test_move_workspace_to_output(self):
         cmd = MoveWorkspaceToOutputCmd()
         self.assertEqual(len(cmd.params()), 1)
         res = cmd.cmd(output=MOCK_OUTPUT1)
-        self.assertEqual(res, u"move workspace to output 'MockOutput1'")
+        self.assertEqual(res, u'move workspace to output "MockOutput1"')

@@ -82,6 +82,8 @@ class Application(object):
         entry = self._display_menu(menu, filter_fnc=filter_fnc)
         if not entry:
             return None
+        elif isinstance(entry, unicode):
+            return entry
         elif isinstance(entry.value, Menu):
             newmenu = entry.value
             if not newmenu.root:
@@ -116,7 +118,7 @@ class Application(object):
             logger.info('This menu has just one option, no need to diplay it')
             return entries[0]
         prompt = ' '.join([self.config.get('prompt_prefix'), menu.prompt])
-        safe_prompt = '"%s"' % prompt
+        safe_prompt = '"%s": ' % prompt
         cmd_args = {}
         cmd_args_list = ['-p', safe_prompt]
         if 'rofi' in self.mp:
@@ -146,7 +148,9 @@ class Application(object):
             print(cmd)
         proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
         res = proc.stdout.read().decode('utf-8').strip('\n')
-        res = res.strip(SUBMENU_SIGN).strip(MENUENTRY_SIGN).split(': ')[-1]
+        res = res.strip(SUBMENU_SIGN).strip(MENUENTRY_SIGN).split(': ', 1)[-1]
+        if len(entries) == 0:
+            return res
         for e in entries:
             if e.label == res:
                 return e
@@ -177,14 +181,14 @@ class Application(object):
         workspace_entries_menu = Menu(
             'workspace_actions', prompt=_('Workspace Actions'))
         workspace_entries_menu.add_command(
+            label=_('Rename'),
+            command=cmds.RenameWorkspaceCmd)
+        workspace_entries_menu.add_command(
             label=_('Layout'),
             command=cmds.LayoutCmd)
         workspace_entries_menu.add_command(
             label=_('Move workspace to output'),
             command=cmds.MoveWorkspaceToOutputCmd)
-        # workspace_entries_menu.add_command(
-        #     label=_('Rename workspace'),
-        #     command=cmds.RenameWorkspaceCmd})
 
         global_entries_menu = Menu(
             'global_actions', prompt=_("Global actions"))

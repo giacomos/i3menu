@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from i3menu import _
 from i3menu.exceptions import MissingParamException
+from i3menu.menu import Menu
 from i3menu.menu import WindowsMenu
 from i3menu.menu import WorkspacesMenu
 from i3menu.menu import OutputsMenu
@@ -9,9 +10,9 @@ from i3menu.menu import ActionsMenu
 
 class AbstractCmd(object):
     """ Abstract command """
-    _name = "AbstractCmd"
-    _description = ''
-    _cmd = ''
+    _name = u'AbstractCmd'
+    _description = u''
+    _cmd = u''
 
     def cmd(self, *args, **kwargs):
         """ make the window/container floating. If not target it provided
@@ -20,7 +21,7 @@ class AbstractCmd(object):
         params = self.params()
         for p in params:
             if p.name not in kwargs:
-                error = 'Missing required parameter: {p}'.format(p=p.name)
+                error = u'Missing required parameter: {p}'.format(p=p.name)
                 raise MissingParamException(error)
         return self._cmd.format(**kwargs)
 
@@ -46,6 +47,19 @@ class Param(object):
         self.default_fnc = default_fnc
 
 
+class AbstractValueCmd(AbstractCmd):
+    def _params(self):
+        params = []
+        params.append(
+            Param(
+                u'value',
+                Menu(
+                    u'value', prompt=_(u'Value')),
+            )
+        )
+        return params
+
+
 class AbstractActionCmd(AbstractCmd):
     _actions = []
 
@@ -57,11 +71,11 @@ class AbstractActionCmd(AbstractCmd):
         params = []
         params.append(
             Param(
-                'action',
+                u'action',
                 ActionsMenu(
-                    'action',
-                    prompt=_(u"Select action"), actions=self.actions),
-                default='toggle' in self._actions and 'toggle' or None
+                    u'action',
+                    prompt=_(u'Select action'), actions=self.actions),
+                default='toggle' in self._actions and u'toggle' or None
             )
         )
         return params
@@ -72,9 +86,9 @@ class AbstractTargetWindowCmd(AbstractCmd):
         params = []
         params.append(
             Param(
-                'target',
+                u'target',
                 WindowsMenu(
-                    'target', prompt=_(u"Select window")),
+                    u'target', prompt=_(u'Select window')),
                 default_fnc=lambda e: e.value.focused
             )
         )
@@ -86,8 +100,8 @@ class AbstractWorkspaceCmd(AbstractCmd):
         params = []
         params.append(
             Param(
-                'ws',
-                WorkspacesMenu('ws', prompt=_(u"Select workspace")),
+                u'ws',
+                WorkspacesMenu(u'ws', prompt=_(u'Select workspace')),
             )
         )
         return params
@@ -98,8 +112,8 @@ class AbstractOutputCmd(AbstractCmd):
         params = []
         params.append(
             Param(
-                'output',
-                OutputsMenu('output', prompt=_(u"Select output")),
+                u'output',
+                OutputsMenu(u'output', prompt=_(u'Select output')),
             )
         )
         return params
@@ -110,15 +124,15 @@ class FloatingCmd(AbstractTargetWindowCmd, AbstractActionCmd):
         use floating enable respectively floating disable (or floating toggle)
     """
 
-    _name = u"floating"
-    _doc_url = u"http://i3wm.org/docs/userguide.html#_manipulating_layout"
-    _actions = [u"enable", u"disable", u"toggle"]
-    _cmd = u"[id='{target.window}'] floating {action}"
+    _name = u'floating'
+    _doc_url = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
+    _actions = [u'enable', u'disable', u'toggle']
+    _cmd = u'[id="{target.window}"] floating {action}'
 
 
 class KillCmd(AbstractTargetWindowCmd):
-    _name = u"kill"
-    _cmd = u"[id='{target.window}'] kill"
+    _name = u'kill'
+    _cmd = u'[id="{target.window}"] kill'
 
 
 class BorderCmd(AbstractTargetWindowCmd, AbstractActionCmd):
@@ -131,39 +145,39 @@ class BorderCmd(AbstractTargetWindowCmd, AbstractActionCmd):
         styles.
     """
 
-    _name = u"border"
-    _description = u"change the border style"
-    _doc_url = 'http://i3wm.org/docs/userguide.html#_changing_border_style'
-    _actions = ['none', 'normal', 'pixel 1', 'pixel 3', 'toggle']
-    _cmd = '[id="{target.window}"] border {action}'
+    _name = u'border'
+    _description = u'change the border style'
+    _doc_url = u'http://i3wm.org/docs/userguide.html#_changing_border_style'
+    _actions = [u'none', u'normal', u'pixel 1', u'pixel 3', u'toggle']
+    _cmd = u'[id="{target.window}"] border {action}'
 
 
 class MoveWindowToScratchpadCmd(AbstractTargetWindowCmd):
-    _name = u"move_window_to_scratchpad"
-    _cmd = u"[id='{target.window}'] move to scratchpad"
+    _name = u'move_window_to_scratchpad'
+    _cmd = u'[id="{target.window}"] move to scratchpad'
 
 
 class StickyCmd(AbstractTargetWindowCmd, AbstractActionCmd):
     """ http://i3wm.org/docs/userguide.html#_sticky_floating_windows
     """
 
-    _name = u"sticky"
-    _actions = [u"enable", u"disable", u"toggle"]
-    _cmd = u"[id='{target.window}'] sticky {action}"
+    _name = u'sticky'
+    _actions = [u'enable', u'disable', u'toggle']
+    _cmd = u'[id="{target.window}"] sticky {action}'
 
 
 class MoveWindowToWorkspaceCmd(AbstractTargetWindowCmd, AbstractWorkspaceCmd):
-    _name = u"move_window_to_workspace"
-    _cmd = u"[id='{target.window}'] move window to workspace '{ws.name}'"
+    _name = u'move_window_to_workspace'
+    _cmd = u'[id="{target.window}"] move window to workspace "{ws.name}"'
 
 
 class SplitCmd(AbstractTargetWindowCmd, AbstractActionCmd):
     """ http://i3wm.org/docs/userguide.html#_splitting_containers
     """
 
-    _name = u"split"
-    _cmd = u"[id='{target.window}'] split {action}"
-    _actions = ['vertical', 'horizontal']
+    _name = u'split'
+    _cmd = u'[id="{target.window}"] split {action}'
+    _actions = [u'vertical', u'horizontal']
 
 
 class FullscreenCmd(AbstractTargetWindowCmd, AbstractActionCmd):
@@ -174,59 +188,59 @@ class FullscreenCmd(AbstractTargetWindowCmd, AbstractActionCmd):
         global).
     """
 
-    _name = u"fullscreen"
-    _cmd = u"[id='{target.window}'] fullscreen {action}"
-    _doc_url = 'http://i3wm.org/docs/userguide.html#_manipulating_layout'
-    _actions = ['enable', 'disable', 'toggle']
+    _name = u'fullscreen'
+    _cmd = u'[id="{target.window}"] fullscreen {action}'
+    _doc_url = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
+    _actions = [u'enable', u'disable', u'toggle']
 
 
 class DebuglogCmd(AbstractActionCmd):
     """ http://i3wm.org/docs/userguide.html#_enabling_debug_logging
     """
 
-    _name = u"debuglog"
-    _cmd = u"debuglog {action}"
-    _actions = ['on', 'off', 'toggle']
+    _name = u'debuglog'
+    _cmd = u'debuglog {action}'
+    _actions = [u'on', u'off', u'toggle']
 
 
 class ShmlogCmd(AbstractActionCmd):
     """ http://i3wm.org/docs/userguide.html#shmlog
     """
 
-    _name = u"shmlog"
+    _name = u'shmlog'
     # TODO: add the possibility to specify the shared memory size
-    _cmd = u"shmlog {action}"
-    _actions = ['on', 'off', 'toggle']
+    _cmd = u'shmlog {action}'
+    _actions = [u'on', u'off', u'toggle']
 
 
 class ReloadCmd(AbstractCmd):
     """ http://i3wm.org/docs/userguide.html#_reloading_restarting_exiting
     """
 
-    _name = u"reload"
-    _cmd = u"reload"
+    _name = u'reload'
+    _cmd = u'reload'
 
 
 class RestartCmd(AbstractCmd):
     """ http://i3wm.org/docs/userguide.html#_reloading_restarting_exiting
     """
 
-    _name = u"restart"
-    _cmd = u"restart"
+    _name = u'restart'
+    _cmd = u'restart'
 
 
 class ExitCmd(AbstractCmd):
     """ http://i3wm.org/docs/userguide.html#_reloading_restarting_exiting
     """
 
-    _name = u"exit"
-    _cmd = u"exit"
+    _name = u'exit'
+    _cmd = u'exit'
 
 
 class GotoWorkspaceCmd(AbstractWorkspaceCmd):
 
-    _name = u"goto_workspace"
-    _cmd = u"workspace '{ws.name}'"
+    _name = u'goto_workspace'
+    _cmd = u'workspace "{ws.name}"'
 
 
 class MoveWorkspaceToOutputCmd(AbstractOutputCmd):
@@ -235,8 +249,8 @@ class MoveWorkspaceToOutputCmd(AbstractOutputCmd):
     """
     # XXX: it seems that it's not possible to specify a workspace other
     # than the current one. This needs to be investigated further
-    _name = 'move_workspace_to_output'
-    _cmd = u"move workspace to output '{output.name}'"
+    _name = u'move_workspace_to_output'
+    _cmd = u'move workspace to output "{output.name}"'
 
 
 class LayoutCmd(AbstractActionCmd):
@@ -246,9 +260,15 @@ class LayoutCmd(AbstractActionCmd):
         respectively.
     """
 
-    _name = u"exit"
-    _cmd = u"layout {action}"
-    _doc_url = 'http://i3wm.org/docs/userguide.html#_manipulating_layout'
+    _name = u'exit'
+    _cmd = u'layout {action}'
+    _doc_url = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
     _actions = [
-        'default', 'tabbed', 'stacking', 'splitv', 'splith',
-        'toggle split', 'toggle all']
+        u'default', u'tabbed', u'stacking', u'splitv', u'splith',
+        u'toggle split', u'toggle all']
+
+
+class RenameWorkspaceCmd(AbstractWorkspaceCmd, AbstractValueCmd):
+
+    _name = u'rename'
+    _cmd = u'rename workspace "{ws.name}" to "{value}"'
