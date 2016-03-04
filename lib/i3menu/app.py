@@ -177,6 +177,9 @@ class Application(object):
         workspace_entries_menu = Menu(
             'workspace_actions', prompt=_('Workspace Actions'))
         workspace_entries_menu.add_command(
+            label=_('Layout'),
+            command=cmds.LayoutCmd)
+        workspace_entries_menu.add_command(
             label=_('Move workspace to output'),
             command=cmds.MoveWorkspaceToOutputCmd)
         # workspace_entries_menu.add_command(

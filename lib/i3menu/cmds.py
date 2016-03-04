@@ -237,3 +237,18 @@ class MoveWorkspaceToOutputCmd(AbstractOutputCmd):
     # than the current one. This needs to be investigated further
     _name = 'move_workspace_to_output'
     _cmd = u"move workspace to output '{output.name}'"
+
+
+class LayoutCmd(AbstractActionCmd):
+    """ Use layout toggle split, layout stacking, layout tabbed,
+        layout splitv or layout splith to change the current container layout
+        to splith/splitv, stacking, tabbed layout, splitv or splith,
+        respectively.
+    """
+
+    _name = u"exit"
+    _cmd = u"layout {action}"
+    _doc_url = 'http://i3wm.org/docs/userguide.html#_manipulating_layout'
+    _actions = [
+        'default', 'tabbed', 'stacking', 'splitv', 'splith',
+        'toggle split', 'toggle all']
