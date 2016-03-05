@@ -14,6 +14,11 @@ from i3menu.menu import ActionsMenu
 from i3menu.menu import WindowsMenu
 from i3menu.menu import WorkspacesMenu
 from i3menu.menu import OutputsMenu
+from i3menu.app import menu_tree
+from i3menu.menu import menu_list
+from i3menu.menu import display_menu
+from i3menu.menu import mainloop
+from i3menu.utils import which
 
 
 class TestMenu(unittest.TestCase):
@@ -21,6 +26,11 @@ class TestMenu(unittest.TestCase):
     def test_menu(self):
         menu = Menu('test', prompt='Dummy')
         self.assertEqual(menu.entries, [])
+
+    def test_menu_list(self):
+        tree = menu_tree()
+        menus = menu_list(tree)
+        self.assertEqual(len(menus), 7)
 
     def test_menu_root(self):
         menu = Menu('test')
@@ -84,3 +94,41 @@ class TestMenu(unittest.TestCase):
         menu.filter_fnc = lambda e: e.name == 'MockOutput2'
         self.assertEqual(len(menu.entries), 1)
         self.assertEqual(menu.entries[0].value.name, 'MockOutput2')
+
+    def test_display_menu(self):
+        oneoptionmenu = ActionsMenu('test', actions=['a'])
+        entry = display_menu('', oneoptionmenu)
+        self.assertEqual(entry.value, 'a')
+        menu = ActionsMenu('test', actions=['a', 'b'])
+        entry = display_menu('grep "b"', menu)
+        self.assertEqual(entry.value, 'b')
+        menu = ActionsMenu('test', actions=['a', 'b', 'c'])
+        entry = display_menu(
+            '', menu, filter_fnc=lambda e: e.value == 'a')
+        self.assertEqual(entry.value, 'a')
+        menu = Menu('test')
+        res = display_menu(
+            'echo "new"', menu)
+        self.assertEqual(res, u'new')
+
+    def test_mainloop(self):
+        grep = which('grep')
+        oneoptionmenu = ActionsMenu('test', actions=['a'])
+        entry = display_menu('', oneoptionmenu)
+        self.assertEqual(entry.value, 'a')
+        menu = ActionsMenu('test', actions=['a', 'b'])
+        mp = '{cmd} "{choice}"'.format(cmd=grep, choice='b')
+        entry = mainloop(menu_provider=mp, menu=menu)
+        self.assertEqual(entry, 'b')
+        menu = ActionsMenu('test', actions=['a', 'b'])
+        mp = '{cmd} "{choice}"'.format(cmd=grep, choice='c')
+        entry = mainloop(mp, menu)
+        self.assertIsNone(entry)
+        menu = Menu('test')
+        submenu1 = Menu('test1', prompt='test1')
+        submenu2 = Menu('test2', prompt='test2')
+        menu.add_cascade(label='1', menu=submenu1)
+        menu.add_cascade(label='2', menu=submenu2)
+        mp = '{cmd} "{choice}"'.format(cmd=grep, choice='2')
+        # entry = mainloop(mp, menu)
+        # self.assertIsNone(entry)

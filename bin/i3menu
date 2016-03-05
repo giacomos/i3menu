@@ -4,13 +4,27 @@ import argparse
 import sys
 from i3menu import __version__
 from i3menu.app import Application
+from i3menu.app import menu_tree
+from i3menu.menu import menu_list
+
+if sys.version_info.major == 3:
+    PYTHON3 = True
+    PYTHON2 = False
+else:
+    PYTHON3 = False
+    PYTHON2 = True
 
 
 def run():
-
-    parser = argparse.ArgumentParser(
-        description='Provides rofi menus to interact with i3',
-        prog='i3menu', version=__version__)
+    parser = None
+    if PYTHON2:
+        parser = argparse.ArgumentParser(
+            description='Provides rofi menus to interact with i3',
+            prog='i3menu', version=__version__)
+    else:
+        parser = argparse.ArgumentParser(
+            description='Provides rofi menus to interact with i3',
+            prog='i3menu')
     parser.add_argument(
         "--debug", action='store_true',
         help="Debug, print the i3 command before executing it"
@@ -20,31 +34,12 @@ def run():
         choices=['dmenu', 'rofi'],
         help="Force the use of a menu provider"
     )
-    parser.add_argument(
-        "--label-workspace-format", dest='label_workspace_format',
-        help="Custom label format for workspaces menu.",
-        metavar='<format>'
-    )
-    parser.add_argument(
-        "--label-output-format", dest='label_output_format',
-        metavar='<format>',
-        help="Custom label format for outputs menu."
-    )
-    parser.add_argument(
-        "--label-window-format", dest='label_window_format',
-        metavar='<format>',
-        help="Custom label format for windows menu."
-    )
-#     parser.add_argument(
-#         "--action", dest='action', metavar='<action>',
-#         choices=all_actions,
-#         help="""Command action. Depending on the command not all action
-# may be available. Allowed values are: """ + ", ".join(all_actions),
-#     )
+    tree = menu_tree()
+    options = menu_list(tree)
     parser.add_argument(
         "menu",
-        # choices=options,
-        # help="Menu to be executed. Allowed values are: " + ", ".join(options),
+        choices=options,
+        help="Menu to be executed. Allowed values are: " + ", ".join(options),
         metavar='<menu>')
     args = parser.parse_args()
     app = Application(args)

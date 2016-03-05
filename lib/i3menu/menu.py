@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
+import six
+import subprocess
+
 from i3menu import _
-from i3menu.connector import I3Connector
+from i3menu import logger
+from i3menu import __name__
+from i3menu.config import SUBMENU_SIGN
+from i3menu.config import MENUENTRY_SIGN
 from i3menu.config import LABEL_WINDOW
 from i3menu.config import LABEL_WORKSPACE
 from i3menu.config import LABEL_OUTPUT
+from i3menu.connector import I3Connector
+from i3menu.utils import safe_decode
+from i3menu.utils import safe_join
 
 
 class MenuEntry(object):
@@ -45,7 +54,7 @@ XRANDR_DIRECTIONS = [
 
 class Menu(object):
     name = 'root'
-    prompt = u'Menu:'
+    prompt = u'Menu'
     _entries = None
     parent = None
     root = False
@@ -95,6 +104,12 @@ class Menu(object):
         return myself
 
 
+class I3Menu(Menu):
+    def __init__(self, *args, **kwargs):
+        super(I3Menu, self).__init__(*args, **kwargs)
+        self.i3 = I3Connector()
+
+
 class ActionsMenu(Menu):
 
     def __init__(self, *args, **kwargs):
@@ -113,11 +128,7 @@ class ActionsMenu(Menu):
         return res
 
 
-class WindowsMenu(Menu):
-
-    def __init__(self, *args, **kwargs):
-        super(WindowsMenu, self).__init__(*args, **kwargs)
-        self.i3 = I3Connector()
+class WindowsMenu(I3Menu):
 
     @property
     def entries(self):
@@ -137,11 +148,7 @@ class WindowsMenu(Menu):
         return entries
 
 
-class WorkspacesMenu(Menu):
-
-    def __init__(self, *args, **kwargs):
-        super(WorkspacesMenu, self).__init__(*args, **kwargs)
-        self.i3 = I3Connector()
+class WorkspacesMenu(I3Menu):
 
     @property
     def entries(self):
@@ -160,11 +167,7 @@ class WorkspacesMenu(Menu):
         return entries
 
 
-class OutputsMenu(Menu):
-
-    def __init__(self, *args, **kwargs):
-        super(OutputsMenu, self).__init__(*args, **kwargs)
-        self.i3 = I3Connector()
+class OutputsMenu(I3Menu):
 
     @property
     def entries(self):
@@ -184,3 +187,94 @@ class OutputsMenu(Menu):
             entry = MenuEntry(**{'label': label, 'value': out})
             entries.append(entry)
         return entries
+
+
+def recursive_menu_traverse(menu, results=None):
+    results = results or []
+    if isinstance(menu, Menu):
+        results.append(menu)
+        for child in menu.entries:
+            if isinstance(child, MenuEntry) and \
+                    isinstance(child.value, Menu):
+                results.extend(
+                    recursive_menu_traverse(child.value, results))
+    return list(set(results))
+
+
+def menu_root(tree, root_name):
+    menus_list = recursive_menu_traverse(tree)
+    res = None
+    for m in menus_list:
+        if m.name == root_name:
+            res = m
+    if res:
+        return res
+    else:
+        return tree
+
+
+def menu_list(tree):
+    menu_list = recursive_menu_traverse(tree)
+    sorted_list = sorted(menu_list, key=lambda m: m.name)
+    return [m.name for m in sorted_list]
+
+
+def display_menu(menu_provider, menu, prompt=None, filter_fnc=None):
+    entries = menu.entries
+    if filter_fnc:
+        entries = [e for e in filter(filter_fnc, entries)]
+    if len(entries) == 1:
+        logger.info('This menu has just one option, no need to diplay it')
+        return entries[0]
+    prompt = u'{appname} {prompt}'.format(
+        appname=__name__,
+        prompt=menu.prompt)
+    encoded_prompt = '"%s": ' % prompt
+    cmd_args = []
+    if 'rofi' in menu_provider or 'dmenu' in menu_provider:
+        cmd_args = ['-p', encoded_prompt]
+    if 'rofi' in menu_provider:
+        cmd_args = ['-dmenu'] + cmd_args
+    encoded_args = safe_join(cmd_args, ' ')
+    labels = []
+    for i, e in enumerate(entries):
+        icon = e.cascade and SUBMENU_SIGN or MENUENTRY_SIGN
+        label = u'{idx}: {l}{icon}'.format(
+            idx=i,
+            l=e.label,
+            icon=icon)
+        labels.append(label)
+    encoded_labels = safe_join(labels, '\n')
+    cmd = 'echo "{options}" | {cmd} {cmd_args}'.format(
+        cmd=menu_provider,
+        cmd_args=encoded_args,
+        options=encoded_labels,
+    )
+    logger.info('Display menu: ' + repr(cmd))
+    proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
+    res = safe_decode(proc.stdout.read()).strip('\n')
+    try:
+        res = res.strip(SUBMENU_SIGN).strip(MENUENTRY_SIGN).split(': ', 1)[-1]
+    except:
+        import pdb; pdb.set_trace()
+    if len(entries) == 0:
+        return res
+    for e in entries:
+        if e.label == res:
+            return e
+
+
+def mainloop(menu_provider, menu, filter_fnc=None):
+    entry = display_menu(menu_provider, menu, filter_fnc=filter_fnc)
+    if not entry:
+        return None
+    elif isinstance(entry, six.string_types):
+        return entry
+    elif isinstance(entry.value, Menu):
+        newmenu = entry.value
+        if not newmenu.root:
+            newmenu.parent = menu
+        return mainloop(menu_provider, newmenu)
+    elif entry:
+        return entry.value
+    return None

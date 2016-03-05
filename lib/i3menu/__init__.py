@@ -11,5 +11,6 @@ logger.addHandler(handler)
 
 _ = i18n.language.gettext
 
-__version__ = '3.0'
-__author__ = 'Giacomo Spettoli'
+__name__ = u'i3menu'
+__version__ = u'3.0'
+__author__ = u'Giacomo Spettoli'
