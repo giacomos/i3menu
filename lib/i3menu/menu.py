@@ -253,10 +253,7 @@ def display_menu(menu_provider, menu, prompt=None, filter_fnc=None):
     logger.info('Display menu: ' + repr(cmd))
     proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
     res = safe_decode(proc.stdout.read()).strip('\n')
-    try:
-        res = res.strip(SUBMENU_SIGN).strip(MENUENTRY_SIGN).split(': ', 1)[-1]
-    except:
-        import pdb; pdb.set_trace()
+    res = res.strip(SUBMENU_SIGN).strip(MENUENTRY_SIGN).split(': ', 1)[-1]
     if len(entries) == 0:
         return res
     for e in entries:
