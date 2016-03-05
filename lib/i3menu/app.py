@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import logging
 import subprocess
 from i3menu.connector import I3Connector
 from i3menu.utils import which
@@ -35,6 +36,10 @@ class Application(object):
         self.config = self.parse_args(args)
         self.i3 = I3Connector()
         self.mp = self.get_menu_provider()
+        if self.config.get('debug'):
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.WARNING)
         if not self.mp:
             logger.info('No menu provider found. Testing?')
 
@@ -72,8 +77,15 @@ class Application(object):
         if params is None:
             sys.exit()
         cmd_msg = cmd.cmd(**params)
-        logger.info('i3 command: "{cmd}"'.format(cmd=cmd_msg))
-        self.i3.command(cmd_msg)
+        logger.info('Running i3 command: "{cmd}"'.format(cmd=cmd_msg))
+        res = self.i3.command(cmd_msg)
+        if not len(res):
+            logger.info("The command made no changes on i3")
+            return
+        elif res[0].get('success'):
+            return
+        else:
+            return res[0].get('error')
 
     def collect_command_params(self, cmd):
         required_params = cmd.params()
@@ -159,8 +171,7 @@ class Application(object):
             options='\n'.join(safe_labels),
             prompt=prompt,
         )
-        if self.config.get('debug'):
-            print(cmd)
+        logger.info('Display menu: ' + repr(cmd))
         proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
         res = proc.stdout.read().decode('utf-8').strip('\n')
         res = res.strip(SUBMENU_SIGN).strip(MENUENTRY_SIGN).split(': ', 1)[-1]

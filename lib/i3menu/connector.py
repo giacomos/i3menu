@@ -1,19 +1,8 @@
 # -*- coding: utf-8 -*-
 import i3ipc
-from i3menu.config import DEFAULTS
-from i3menu import logger
 
 
 class I3Connector(object):
-
-    def __init__(self, config=None):
-        if not config:
-            config = DEFAULTS
-        self.config = config
-        # try:
-        #     self.i3 = i3ipc.Connection()
-        # except:
-        #     self.i3 = None
 
     @property
     def i3(self):
@@ -59,8 +48,6 @@ class I3Connector(object):
     def get_bar_ids(self):
         return self.i3.get_bar_config_list()
 
-    def command(self, cmd):
-        if self.config.get('debug'):
-            logger.info(cmd)
+    def command(self, cmd, debug=False):
         res = self.i3.command(cmd)
         return res

@@ -12,7 +12,7 @@ def run():
         description='Provides rofi menus to interact with i3',
         prog='i3menu', version=__version__)
     parser.add_argument(
-        "-d", "--debug", action='store_true',
+        "--debug", action='store_true',
         help="Debug, print the i3 command before executing it"
     )
     parser.add_argument(
