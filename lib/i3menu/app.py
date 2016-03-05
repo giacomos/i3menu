@@ -12,6 +12,21 @@ from i3menu import cmds
 from i3menu.menu import Menu
 from i3menu.menu import MenuEntry
 
+try:
+    unicode = unicode
+except NameError:
+    # 'unicode' is undefined, must be Python 3
+    str = str
+    unicode = str
+    bytes = bytes
+    basestring = (str, bytes)
+else:
+    # 'unicode' exists, must be Python 2
+    str = str
+    unicode = unicode
+    bytes = str
+    basestring = basestring
+
 
 class Application(object):
     __name__ = 'i3menu'
@@ -82,7 +97,7 @@ class Application(object):
         entry = self._display_menu(menu, filter_fnc=filter_fnc)
         if not entry:
             return None
-        elif isinstance(entry, unicode):
+        elif isinstance(entry, basestring):
             return entry
         elif isinstance(entry.value, Menu):
             newmenu = entry.value
