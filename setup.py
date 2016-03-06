@@ -1,35 +1,34 @@
-import os
+from __future__ import absolute_import, division, print_function
 import sys
-import codecs
-
-sys.path.insert(0, os.path.abspath('lib'))
-from i3menu import __version__, __author__
+from os import path
+from codecs import open
 
 try:
     from setuptools import setup
-    from setuptools import find_packages
 except ImportError:
     print("i3menu needs setuptools in order to build. Install it using"
           " your package manager (usually python-setuptools) or via pip (pip"
           " install setuptools).")
     sys.exit(1)
 
+sys.path.insert(0, path.abspath('lib'))
+from i3menu.__about__ import (
+    __author__, __email__, __license__, __summary__, __title__,
+    __uri__, __version__
+)
 
-def read(*rnames):
-    return codecs.open(
-        os.path.join(os.path.dirname(__file__), *rnames), 'r', 'utf-8').read()
+here = path.abspath(path.dirname(__file__))
 
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
+with open(path.join(here, 'docs', 'HISTORY.rst'), encoding='utf-8') as f:
+    long_description = '\n'.join((long_description, f.read()))
 
 setup(
-    name='i3menu',
+    name=__title__,
     version=__version__,
-    description="a set of menus based on Rofi or dmenu to interact with i3wm",
-    long_description='\n\n'.join((
-        read('README.rst'),
-        read('docs/HISTORY.rst')
-    )),
-    # Get more strings from
-    # http://pypi.python.org/pypi?:action=list_classifiers
+    description=__summary__,
+    long_description=long_description,
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",  # noqa
@@ -44,23 +43,14 @@ setup(
     ],
     keywords='i3 i3wm rofi dmenu',
     author=__author__,
-    author_email='giacomo.spettoli@gmail.com',
-    url='https://github.com/giacomos/i3menu',
-    license='GPLv3',
+    author_email=__email__,
+    url=__uri__,
+    license=__license__,
     package_dir={'': 'lib'},
-    packages=find_packages('lib'),
+    packages=['i3menu'],
     include_package_data=True,
     zip_safe=False,
-    install_requires=[
-        'setuptools',
-        'i3ipc',
-        'argparse',
-        'six'
-    ],
-    scripts=[
-        'bin/i3menu'
-    ],
-    entry_points="""
-          # -*- Entry points: -*-
-        """,
+    install_requires=['setuptools', 'i3ipc', 'argparse', 'six'],
+    scripts=['bin/i3menu'],
+    entry_points={},
 )
