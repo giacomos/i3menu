@@ -1,10 +1,9 @@
 import os
 import locale
 import gettext
+from i3menu.__about__ import __title__
 
 # https://wiki.maemo.org/Internationalize_a_Python_application
-
-APP_NAME = "i3menu"
 
 APP_DIR = os.getcwd()
 LOCALE_DIR = os.path.join(APP_DIR, 'locale')
@@ -31,12 +30,12 @@ mo_location = LOCALE_DIR
 #  (nothing to change here for you)
 gettext.install(True)
 gettext.bindtextdomain(
-    APP_NAME,
+    __title__,
     mo_location)
 
-gettext.textdomain(APP_NAME)
+gettext.textdomain(__title__)
 language = gettext.translation(
-    APP_NAME,
+    __title__,
     mo_location,
     languages=languages,
     fallback=True)

@@ -1,0 +1,147 @@
+# Translations template for i3menu.
+# Copyright (C) 2016 ORGANIZATION
+# This file is distributed under the same license as the i3menu project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: i3menu 3.1.dev0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2016-03-06 22:35+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.2.0\n"
+
+#: lib/i3menu/app.py:22
+msgid "Window Actions"
+msgstr ""
+
+#: lib/i3menu/app.py:24
+msgid "Move window to workspace"
+msgstr ""
+
+#: lib/i3menu/app.py:27
+msgid "Border style"
+msgstr ""
+
+#: lib/i3menu/app.py:29
+msgid "Split"
+msgstr ""
+
+#: lib/i3menu/app.py:31
+msgid "Floating (toggle)"
+msgstr ""
+
+#: lib/i3menu/app.py:33
+msgid "Fullscreen (toggle)"
+msgstr ""
+
+#: lib/i3menu/app.py:35
+msgid "Sticky"
+msgstr ""
+
+#: lib/i3menu/app.py:37
+msgid "Move to Scratchpad"
+msgstr ""
+
+#: lib/i3menu/app.py:40
+msgid "Kill"
+msgstr ""
+
+#: lib/i3menu/app.py:43
+msgid "Workspace Actions"
+msgstr ""
+
+#: lib/i3menu/app.py:45
+msgid "Rename"
+msgstr ""
+
+#: lib/i3menu/app.py:48
+msgid "Layout"
+msgstr ""
+
+#: lib/i3menu/app.py:51
+msgid "Move workspace to output"
+msgstr ""
+
+#: lib/i3menu/app.py:55
+msgid "Global actions"
+msgstr ""
+
+#: lib/i3menu/app.py:57
+msgid "Debug log"
+msgstr ""
+
+#: lib/i3menu/app.py:59
+msgid "Shared memory log"
+msgstr ""
+
+#: lib/i3menu/app.py:61
+msgid "Restart i3"
+msgstr ""
+
+#: lib/i3menu/app.py:63
+msgid "Reload i3"
+msgstr ""
+
+#: lib/i3menu/app.py:65
+msgid "Exit i3"
+msgstr ""
+
+#: lib/i3menu/app.py:67
+msgid "Goto actions"
+msgstr ""
+
+#: lib/i3menu/app.py:69
+msgid "Go to workspace"
+msgstr ""
+
+#: lib/i3menu/app.py:70
+msgid "Bar actions"
+msgstr ""
+
+#: lib/i3menu/app.py:72
+msgid "Scratchpad actions"
+msgstr ""
+
+#: lib/i3menu/app.py:74
+msgid "Root"
+msgstr ""
+
+#: lib/i3menu/cmds.py:57
+msgid "Value"
+msgstr ""
+
+#: lib/i3menu/cmds.py:77
+msgid "Select action"
+msgstr ""
+
+#: lib/i3menu/cmds.py:91
+msgid "Select window"
+msgstr ""
+
+#: lib/i3menu/cmds.py:104
+msgid "Select workspace"
+msgstr ""
+
+#: lib/i3menu/cmds.py:116
+msgid "Select output"
+msgstr ""
+
+#: lib/i3menu/config.py:7
+msgid "Select"
+msgstr ""
+
+#: lib/i3menu/menu.py:89
+msgid "<go back>"
+msgstr ""
+
+#: lib/i3menu/menu.py:92
+msgid "<exit>"
+msgstr ""
+
