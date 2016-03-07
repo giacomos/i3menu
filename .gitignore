@@ -8,3 +8,4 @@
 /venv/
 .tox/
 .cache/
+.eggs/
