@@ -13,9 +13,9 @@ from i3menu.menu import menu_list
 # descr = '\n'.join((title, __summary__, __longlicense__, __copyright__,))
 # import pdb; pdb.set_trace()
 descr = """{about.__title__} {about.__version__}
-{about.__summary__}
-{about.__longlicense__}
 {about.__copyright__}
+{about.__longlicense__}
+
 Written by {about.__author__} <{about.__email__}>""".format(about=__about__)
 
 
