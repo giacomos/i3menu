@@ -75,7 +75,8 @@ class TestMenu(unittest.TestCase):
 
     def test_workspaces_menu(self):
         menu = WorkspacesMenu('test')
-        menu.i3.get_workspaces = mock.MagicMock(return_value=MOCK_WORKSPACES_LIST)
+        menu.i3.get_workspaces = mock.MagicMock(
+            return_value=MOCK_WORKSPACES_LIST)
         self.assertEqual(len(menu.entries), len(MOCK_WORKSPACES_LIST))
         self.assertEqual(menu.entries[0].value.name, 'MockWorkspace1')
         menu.filter_fnc = lambda e: e.name == 'MockWorkspace2'

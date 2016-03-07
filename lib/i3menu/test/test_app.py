@@ -3,11 +3,9 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import unittest
-import mock
 from i3menu.app import Application
 from i3menu.app import menu_tree
 from i3menu.app import menu_root
-from i3menu.exceptions import MissingParamException
 from i3menu.menu import Menu
 
 

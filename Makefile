@@ -52,7 +52,7 @@ tests: venv
 	${VIRTUALENV_DIR}/bin/tox -v
 
 develop: venv
-	${VIRTUALENV_DIR}/bin/python setup.py develop
+	${VIRTUALENV_DIR}/bin/pip install -e .
 
 python:
 	$(PYTHON) setup.py build
@@ -90,6 +90,7 @@ clean:
 	rm -rf .tox
 	rm -rf .coverage
 	rm -rf .cache
+	rm -rf .eggs
 	@echo "Cleaning up byte compiled python stuff"
 	find . -type f -regex ".*\.py[co]$$" -delete
 	find . -type f -name '*.pyc' -delete
@@ -98,3 +99,6 @@ clean:
 push: clean
 	git push origin && git push --tags origin
 
+extract_messages: venv
+	$(VIRTUALENV_DIR)/bin/pip install babel
+	$(VIRTUALENV_DIR)/bin/python setup.py extract_messages -o lib/i3menu/locale/i3menu.pot --input-dirs=lib/i3menu

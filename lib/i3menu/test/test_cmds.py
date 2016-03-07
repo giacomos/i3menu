@@ -3,7 +3,6 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import unittest
-import mock
 from . import MOCK_WINDOW1
 from . import MOCK_WORKSPACE1
 from . import MOCK_OUTPUT1

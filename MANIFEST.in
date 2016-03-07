@@ -1,14 +1,8 @@
 include *.rst
-include docs *.rst
-recursive-include lib/i3menu/locale *
-include MANIFEST.in
-global-exclude *.pyc
-prune docs/screenshots 
-include *.txt
-include .coveragerc
 include Makefile
-include tox.ini
+
+recursive-include lib/i3menu/locale *
+recursive-include lib/i3menu/test *.py
 recursive-include docs *.rst
-recursive-include tests *.py
-recursive-include ci *.ini
-recursive-include ci *.py
+
+global-exclude *.pyc

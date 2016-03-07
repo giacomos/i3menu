@@ -35,7 +35,7 @@ class MockWorkspace(object):
     name = "MockWorkspace"
     visible = True
     focused = False
-    rect = {"x":0, "y":20, "width":1920, "height":1060}
+    rect = {"x": 0, "y": 20, "width": 1920, "height": 1060}
     output = "mockoutput"
     urgent = False
 
@@ -48,7 +48,7 @@ class MockOutput(object):
     name = "MockOutput"
     active = True
     primary = True
-    rect = {"x":0, "y":0, "width":1920, "height":1080}
+    rect = {"x": 0, "y": 0, "width": 1920, "height": 1080}
     current_workspace = "MockWorkspace"
 
     def __init__(self, *args, **kwargs):

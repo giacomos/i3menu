@@ -8,9 +8,9 @@ env:
   matrix:
     - TOXENV=check
 
-    - TOXENV=2.7-cover,coveralls,codecov
-    - TOXENV=3.4-cover,coveralls,codecov
-    - TOXENV=3.5-cover,coveralls,codecov
+    - TOXENV=py27,coveralls,codecov
+    - TOXENV=py34,coveralls,codecov
+    - TOXENV=py35,coveralls,codecov
 before_install:
   - python --version
   - uname -a

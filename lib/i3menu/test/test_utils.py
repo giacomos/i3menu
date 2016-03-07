@@ -4,7 +4,6 @@ __metaclass__ = type
 
 import unittest
 from i3menu.utils import which
-from i3menu.app import Application
 
 
 class TestMenus(unittest.TestCase):

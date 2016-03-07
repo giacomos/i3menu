@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function
 import sys
-from i3menu import i18n
+from os import path
+import gettext
 
 import logging
 
@@ -22,7 +23,10 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-_ = i18n.language.gettext
+here = path.abspath(path.dirname(__file__))
+localedir = path.join(here, 'locale')
+translate = gettext.translation(__title__, localedir, fallback=True)
+_ = translate.gettext
 
 # https://github.com/jaraco/setuptools/blob/master/pkg_resources/_vendor/six.py
 PY2 = sys.version_info[0] == 2

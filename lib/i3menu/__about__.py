@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 # https://github.com/pypa/packaging/blob/master/packaging/__about__.py
 __all__ = [
     "__title__", "__summary__", "__uri__", "__version__", "__author__",
-    "__email__", "__license__", "__longlicense__" "__copyright__",
+    "__email__", "__license__", "__longlicense__", "__copyright__",
 ]
 
 __title__ = "i3menu"
@@ -21,3 +21,5 @@ __longlicense__ = """License GPLv3+: GNU GPL version \
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law."""
 __copyright__ = "Copyright (C) 2016 %s" % __author__
+
+__locales__ = ['en', 'it']

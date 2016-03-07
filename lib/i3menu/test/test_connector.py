@@ -2,14 +2,14 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import mock
-import unittest
-from i3menu.connector import I3Connector
-from . import MOCK_WINDOWS_LIST
-from . import MOCK_OUTPUTS_LIST
-from . import MOCK_OUTPUT1
-from . import MOCK_WINDOW2
-
+# import mock
+# import unittest
+# from i3menu.connector import I3Connector
+# from . import MOCK_WINDOWS_LIST
+# from . import MOCK_OUTPUTS_LIST
+# from . import MOCK_OUTPUT1
+# from . import MOCK_WINDOW2
+#
 #
 # @mock.patch.object(I3Connector, 'get_windows')
 # def mock_get_windows(mock_method):
