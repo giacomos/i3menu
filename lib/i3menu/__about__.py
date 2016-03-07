@@ -16,6 +16,8 @@ __author__ = "Giacomo Spettoli"
 __email__ = "giacomo.spettoli@gmail.com"
 
 __license__ = "GPLv3"
-__longlicense__ = "License GPLv3+: GNU GPL version 3" \
-    " or later <http://gnu.org/licenses/gpl.html>."
+__longlicense__ = """License GPLv3+: GNU GPL version \
+3 or later <http://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law."""
 __copyright__ = "Copyright (C) 2016 %s" % __author__
