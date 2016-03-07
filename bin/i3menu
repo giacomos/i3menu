@@ -2,29 +2,37 @@
 # -*- coding: utf-8 -*-
 import argparse
 import sys
-from i3menu import __version__
+# from i3menu import (
+#     __title__, __copyright__, __summary__, __version__, __longlicense__)
+from i3menu import __about__
 from i3menu.app import Application
 from i3menu.app import menu_tree
 from i3menu.menu import menu_list
 
-if sys.version_info.major == 3:
-    PYTHON3 = True
-    PYTHON2 = False
-else:
-    PYTHON3 = False
-    PYTHON2 = True
+# title = "{title} {version}".format(title=__title__,version=__version__)
+# descr = '\n'.join((title, __summary__, __longlicense__, __copyright__,))
+# import pdb; pdb.set_trace()
+descr = """{about.__title__} {about.__version__}
+{about.__summary__}
+{about.__longlicense__}
+{about.__copyright__}
+Written by {about.__author__} <{about.__email__}>""".format(about=__about__)
+
+
+class VersionAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        print(descr)
+        setattr(namespace, self.dest, values)
+        sys.exit()
 
 
 def run():
-    parser = None
-    if PYTHON2:
-        parser = argparse.ArgumentParser(
-            description='Provides rofi menus to interact with i3',
-            prog='i3menu', version=__version__)
-    else:
-        parser = argparse.ArgumentParser(
-            description='Provides rofi menus to interact with i3',
-            prog='i3menu')
+    parser = argparse.ArgumentParser(
+        description='Provides rofi menus to interact with i3',
+        prog='i3menu')
+    parser.add_argument(
+        '-v', '--version', action=VersionAction, nargs=0,
+        help="display version information and exit")
     parser.add_argument(
         "--debug", action='store_true',
         help="Debug, print the i3 command before executing it"
@@ -39,6 +47,7 @@ def run():
     parser.add_argument(
         "menu",
         choices=options,
+        default='root', nargs='?',
         help="Menu to be executed. Allowed values are: " + ", ".join(options),
         metavar='<menu>')
     args = parser.parse_args()
