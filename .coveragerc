@@ -2,7 +2,7 @@
 omit =
     */python?.?/*
     */site-packages/nose/*
-    tests/*
+    */lib/i3menu/test/*
 
 exclude_lines =
     if __name__ == .__main__.:
