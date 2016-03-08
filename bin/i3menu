@@ -2,16 +2,11 @@
 # -*- coding: utf-8 -*-
 import argparse
 import sys
-# from i3menu import (
-#     __title__, __copyright__, __summary__, __version__, __longlicense__)
 from i3menu import __about__
 from i3menu.app import Application
 from i3menu.app import menu_tree
 from i3menu.menu import menu_list
 
-# title = "{title} {version}".format(title=__title__,version=__version__)
-# descr = '\n'.join((title, __summary__, __longlicense__, __copyright__,))
-# import pdb; pdb.set_trace()
 descr = """{about.__title__} {about.__version__}
 {about.__copyright__}
 {about.__longlicense__}
