@@ -1,13 +1,42 @@
-.. image:: https://travis-ci.org/giacomos/i3menu.svg?branch=master
+======
+i3menu
+======
+
+.. list-table::
+    :stub-columns: 1
+
+    * - tests
+      - |travis| |coveralls| |codecov|
+    * - package
+      - |version| |downloads| |wheel| |license| |status|
+
+.. |travis| image:: https://img.shields.io/travis/giacomos/i3menu/master.svg?style=flat&label=travis
     :target: https://travis-ci.org/giacomos/i3menu
     :alt: TravisCI - i3menu
 
-.. image:: https://coveralls.io/repos/github/giacomos/i3menu/badge.svg?branch=master
+.. |coveralls| image:: https://img.shields.io/coveralls/giacomos/i3menu/master.svg?style=flat&label=coveralls
+    :alt: coverage status
     :target: https://coveralls.io/github/giacomos/i3menu?branch=master
 
+.. |codecov| image:: https://img.shields.io/codecov/c/github/giacomos/i3menu/master.svg?style=flat&label=codecov
+    :alt: coverage status
+    :target: https://codecov.io/github/giacomos/i3menu
 
-.. image:: https://img.shields.io/pypi/v/i3menu.svg
+.. |version| image:: https://img.shields.io/pypi/v/i3menu.svg
    :target: https://pypi.python.org/pypi/i3menu
+
+.. |downloads| image:: https://img.shields.io/pypi/dm/i3menu.svg?style=flat
+    :alt: PyPI Package monthly downloads
+    :target: https://pypi.python.org/pypi/i3menu
+
+.. |wheel| image:: https://img.shields.io/pypi/wheel/i3menu.svg
+    :target: https://pypi.python.org/pypi/i3menu
+
+.. |license| image:: https://img.shields.io/pypi/l/i3menu.svg
+    :target: https://pypi.python.org/pypi/i3menu
+
+.. |status| image:: https://img.shields.io/pypi/status/i3menu.svg
+    :target: https://pypi.python.org/pypi/i3menu
 
 Introduction
 ============
