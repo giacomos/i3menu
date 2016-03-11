@@ -10,11 +10,11 @@ from os.path import join
 from os.path import abspath
 from os.path import splitext
 
-sys.path.insert(0, abspath('lib'))
-from i3menu.__about__ import (
-    __author__, __email__, __license__, __summary__, __title__,
-    __uri__, __version__
-)
+# sys.path.insert(0, abspath('lib'))
+# from i3menu.__about__ import (
+#     __author__, __email__, __license__, __summary__, __title__,
+#     __uri__, __version__
+# )
 
 here = abspath(dirname(__file__))
 
@@ -26,6 +26,9 @@ with open(join(here, 'docs', 'HISTORY.rst'), encoding='utf-8') as f:
 # needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
 # pytest_runner = ['pytest-runner'] if needs_pytest else []
 # pytest_runner = ['pytest-runner']
+about = {}
+with open(join(here, 'lib', 'i3menu', '__about__.py'), encoding='utf-8') as f:
+    exec(f.read(), about)
 
 
 class CompileLocales(sdist):
@@ -37,9 +40,9 @@ class CompileLocales(sdist):
         sdist.run(self)
 
 setup(
-    name=__title__,
-    version=__version__,
-    description=__summary__,
+    name=about['__title__'],
+    version=about['__version__'],
+    description=about['__summary__'],
     long_description=long_description,
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -54,16 +57,22 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     keywords='i3 i3wm rofi dmenu',
-    author=__author__,
-    author_email=__email__,
-    url=__uri__,
-    license=__license__,
+    author=about['__author__'],
+    author_email=about['__email__'],
+    url=about['__uri__'],
+    license=about['__license__'],
     packages=['i3menu'],
     package_dir={'': 'lib'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
     include_package_data=True,
     zip_safe=False,
-    install_requires=['setuptools', 'i3ipc', 'argparse', 'six'],
+    install_requires=[
+        'zope.interface',
+        'zope.schema',
+        'zope.component',
+        'i3ipc',
+        'six'
+    ],
     setup_requires=['Babel'],
     tests_require=['mock', 'unittest2'],
     cmdclass={'sdist': CompileLocales},

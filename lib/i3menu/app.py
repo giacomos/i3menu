@@ -1,89 +1,25 @@
 # -*- coding: utf-8 -*-
 import sys
 import logging
-import six
+from zope.schema.vocabulary import getVocabularyRegistry
 
+from i3menu import _, __name__, logger
 from i3menu.connector import I3Connector
 from i3menu.utils import which
 from i3menu.config import DEFAULTS
-from i3menu import _
-from i3menu import __name__
-from i3menu import logger
-from i3menu import cmds
 from i3menu.menu import menu_root
-from i3menu.menu import Menu
-from i3menu.menu import display_menu
-from i3menu.menu import mainloop
+from i3menu.menu import Menu, MenuEntry
+from i3menu.interfaces import IMenuProvider
+from i3menu.interfaces import IContextManager
+from i3menu.interfaces import IMenu
+
+from zope.component import getUtility
+from i3menu.vocabs import init_vocabs
 
 
 def menu_tree():
 
-    window_entries_menu = Menu(
-        u'window_actions', prompt=_(u'Window Actions'))
-    window_entries_menu.add_command(
-        label=_(u'Move window to workspace'),
-        command=cmds.MoveWindowToWorkspaceCmd)
-    window_entries_menu.add_command(
-        label=_(u'Border style'), command=cmds.BorderCmd)
-    window_entries_menu.add_command(
-        label=_(u'Split'), command=cmds.SplitCmd)
-    window_entries_menu.add_command(
-        label=_(u'Floating (toggle)'), command=cmds.FloatingCmd)
-    window_entries_menu.add_command(
-        label=_(u'Fullscreen (toggle)'), command=cmds.FullscreenCmd)
-    window_entries_menu.add_command(
-        label=_(u'Sticky'), command=cmds.StickyCmd)
-    window_entries_menu.add_command(
-        label=_(u'Move to Scratchpad'),
-        command=cmds.MoveWindowToScratchpadCmd)
-    window_entries_menu.add_command(
-        label=_(u'Kill'), command=cmds.KillCmd)
-
-    workspace_entries_menu = Menu(
-        u'workspace_actions', prompt=_(u'Workspace Actions'))
-    workspace_entries_menu.add_command(
-        label=_(u'Rename'),
-        command=cmds.RenameWorkspaceCmd)
-    workspace_entries_menu.add_command(
-        label=_(u'Layout'),
-        command=cmds.LayoutCmd)
-    workspace_entries_menu.add_command(
-        label=_(u'Move workspace to output'),
-        command=cmds.MoveWorkspaceToOutputCmd)
-
-    global_entries_menu = Menu(
-        u'global_actions', prompt=_(u'Global actions'))
-    global_entries_menu.add_command(
-        label=_(u'Debug log'), command=cmds.DebuglogCmd)
-    global_entries_menu.add_command(
-        label=_(u'Shared memory log'), command=cmds.ShmlogCmd)
-    global_entries_menu.add_command(
-        label=_(u'Restart i3'), command=cmds.RestartCmd)
-    global_entries_menu.add_command(
-        label=_(u'Reload i3'), command=cmds.ReloadCmd)
-    global_entries_menu.add_command(
-        label=_(u'Exit i3'), command=cmds.ExitCmd)
-
-    goto_entries_menu = Menu(u'goto_actions', prompt=_(u'Goto actions'))
-    goto_entries_menu.add_command(
-        label=_(u'Go to workspace'), command=cmds.GotoWorkspaceCmd)
-    bar_entries_menu = Menu('bar_actions', prompt=_(u'Bar actions'))
-    scratchpad_entries_menu = Menu(
-        u'scratchpad_actions', prompt=_(u'Scratchpad actions'))
-
     root_menu = Menu('root', prompt=_(u'Root'), root=True)
-    root_menu.add_cascade(
-        label=goto_entries_menu.prompt, menu=goto_entries_menu)
-    root_menu.add_cascade(
-        label=window_entries_menu.prompt, menu=window_entries_menu)
-    root_menu.add_cascade(
-        label=workspace_entries_menu.prompt, menu=workspace_entries_menu)
-    root_menu.add_cascade(
-        label=bar_entries_menu.prompt, menu=bar_entries_menu)
-    root_menu.add_cascade(
-        label=scratchpad_entries_menu.prompt, menu=scratchpad_entries_menu)
-    root_menu.add_cascade(
-        label=global_entries_menu.prompt, menu=global_entries_menu)
     return root_menu
 
 
@@ -91,9 +27,12 @@ class Application(object):
     __name__ = __name__
 
     def __init__(self, args=None):
-        self.config = self.parse_args(args)
-        self.i3 = I3Connector()
-        self.mp = self.get_menu_provider()
+        self.context = getUtility(IContextManager)
+        self.context.config = self.parse_args(args)
+        self.context.i3 = I3Connector()
+        mname, mcmd = self.get_menu_provider()
+        self.context.mp = getUtility(IMenuProvider, mname)
+        init_vocabs(self.context)
 
     def parse_args(self, params=None):
         config = DEFAULTS
@@ -108,32 +47,71 @@ class Application(object):
         return config
 
     def apply_config(self):
-        if self.config.get('debug'):
+        if self.context.config.get('debug'):
             logger.setLevel(logging.DEBUG)
         else:
             logger.setLevel(logging.WARNING)
-        if not self.mp:
+        if not self.context.mp:
             logger.info(u'No menu provider found. Testing?')
-        self.tree = menu_tree()
-        if self.config.get('root'):
-            self.tree = menu_root(self.tree, self.config['root'])
+        self.tree = self.build_menu_tree()
+        if self.context.config.get('root'):
+            self.tree = menu_root(self.tree, self.context.config['root'])
             self.tree.root = True
             logger.info(u'Initial root: {root}'.format(root=self.tree))
 
+    def build_menu_tree(self):
+        vr = getVocabularyRegistry()
+        window_commands_vocab = vr.get(
+            self.context, 'window_commands_vocabulary')
+        window_commands_vocab._name = u'window_actions'
+        menu_adapter = IMenu(window_commands_vocab)
+        window_menu = menu_adapter(
+            name=u'window_actions', prompt=_(u'Windows Actions'))
+
+        workspace_commands_vocab = vr.get(
+            self.context, 'workspace_commands_vocabulary')
+        menu_adapter = IMenu(workspace_commands_vocab)
+        workspace_menu = menu_adapter(
+            name=u'workspace_actions', prompt=_(u'Workspace Actions'))
+
+        # goto_menu = Menu(u'goto_actions', prompt=_(u'Goto actions'))
+        # bar_menu = Menu('bar_actions', prompt=_(u'Bar actions'))
+        # global_menu = Menu(
+        #     u'global_actions', prompt=_(u'Global actions'))
+        # scratchpad_menu = Menu(
+        #     u'scratchpad_actions', prompt=_(u'Scratchpad actions'))
+
+        root_menu = Menu('root', prompt=_(u'Root'), root=True)
+        # root_menu.add_cascade(
+        #     label=goto_menu.prompt, menu=goto_menu)
+        root_menu.add_cascade(
+            label=window_menu.prompt, menu=window_menu)
+        root_menu.add_cascade(
+            label=workspace_menu.prompt, menu=workspace_menu)
+        # root_menu.add_cascade(
+        #     label=bar_menu.prompt, menu=bar_menu)
+        # root_menu.add_cascade(
+        #     label=scratchpad_menu.prompt, menu=scratchpad_menu)
+        # root_menu.add_cascade(
+        #     label=global_menu.prompt, menu=global_menu)
+        return root_menu
+
     def run(self):
         self.apply_config()
-        cmd_klass = mainloop(self.mp, self.tree)
-        if not cmd_klass:
-            logger.info(u'No valid choice made. Bye bye :)')
+        parent_menu = self.tree
+        res = self.context.mp.display_menu(parent_menu)
+
+        while(isinstance(res, MenuEntry) and isinstance(res.value, Menu)):
+            menu = res.value
+            menu.parent = parent_menu
+            res = self.context.mp.display_menu(menu)
+        if not res.value:
+            logger.info(u'Done! Cheers, bye! :)')
             sys.exit()
+        cmd_klass = res.value
         cmd = cmd_klass()
-        params = self.collect_command_params(cmd)
-        if params is None:
-            sys.exit()
-        cmd_msg = cmd.cmd(**params)
-        logger.info(u'Running i3 command: "{cmd}"'.format(cmd=cmd_msg))
-        res = self.i3.command(cmd_msg)
-        if not len(res):
+        res = cmd(self.context)
+        if not res or not len(res):
             logger.info(u'The command made no changes on i3')
             return
         elif res[0].get('success'):
@@ -142,42 +120,18 @@ class Application(object):
         else:
             return res[0].get('error')
 
-    def collect_command_params(self, cmd):
-        required_params = cmd.params()
-        params = {}
-        for p in required_params:
-            if p.default:
-                params[p.name] = p.default
-            elif p.default_fnc:
-                entry = display_menu(self.mp, p.fnc, filter_fnc=p.default_fnc)
-                if not entry:
-                    return None
-                params[p.name] = entry.value
-            else:
-                entry = display_menu(self.mp, p.fnc)
-                if not entry:
-                    return None
-                if isinstance(entry, six.string_types):
-                    params[p.name] = entry
-                else:
-                    params[p.name] = entry.value
-        return params
-
-    def _bar_entries(self, filter_fnc=None):
-        entries_list = self.conn.get_bar_ids()
-        if len(entries_list) == 1:
-            return entries_list[0]
-        entries = [{'label': i, 'value': i} for i in sorted(entries_list)]
-        return entries
-
     def get_menu_provider(self):
         cmd = None
-        if self.config.get('menu_provider'):
-            cmd = which(self.config.get('menu_provider'))
-        elif which('rofi'):
-            cmd = which('rofi')
-        elif which('dmenu'):
-            cmd = which('dmenu')
+        providers = ['rofi', 'dmenu']
+        required_provider = self.context.config.get('menu_provider')
+        if required_provider and required_provider in providers:
+            cmd = (required_provider, which(required_provider))
+        else:
+            for p in providers:
+                res = which(p)
+                if res:
+                    cmd = (p, res)
+                    break
         return cmd
 
 

@@ -48,6 +48,6 @@ class I3Connector(object):
     def get_bar_ids(self):
         return self.i3.get_bar_config_list()
 
-    def command(self, cmd, debug=False):
+    def command(self, cmd):
         res = self.i3.command(cmd)
         return res
