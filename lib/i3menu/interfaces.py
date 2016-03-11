@@ -1,6 +1,6 @@
 from zope.interface import Interface
 from zope.schema import Choice, TextLine
-from i3menu.factories import focused_window, focused_workspace
+from i3menu.factories import FocusedWindowFactory, FocusedWorkspaceFactory
 
 
 class IContextManager(Interface):
@@ -47,7 +47,7 @@ class IFloating(IWindowCommand):
         title=u"Window",
         required=True,
         vocabulary="windows_vocabulary",
-        defaultFactory=focused_window
+        defaultFactory=FocusedWindowFactory()
     )
 
     action = Choice(
@@ -63,7 +63,7 @@ class IMoveWindowToWorkspace(IWindowCommand):
         title=u"Window",
         required=True,
         vocabulary="windows_vocabulary",
-        defaultFactory=focused_window
+        defaultFactory=FocusedWindowFactory()
     )
 
     workspace = Choice(
@@ -93,7 +93,7 @@ class IRenameWorkspace(IWorkspaceCommand):
         title=u"Workspace",
         required=False,
         vocabulary="workspaces_vocabulary",
-        defaultFactory=focused_workspace
+        defaultFactory=FocusedWorkspaceFactory()
     )
 
     value = TextLine(

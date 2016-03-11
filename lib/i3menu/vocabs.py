@@ -7,6 +7,14 @@ from i3menu.interfaces import IWindowCommand
 from i3menu.interfaces import IWorkspaceCommand
 
 
+class WorkspaceObject(object):
+    pass
+
+
+class OutputObject(object):
+    pass
+
+
 class BaseVocabularyFactory(object):
     def __init__(self, context):
         self.context = context
@@ -40,8 +48,6 @@ class WorkspacesVocabularyFactory(BaseVocabularyFactory):
         for term in terms:
             # this is necessary since the WorkspaceReply is a dict and
             # so it's not hashable
-            class WorkspaceObject(object):
-                pass
             ws_object = WorkspaceObject()
             ws_object.name = term.name
             ws_object.workspace = term
@@ -57,11 +63,9 @@ class OutputsVocabularyFactory(BaseVocabularyFactory):
         for term in terms:
             # this is necessary since the WorkspaceReply is a dict and
             # so it's not hashable
-            class OutputObject(object):
-                pass
             out_object = OutputObject()
             out_object.name = term.name
-            out_object.workspace = term
+            out_object.output = term
             yield SimpleTerm(out_object, out_object, out_object.name)
 
 

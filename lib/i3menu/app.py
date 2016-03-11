@@ -17,12 +17,6 @@ from zope.component import getUtility
 from i3menu.vocabs import init_vocabs
 
 
-def menu_tree():
-
-    root_menu = Menu('root', prompt=_(u'Root'), root=True)
-    return root_menu
-
-
 class Application(object):
     __name__ = __name__
 
@@ -109,8 +103,8 @@ class Application(object):
             logger.info(u'Done! Cheers, bye! :)')
             sys.exit()
         cmd_klass = res.value
-        cmd = cmd_klass()
-        res = cmd(self.context)
+        cmd = cmd_klass(self.context)
+        res = cmd()
         if not res or not len(res):
             logger.info(u'The command made no changes on i3')
             return

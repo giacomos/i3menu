@@ -14,12 +14,18 @@ gsm = getGlobalSiteManager()
 class AbstractCmd(object):
     """ Abstract command """
     __id__ = u'AbstractCmd'
+    __title__ = _(u'Abstract Command')
     __url__ = u''
     __cmd__ = u''
 
+    def __init__(self, context):
+        self.context = context
+        self.params = [p for p in self._get_params()]
+        self.data = self.get_defaults()
+
     def get_defaults(self):
         defaults = {}
-        for pname, param in self.params():
+        for pname, param in self.params:
             param.context = self.context
             param.bind(self.context)
             if param.default:
@@ -34,10 +40,8 @@ class AbstractCmd(object):
                 return False
         return True
 
-    def __call__(self, context):
+    def __call__(self):
         cmd_msg = None
-        self.context = context
-        self.data = self.get_defaults()
         self.request_params()
         cmd_msg = self.cmd(**self.data)
         if cmd_msg:
@@ -55,22 +59,17 @@ class AbstractCmd(object):
                     raise MissingParamException(error)
         return self.__cmd__.format(**params)
 
-    def params(self):
+    def _get_params(self):
         interfaces = [i for i in providedBy(self).interfaces()]
         for i in interfaces:
-            fields = [(fname, field) for fname, field in i.namesAndDescriptions()]
+            fields = [(fname, field)
+                      for fname, field in i.namesAndDescriptions()]
             fields = sorted(fields, key=lambda f: f[1].order)
             for fname, field in fields:
                 yield fname, field
 
     def paramsdict(self):
-        interfaces = [i for i in providedBy(self).interfaces()]
-        res = {}
-        for i in interfaces:
-            fields = [(fname, field) for fname, field in i.namesAndDescriptions()]
-            fields = sorted(fields, key=lambda f: f[1].order)
-            for fname, field in fields:
-                res[fname] = field
+        res = {pname: p for pname, p in self.params}
         return res
 
     def request_params(self):
@@ -79,7 +78,9 @@ class AbstractCmd(object):
             params_menu.add_command(label='Run!', command='run')
         missing_params = []
         present_params = []
-        for fname, field in self.params():
+        if not len(self.params):
+            return
+        for fname, field in self.params:
             field.bind(self.context)
             widget = getAdapter(field, interfaces.IWidget)
             current_value = 'N/A'
@@ -94,9 +95,9 @@ class AbstractCmd(object):
             if current_value == 'N/A':
                 missing_params.append((fname, label, widget))
             else:
-                present_params.append((fname, label,widget))
+                present_params.append((fname, label, widget))
         for p in missing_params + present_params:
-            fname, label,widget = p
+            fname, label, widget = p
             entry = params_menu.add_command(
                 label=label,
                 command=widget)
@@ -149,7 +150,7 @@ class MoveWorkspaceToOutput(AbstractCmd):
     # than the current one. This needs to be investigated further
     __id__ = u'move_workspace_to_output'
     __title__ = u'Move Workspace To Output'
-    __cmd__ = u'move workspace to output "{output.name}"'
+    __cmd__ = u'move workspace to output "{output.output.name}"'
 
 
 gsm.registerUtility(

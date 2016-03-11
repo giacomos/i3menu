@@ -60,9 +60,12 @@ MOCK_OUTPUT2 = MockWorkspace({'name': 'MockOutput2'})
 
 MOCK_OUTPUTS_LIST = [MOCK_OUTPUT1, MOCK_OUTPUT2]
 
-MOCK_WORKSPACE1 = MockWorkspace({'name': 'MockWorkspace1', 'output': 'XYZ'})
-MOCK_WORKSPACE2 = MockWorkspace({'name': 'MockWorkspace2', 'output': 'XYZ'})
-MOCK_WORKSPACE3 = MockWorkspace({'name': 'MockWorkspace3', 'output': 'XYZ'})
+MOCK_WORKSPACE1 = MockWorkspace(
+    {'name': 'MockWorkspace1', 'output': 'XYZ', 'focused': True})
+MOCK_WORKSPACE2 = MockWorkspace(
+    {'name': 'MockWorkspace2', 'output': 'XYZ'})
+MOCK_WORKSPACE3 = MockWorkspace(
+    {'name': 'MockWorkspace3', 'output': 'XYZ'})
 
 MOCK_WORKSPACES_LIST = [MOCK_WORKSPACE1, MOCK_WORKSPACE2, MOCK_WORKSPACE3]
 
@@ -71,7 +74,8 @@ MOCK_WINDOW1 = MockWindow(
     {
         'window_instance': u'mockwindow1',
         'window_class': u'MockWindow',
-        'name': u'MockWindow1'
+        'name': u'MockWindow1',
+        'focused': True,
     }
 )
 MOCK_WINDOW2 = MockWindow(
@@ -79,7 +83,6 @@ MOCK_WINDOW2 = MockWindow(
         'window_instance': u'mockwindow2',
         'window_class': u'MockWindow',
         'name': u'MockWindow2',
-        'focused': True,
     }
 )
 MOCK_WINDOW3 = MockWindow(
@@ -98,3 +101,8 @@ conn.get_workspaces.return_value = MOCK_WORKSPACES_LIST
 conn.get_outputs.return_value = MOCK_OUTPUTS_LIST
 
 MOCK_CONNECTOR = conn
+
+MOCK_CONTEXT = mock.MagicMock()
+MOCK_CONTEXT.i3.get_windows.return_value = MOCK_WINDOWS_LIST
+MOCK_CONTEXT.i3.get_workspaces.return_value = MOCK_WORKSPACES_LIST
+MOCK_CONTEXT.i3.get_active_outputs.return_value = MOCK_OUTPUTS_LIST

@@ -1,5 +1,4 @@
 from __future__ import absolute_import, division, print_function
-import sys
 from setuptools import setup
 from setuptools.command.sdist import sdist
 from codecs import open

@@ -2,7 +2,7 @@
 from zope.component import getGlobalSiteManager
 from zope.interface import implementer
 from zope.component import adapter
-from zope.schema.interfaces import IVocabularyTokenized
+from zope.schema.interfaces import IVocabulary
 from zope.schema.interfaces import IChoice, ITextLine
 
 from i3menu import _
@@ -14,7 +14,7 @@ gsm = getGlobalSiteManager()
 
 
 @implementer(IMenu)
-@adapter(IVocabularyTokenized)
+@adapter(IVocabulary)
 class MenuAdapter(object):
     def __init__(self, vocab):
         self.vocab = vocab
