@@ -76,15 +76,23 @@ class AbstractCmd(object):
         res = {pname: p for pname, p in self.params}
         return res
 
-    def request_params(self):
+    def _missing_params(self):
+        return [
+            (fname, field)
+            for fname, field in self.params if fname not in self.data]
+
+    def _present_params(self):
+        return [
+            (fname, field)
+            for fname, field in self.params if fname in self.data]
+
+    def params_summary_menu(self):
         params_menu = Menu(u'params_menu', prompt=self.__title__)
         if self.validate_data():
             params_menu.add_command(label='Run!', command='run')
-        missing_params = []
-        present_params = []
-        if not len(self.params):
-            return
-        for fname, field in self.params:
+        missing_params = self._missing_params()
+        present_params = self._present_params()
+        for fname, field in missing_params + present_params:
             field.bind(self.context)
             widget = getAdapter(field, interfaces.IWidget)
             current_value = 'N/A'
@@ -96,24 +104,23 @@ class AbstractCmd(object):
                     current_value = val.name
             label = u'{name} = {value}'.format(
                 name=fname, value=current_value)
-            if current_value == 'N/A':
-                missing_params.append((fname, label, widget))
-            else:
-                present_params.append((fname, label, widget))
-        for p in missing_params + present_params:
-            fname, label, widget = p
             entry = params_menu.add_command(
                 label=label,
                 command=widget)
             entry.name = fname
-        res = self.context.mp.display_menu(params_menu)
-        if res and res.value == 'run':
+        return self.context.mp.display_menu(params_menu)
+
+    def param_menu(self, name, widget):
+        newvalue = widget()
+        if newvalue:
+            self.data[name] = newvalue
+
+    def request_params(self):
+        res = self.params_summary_menu()
+        if not res or res.value == 'run':
             return
-        if res and res.value and interfaces.IWidget.providedBy(res.value):
-            widget = res.value
-            newvalue = widget()
-            if newvalue:
-                self.data[res.name] = newvalue
+        elif interfaces.IWidget.providedBy(res.value):
+            self.param_menu(res.name, res.value)
         self.request_params()
 
 
