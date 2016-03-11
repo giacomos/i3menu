@@ -2,12 +2,12 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import unittest
+from i3menu.test import BaseTestCase
 from i3menu.menu import Menu
 from i3menu.menu import MenuEntry
 
 
-class TestMenu(unittest.TestCase):
+class TestMenu(BaseTestCase):
 
     def test_menu(self):
         menu = Menu('test', prompt='Dummy')

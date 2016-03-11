@@ -3,23 +3,18 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import unittest
-
 from zope.component import getGlobalSiteManager
 from zope.schema import Choice
 
-from i3menu.vocabs import init_vocabs
+from i3menu.test import BaseTestCase
 from i3menu.factories import FocusedWindowFactory
 from i3menu.commands import AbstractCmd, Floating
-from i3menu.test import MOCK_CONTEXT, MOCK_WINDOW1
+from i3menu.test import MOCK_WINDOW1
 
 gsm = getGlobalSiteManager()
 
 
-class TestCommands(unittest.TestCase):
-    def setUp(self):
-        self.context = MOCK_CONTEXT
-        init_vocabs(self.context)
+class TestCommands(BaseTestCase):
 
     def test_abstract_cmd_get_defaults(self):
         cmd = AbstractCmd(self.context)

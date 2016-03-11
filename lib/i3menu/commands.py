@@ -1,11 +1,14 @@
 import six
 from zope.interface import implementer, providedBy
 from zope.component import getAdapter, getGlobalSiteManager
+from zope.component import getUtility
+
 
 from i3menu import _
 from i3menu import logger
 from i3menu import interfaces
 from i3menu.menu import Menu
+from i3menu.interfaces import II3Connector
 from i3menu.exceptions import MissingParamException
 
 gsm = getGlobalSiteManager()
@@ -45,7 +48,8 @@ class AbstractCmd(object):
         self.request_params()
         cmd_msg = self.cmd(**self.data)
         if cmd_msg:
-            return self.context.i3.command(cmd_msg)
+            conn = getUtility(II3Connector)
+            return conn.command(cmd_msg)
 
     def cmd(self, *args, **kwargs):
         params = kwargs.copy()

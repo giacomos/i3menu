@@ -4,7 +4,6 @@ import logging
 from zope.schema.vocabulary import getVocabularyRegistry
 
 from i3menu import _, __name__, logger
-from i3menu.connector import I3Connector
 from i3menu.utils import which
 from i3menu.config import DEFAULTS
 from i3menu.menu import menu_root
@@ -23,10 +22,8 @@ class Application(object):
     def __init__(self, args=None):
         self.context = getUtility(IContextManager)
         self.context.config = self.parse_args(args)
-        self.context.i3 = I3Connector()
         mname, mcmd = self.get_menu_provider()
         self.context.mp = getUtility(IMenuProvider, mname)
-        init_vocabs(self.context)
 
     def parse_args(self, params=None):
         config = DEFAULTS
@@ -91,6 +88,7 @@ class Application(object):
         return root_menu
 
     def run(self):
+        init_vocabs(self.context)
         self.apply_config()
         parent_menu = self.tree
         res = self.context.mp.display_menu(parent_menu)

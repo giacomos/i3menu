@@ -2,20 +2,12 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import unittest
-from i3menu.vocabs import init_vocabs
+from i3menu.test import BaseTestCase
 from i3menu.factories import FocusedWindowFactory, FocusedWorkspaceFactory
-from i3menu.test import (
-    MOCK_CONTEXT,
-    MOCK_WINDOW1,
-    MOCK_WORKSPACE1
-)
+from i3menu.test import MOCK_WINDOW1, MOCK_WORKSPACE1
 
 
-class TestFactories(unittest.TestCase):
-    def setUp(self):
-        self.context = MOCK_CONTEXT
-        init_vocabs(self.context)
+class TestFactories(BaseTestCase):
 
     def test_focused_window_factory(self):
         fwf = FocusedWindowFactory()

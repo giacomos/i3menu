@@ -2,11 +2,11 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import unittest
+from i3menu.test import BaseTestCase
 from i3menu.app import Application
 
 
-class TestCommands(unittest.TestCase):
+class TestCommands(BaseTestCase):
 
     def test_application_init(self):
         app = Application()

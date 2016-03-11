@@ -3,11 +3,11 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import unittest
 from zope.component import getGlobalSiteManager
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
+from i3menu.test import BaseTestCase
 from i3menu.interfaces import IMenu
 
 gsm = getGlobalSiteManager()
@@ -15,7 +15,7 @@ gsm = getGlobalSiteManager()
 FAKE_CONTEXT = {}
 
 
-class TestAdapters(unittest.TestCase):
+class TestAdapters(BaseTestCase):
     def test_menu_adapter(self):
         vocab = SimpleVocabulary([
             SimpleTerm('a', 'a', 'a'),

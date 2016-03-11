@@ -3,6 +3,10 @@ from zope.schema import Choice, TextLine
 from i3menu.factories import FocusedWindowFactory, FocusedWorkspaceFactory
 
 
+class II3Connector(Interface):
+    """"""
+
+
 class IContextManager(Interface):
     """"""
 

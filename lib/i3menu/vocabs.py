@@ -1,10 +1,11 @@
 from zope.schema.vocabulary import getVocabularyRegistry
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
-from zope.component import getUtilitiesFor
+from zope.component import getUtilitiesFor, getUtility
 
 from i3menu.interfaces import IWindowCommand
 from i3menu.interfaces import IWorkspaceCommand
+from i3menu.interfaces import II3Connector
 
 
 class WorkspaceObject(object):
@@ -33,7 +34,8 @@ class WindowsVocabularyFactory(BaseVocabularyFactory):
 
     @property
     def terms(self):
-        terms = self.context.i3.get_windows()
+        conn = getUtility(II3Connector)
+        terms = conn.get_windows()
         sortedterms = sorted(terms, key=lambda x: x.window_class)
         for t in sortedterms:
             yield SimpleTerm(t, t, t.name)
@@ -44,7 +46,8 @@ class WorkspacesVocabularyFactory(BaseVocabularyFactory):
 
     @property
     def terms(self):
-        terms = self.context.i3.get_workspaces()
+        conn = getUtility(II3Connector)
+        terms = conn.get_workspaces()
         for term in terms:
             # this is necessary since the WorkspaceReply is a dict and
             # so it's not hashable
@@ -59,7 +62,8 @@ class OutputsVocabularyFactory(BaseVocabularyFactory):
 
     @property
     def terms(self):
-        terms = self.context.i3.get_active_outputs()
+        conn = getUtility(II3Connector)
+        terms = conn.get_active_outputs()
         for term in terms:
             # this is necessary since the WorkspaceReply is a dict and
             # so it's not hashable

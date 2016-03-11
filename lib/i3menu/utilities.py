@@ -12,6 +12,7 @@ from i3menu.config import MENUENTRY_SIGN
 from i3menu.__about__ import __title__
 from i3menu.interfaces import IMenuProvider
 from i3menu.interfaces import IContextManager
+from i3menu.interfaces import II3Connector
 
 gsm = getGlobalSiteManager()
 
@@ -71,3 +72,69 @@ class Context(object):
 
 
 gsm.registerUtility(Context())
+
+
+@implementer(II3Connector)
+class I3Connector(object):
+
+    def __init__(self):
+        try:
+            import i3ipc
+            self.i3 = i3ipc.Connection()
+        except:
+            logger.error('No i3wm connection found. Are you using i3?')
+
+    def get_tree(self):
+        return self.i3 and self.i3.get_tree() or None
+
+    def get_workspaces(self):
+        return self.i3 and self.i3.get_workspaces() or []
+
+    def get_outputs(self):
+        return self.i3 and self.i3.get_outputs() or []
+
+    def get_windows(self):
+        tree = self.get_tree()
+        return tree and tree.leaves() or []
+
+    def get_focused_window(self):
+        tree = self.get_tree()
+        return tree and tree.find_focused() or None
+
+    def get_scratchpad_windows(self):
+        return self.i3 and self.i3.get_tree().scratchpad().leaves() or []
+
+    def get_focused_workspace(self):
+        win = self.get_focused_window()
+        return win and win.workspace() or None
+
+    def get_active_outputs(self):
+        outputs = self.i3 and self.i3.get_outputs() or []
+        active_outputs = []
+        if outputs:
+            active_outputs = [o for o in filter(lambda o: o.active, outputs)]
+        return active_outputs
+
+    def get_focused_output(self):
+        ws = self.get_focused_workspace()
+        return ws and ws.parent.parent or None
+
+    def get_unfocused_outputs(self):
+        active_outputs = self.get_active_outputs()
+        focused_output = self.get_focused_output()
+        active_outputs.pop(active_outputs.index(focused_output))
+        return active_outputs
+
+    def get_bar_ids(self):
+        return self.i3 and self.i3.get_bar_config_list()
+
+    def command(self, cmd):
+        res = self.i3 and self.i3.command(cmd) or None
+        return res
+
+
+def get_connector():
+    return I3Connector()
+
+gsm = getGlobalSiteManager()
+gsm.registerUtility(get_connector())
