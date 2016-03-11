@@ -82,6 +82,7 @@ class I3Connector(object):
             import i3ipc
             self.i3 = i3ipc.Connection()
         except:
+            self.i3 = None
             logger.error('No i3wm connection found. Are you using i3?')
 
     def get_tree(self):
