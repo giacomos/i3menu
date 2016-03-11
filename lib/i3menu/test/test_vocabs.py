@@ -58,7 +58,8 @@ class TestVocabs(BaseTestCase):
         vocab_factory = OutputsVocabularyFactory(self.context)
         vocab = vocab_factory()
         terms = [t for t in vocab]
-        self.assertEqual(len(terms), len(MOCK_OUTPUTS_LIST))
+        # -1 'cause 1 output is inactive
+        self.assertEqual(len(terms), len(MOCK_OUTPUTS_LIST) - 1)
         self.assertEqual(terms[0].value.output, MOCK_OUTPUTS_LIST[0])
 
     def test_windows_commands_vocabulary_factory(self):

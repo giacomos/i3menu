@@ -109,7 +109,7 @@ class I3Connector(object):
         return win and win.workspace() or None
 
     def get_active_outputs(self):
-        outputs = self.i3 and self.i3.get_outputs() or []
+        outputs = self.get_outputs()
         active_outputs = []
         if outputs:
             active_outputs = [o for o in filter(lambda o: o.active, outputs)]
