@@ -5,10 +5,15 @@ i3menu
 .. list-table::
     :stub-columns: 1
 
+    * - project
+      - |status| |license| |pyversions|
     * - tests
       - |travis| |coveralls| |codecov|
     * - package
-      - |version| |downloads| |wheel| |license| |status|
+      - |version| |downloads| |wheel|
+
+.. |pyversions| image:: https://img.shields.io/pypi/pyversions/i3menu.svg
+   :target: https://pypi.python.org/pypi/i3menu
 
 .. |travis| image:: https://img.shields.io/travis/giacomos/i3menu/master.svg?style=flat&label=travis
     :target: https://travis-ci.org/giacomos/i3menu
