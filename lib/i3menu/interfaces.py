@@ -43,6 +43,22 @@ class IWorkspaceCommand(ICommand):
     """"""
 
 
+class IGlobalCommand(ICommand):
+    """"""
+
+
+class IGotoCommand(ICommand):
+    """"""
+
+
+class IScratchpadCommand(ICommand):
+    """"""
+
+
+class IBarCommand(ICommand):
+    """"""
+
+
 class IFloating(IWindowCommand):
     window = Choice(
         title=u"Window",
@@ -100,4 +116,123 @@ class IRenameWorkspace(IWorkspaceCommand):
     value = TextLine(
         title=u"Title",
         required=True,
+    )
+
+
+class IKill(IWindowCommand):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="windows_vocabulary",
+        defaultFactory=FocusedWindowFactory()
+    )
+
+
+class IMoveWindowToScratchpad(IWindowCommand):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="windows_vocabulary",
+        defaultFactory=FocusedWindowFactory()
+    )
+
+
+class IBorder(IWindowCommand):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="windows_vocabulary",
+        defaultFactory=FocusedWindowFactory()
+    )
+
+    action = Choice(
+        title=u"Action",
+        required=False,
+        default='toggle',
+        values=[u'none', u'normal', u'pixel 1', u'pixel 3', u'toggle']
+    )
+
+
+class ISticky(IWindowCommand):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="windows_vocabulary",
+        defaultFactory=FocusedWindowFactory()
+    )
+
+    action = Choice(
+        title=u"Action",
+        required=False,
+        default='toggle',
+        values=[u'enable', u'disable', u'toggle']
+    )
+
+
+class ISplit(IWindowCommand):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="windows_vocabulary",
+        defaultFactory=FocusedWindowFactory()
+    )
+
+    action = Choice(
+        title=u"Action",
+        required=False,
+        values=[u'vertical', u'horizontal']
+    )
+
+
+class IFullscreen(IWindowCommand):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="windows_vocabulary",
+        defaultFactory=FocusedWindowFactory()
+    )
+
+    action = Choice(
+        title=u"Action",
+        required=False,
+        default='toggle',
+        values=[u'enable', u'disable', u'toggle']
+    )
+
+
+class IDebuglog(IGlobalCommand):
+    action = Choice(
+        title=u"Action",
+        required=False,
+        default='toggle',
+        values=[u'on', u'off', u'toggle']
+    )
+
+
+class IShmlog(IGlobalCommand):
+    action = Choice(
+        title=u"Action",
+        required=False,
+        default='toggle',
+        values=[u'on', u'off', u'toggle']
+    )
+
+
+class IReload(IGlobalCommand):
+    """"""
+
+
+class IRestart(IGlobalCommand):
+    """"""
+
+
+class IExit(IGlobalCommand):
+    """"""
+
+
+class IGotoWorkspace(IGotoCommand):
+    workspace = Choice(
+        title=u"Workspace",
+        required=False,
+        vocabulary="workspaces_vocabulary",
     )

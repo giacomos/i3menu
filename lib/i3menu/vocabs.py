@@ -5,6 +5,10 @@ from zope.component import getUtilitiesFor, getUtility
 
 from i3menu.interfaces import IWindowCommand
 from i3menu.interfaces import IWorkspaceCommand
+from i3menu.interfaces import IGlobalCommand
+from i3menu.interfaces import IGotoCommand
+from i3menu.interfaces import IScratchpadCommand
+from i3menu.interfaces import IBarCommand
 from i3menu.interfaces import II3Connector
 
 
@@ -96,12 +100,64 @@ class WorkspaceCommandsVocabularyFactory(BaseVocabularyFactory):
             cmd = ut
             yield SimpleTerm(cmd, cmd, cname)
 
+
+class GlobalCommandsVocabularyFactory(BaseVocabularyFactory):
+    name = u'global_commands_vocabulary'
+
+    @property
+    def terms(self):
+        cmds = [ut for ut in getUtilitiesFor(IGlobalCommand)]
+        for utname, ut in cmds:
+            cname = ut.__title__
+            cmd = ut
+            yield SimpleTerm(cmd, cmd, cname)
+
+
+class GotoCommandsVocabularyFactory(BaseVocabularyFactory):
+    name = u'goto_commands_vocabulary'
+
+    @property
+    def terms(self):
+        cmds = [ut for ut in getUtilitiesFor(IGotoCommand)]
+        for utname, ut in cmds:
+            cname = ut.__title__
+            cmd = ut
+            yield SimpleTerm(cmd, cmd, cname)
+
+
+class ScratchpadCommandsVocabularyFactory(BaseVocabularyFactory):
+    name = u'scratchpad_commands_vocabulary'
+
+    @property
+    def terms(self):
+        cmds = [ut for ut in getUtilitiesFor(IScratchpadCommand)]
+        for utname, ut in cmds:
+            cname = ut.__title__
+            cmd = ut
+            yield SimpleTerm(cmd, cmd, cname)
+
+
+class BarCommandsVocabularyFactory(BaseVocabularyFactory):
+    name = u'bar_commands_vocabulary'
+
+    @property
+    def terms(self):
+        cmds = [ut for ut in getUtilitiesFor(IBarCommand)]
+        for utname, ut in cmds:
+            cname = ut.__title__
+            cmd = ut
+            yield SimpleTerm(cmd, cmd, cname)
+
 VOCABS = [
     WindowsVocabularyFactory,
     WorkspacesVocabularyFactory,
     OutputsVocabularyFactory,
     WindowCommandsVocabularyFactory,
-    WorkspaceCommandsVocabularyFactory
+    WorkspaceCommandsVocabularyFactory,
+    GlobalCommandsVocabularyFactory,
+    GotoCommandsVocabularyFactory,
+    ScratchpadCommandsVocabularyFactory,
+    BarCommandsVocabularyFactory,
 ]
 
 

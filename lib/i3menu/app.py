@@ -64,26 +64,40 @@ class Application(object):
         workspace_menu = menu_adapter(
             name=u'workspace_actions', prompt=_(u'Workspace Actions'))
 
-        # goto_menu = Menu(u'goto_actions', prompt=_(u'Goto actions'))
-        # bar_menu = Menu('bar_actions', prompt=_(u'Bar actions'))
-        # global_menu = Menu(
-        #     u'global_actions', prompt=_(u'Global actions'))
-        # scratchpad_menu = Menu(
-        #     u'scratchpad_actions', prompt=_(u'Scratchpad actions'))
+        goto_commands_vocab = vr.get(
+            self.context, 'goto_commands_vocabulary')
+        menu_adapter = IMenu(goto_commands_vocab)
+        goto_menu = menu_adapter(
+            u'goto_actions', prompt=_(u'Goto actions'))
+        bar_commands_vocab = vr.get(
+            self.context, 'bar_commands_vocabulary')
+        menu_adapter = IMenu(bar_commands_vocab)
+        bar_menu = menu_adapter(
+            u'bar_actions', prompt=_(u'Bar actions'))
+        global_commands_vocab = vr.get(
+            self.context, 'global_commands_vocabulary')
+        menu_adapter = IMenu(global_commands_vocab)
+        global_menu = menu_adapter(
+            u'global_actions', prompt=_(u'Global actions'))
+        scratchpad_commands_vocab = vr.get(
+            self.context, 'scratchpad_commands_vocabulary')
+        menu_adapter = IMenu(scratchpad_commands_vocab)
+        scratchpad_menu = menu_adapter(
+            u'scratchpad_actions', prompt=_(u'Scratchpad actions'))
 
         root_menu = Menu('root', prompt=_(u'Root'), root=True)
-        # root_menu.add_cascade(
-        #     label=goto_menu.prompt, menu=goto_menu)
+        root_menu.add_cascade(
+            label=goto_menu.prompt, menu=goto_menu)
         root_menu.add_cascade(
             label=window_menu.prompt, menu=window_menu)
         root_menu.add_cascade(
             label=workspace_menu.prompt, menu=workspace_menu)
-        # root_menu.add_cascade(
-        #     label=bar_menu.prompt, menu=bar_menu)
-        # root_menu.add_cascade(
-        #     label=scratchpad_menu.prompt, menu=scratchpad_menu)
-        # root_menu.add_cascade(
-        #     label=global_menu.prompt, menu=global_menu)
+        root_menu.add_cascade(
+            label=bar_menu.prompt, menu=bar_menu)
+        root_menu.add_cascade(
+            label=scratchpad_menu.prompt, menu=scratchpad_menu)
+        root_menu.add_cascade(
+            label=global_menu.prompt, menu=global_menu)
         return root_menu
 
     def run(self):
