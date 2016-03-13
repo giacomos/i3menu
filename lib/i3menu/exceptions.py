@@ -2,4 +2,8 @@
 
 
 class MissingParamException(Exception):
-    pass
+    """"""
+
+
+class MenuProviderNotFound(Exception):
+    """"""

@@ -89,6 +89,7 @@ clean:
 	rm -rf lib/i3menu.egg-info/
 	rm -rf .tox
 	rm -rf .coverage
+	rm -rf htmlcov
 	rm -rf .cache
 	rm -rf .eggs
 	@echo "Cleaning up byte compiled python stuff"

@@ -4,6 +4,7 @@ import argparse
 import sys
 from i3menu import __about__
 from i3menu.app import Application
+from i3menu.utilities import get_available_menu_providers
 
 descr = """{about.__title__} {about.__version__}
 {about.__copyright__}
@@ -32,10 +33,10 @@ def run():
     )
     parser.add_argument(
         "--menu-provider", dest='menu_provider',
-        choices=['dmenu', 'rofi'],
+        choices=['dmenu', 'rofi', 'shell'],
         help="Force the use of a menu provider"
     )
-    options = []
+    options = [name for name, ut in get_available_menu_providers()]
     parser.add_argument(
         "menu",
         choices=options,

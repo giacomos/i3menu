@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
-import six
+import sys
+import tty
+import termios
+from past.builtins import basestring
+from builtins import str as text
+from i3menu import PY2
 
 
 def which(program):
@@ -27,7 +32,7 @@ def safe_encode(string):
     """Safely unicode objects to UTF-8. If it's a binary string, just return
     it.
     """
-    if isinstance(string, six.text_type):
+    if isinstance(string, text):
         string = string.encode('utf-8')
     return string
 
@@ -36,13 +41,24 @@ def safe_decode(string):
     """Safely unicode objects to UTF-8. If it's a binary string, just return
     it.
     """
-    if isinstance(string, six.string_types):
+    if isinstance(string, basestring):
         return string
     return string.decode('utf-8')
 
 
 def safe_join(lst, sep):
+    string = safe_decode(sep).join([safe_decode(e) for e in lst])
+    if PY2:
+        string = safe_encode(string)
+    return string
+
+
+def getch():
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
     try:
-        return sep.join([safe_encode(e) for e in lst])
-    except TypeError:
-        return safe_decode(six.b(sep).join([safe_encode(e) for e in lst]))
+        tty.setraw(sys.stdin.fileno())
+        ch = sys.stdin.read(1)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return ch

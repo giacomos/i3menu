@@ -19,7 +19,7 @@ here = abspath(dirname(__file__))
 
 with open(join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
-with open(join(here, 'docs', 'HISTORY.rst'), encoding='utf-8') as f:
+with open(join(here, 'CHANGELOG.rst'), encoding='utf-8') as f:
     long_description = '\n'.join((long_description, f.read()))
 
 # needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
@@ -70,7 +70,7 @@ setup(
         'zope.schema',
         'zope.component',
         'i3ipc',
-        'six'
+        'future',
     ],
     setup_requires=['Babel'],
     tests_require=['mock', 'unittest2'],

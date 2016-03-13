@@ -1,4 +1,3 @@
-import six
 from zope.interface import implementer, providedBy
 from zope.component import getAdapter, getGlobalSiteManager
 from zope.component import getUtility
@@ -10,6 +9,7 @@ from i3menu import interfaces
 from i3menu.menu import Menu
 from i3menu.interfaces import II3Connector
 from i3menu.exceptions import MissingParamException
+from past.builtins import basestring
 
 gsm = getGlobalSiteManager()
 
@@ -49,6 +49,7 @@ class AbstractCmd(object):
         cmd_msg = self.cmd(**self.data)
         if cmd_msg:
             conn = getUtility(II3Connector)
+            logger.debug('Run command: {cmd}'.format(cmd=cmd_msg))
             return conn.command(cmd_msg)
 
     def cmd(self, *args, **kwargs):
@@ -98,7 +99,7 @@ class AbstractCmd(object):
             current_value = 'N/A'
             if fname in self.data:
                 val = self.data[fname]
-                if isinstance(val, six.string_types):
+                if isinstance(val, basestring):
                     current_value = val
                 else:
                     current_value = val.name
@@ -108,7 +109,7 @@ class AbstractCmd(object):
                 label=label,
                 command=widget)
             entry.name = fname
-        return self.context.mp.display_menu(params_menu)
+        return self.context.selectinput(params_menu)
 
     def param_menu(self, name, widget):
         newvalue = widget()

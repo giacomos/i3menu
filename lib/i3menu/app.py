@@ -11,8 +11,9 @@ from i3menu.menu import Menu, MenuEntry
 from i3menu.interfaces import IMenuProvider
 from i3menu.interfaces import IContextManager
 from i3menu.interfaces import IMenu
+from i3menu.exceptions import MenuProviderNotFound
 
-from zope.component import getUtility
+from zope.component import getUtility, getUtilitiesFor, ComponentLookupError
 from i3menu.vocabs import init_vocabs
 
 
@@ -22,8 +23,7 @@ class Application(object):
     def __init__(self, args=None):
         self.context = getUtility(IContextManager)
         self.context.config = self.parse_args(args)
-        mname, mcmd = self.get_menu_provider()
-        self.context.mp = getUtility(IMenuProvider, mname)
+        self.context.mp = self.get_menu_provider()
 
     def parse_args(self, params=None):
         config = DEFAULTS
@@ -91,12 +91,12 @@ class Application(object):
         init_vocabs(self.context)
         self.apply_config()
         parent_menu = self.tree
-        res = self.context.mp.display_menu(parent_menu)
+        res = self.context.selectinput(parent_menu)
 
         while(isinstance(res, MenuEntry) and isinstance(res.value, Menu)):
             menu = res.value
             menu.parent = parent_menu
-            res = self.context.mp.display_menu(menu)
+            res = self.context.selectinput(menu)
         if not res.value:
             logger.info(u'Done! Cheers, bye! :)')
             sys.exit()
@@ -113,18 +113,19 @@ class Application(object):
             return res[0].get('error')
 
     def get_menu_provider(self):
-        cmd = None
-        providers = ['rofi', 'dmenu']
+        mps = getUtilitiesFor(IMenuProvider)
+        mps = [ut for name, ut in mps]
+        mps = sorted(mps, key=lambda x: x.priority, reverse=True)
         required_provider = self.context.config.get('menu_provider')
-        if required_provider and required_provider in providers:
-            cmd = (required_provider, which(required_provider))
-        else:
-            for p in providers:
-                res = which(p)
-                if res:
-                    cmd = (p, res)
-                    break
-        return cmd
+        if required_provider:
+            try:
+                ut = getUtility(IMenuProvider, name=required_provider)
+                return ut
+            except ComponentLookupError:
+                logger.warning(
+                    'No menu provider found for name: %s' % required_provider)
+                raise MenuProviderNotFound
+        return mps[0]
 
 
 if __name__ == '__main__':

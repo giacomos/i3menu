@@ -62,11 +62,7 @@ class Menu(object):
         if self.root:
             res.append(
                 MenuEntry(**{'label': _(u'<exit>'), 'value': None}))
-        # idx = self.start_idx
         for e in self._entries:
-            # label = u'{idx}: {label}'.format(idx=idx, label=e.label)
-            # res.append(MenuEntry(**{u'label': label, u'value': e.value}))
-            # idx += 1
             res.append(e)
         return res
 

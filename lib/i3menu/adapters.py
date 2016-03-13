@@ -42,7 +42,7 @@ class ChoiceWidget(object):
         f = f.bind(f.context)
         menu_adapter = IMenu(f.vocabulary)
         menu = menu_adapter(f.__name__, prompt=_(u'Select one entry'))
-        res = f.context.mp.display_menu(menu)
+        res = f.context.selectinput(menu)
         if res:
             return res.value
 
@@ -58,8 +58,7 @@ class TextLineWidget(object):
     def __call__(self):
         f = self.field
         f = f.bind(f.context)
-        menu = Menu(f.__name__)
-        res = f.context.mp.display_menu(menu)
+        res = f.context.textinput(prompt=f.__name__)
         if res:
             return res
 

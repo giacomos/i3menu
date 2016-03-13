@@ -20,10 +20,7 @@ class IMenu(Interface):
 
 
 class IMenuProvider(Interface):
-    cmd = TextLine(title=u'os command')
-
-    def display_menu(menu):
-        """ displays a menu """
+    """"""
 
 
 class IWindowObject(Interface):
@@ -35,15 +32,15 @@ class IFocusedWindowObject(IWindowObject):
 
 
 class ICommand(Interface):
-    pass
+    """"""
 
 
 class IWindowCommand(ICommand):
-    pass
+    """"""
 
 
 class IWorkspaceCommand(ICommand):
-    pass
+    """"""
 
 
 class IFloating(IWindowCommand):
