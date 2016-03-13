@@ -4,7 +4,6 @@ import logging
 from zope.schema.vocabulary import getVocabularyRegistry
 
 from i3menu import _, __name__, logger
-from i3menu.utils import which
 from i3menu.config import DEFAULTS
 from i3menu.menu import menu_root
 from i3menu.menu import Menu, MenuEntry
