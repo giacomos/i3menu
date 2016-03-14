@@ -4,6 +4,7 @@ import subprocess
 from collections import OrderedDict
 from zope.component import getGlobalSiteManager
 from zope.component import getUtilitiesFor
+from zope.schema.interfaces import RequiredMissing
 from zope.interface import implementer
 
 from i3menu import logger
@@ -128,46 +129,88 @@ class MenuProvider(object):
         return '"%s": ' % prompt
 
     def preparecmd(self, prompt, labels):
-        cmd_args = []
-        if 'rofi' in self.mp or 'dmenu' in self.mp:
-            cmd_args = ['-p', prompt]
-        if 'rofi' in self.mp:
-            cmd_args = ['-dmenu'] + cmd_args
-        return 'echo "{options}" | {cmd} {cmd_args}'.format(
-            cmd=self.mp,
-            cmd_args=safe_join(cmd_args, ' '),
-            options=safe_join(labels, '\n'),
-        )
+        return self.mp
 
-    def run(self, cmd):
-        logger.info('Display menu: ' + repr(cmd))
-        proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
-        return proc.stdout.read()
+    def run(self, cmd, options):
+
+        logger.info('Display menu: cmd={cmd} options={options}'.format(
+            cmd=repr(cmd), options=repr(options.keys())))
+        cmd = subprocess.Popen(cmd,
+                               shell=True,
+                               stdin=subprocess.PIPE,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        out, err = cmd.communicate('\n'.join(options).encode('utf-8'))
+        if cmd.returncode:
+            return None
+        return out
 
     def sanitizeinput(self, res):
-        res = res.decode('utf-8').strip('\n')
-        # res = res.strip(SUBMENU_SIGN)
-        # res = res.strip(MENUENTRY_SIGN)
-        # res = res.split(': ', 1)[-1]
+        if res is not None:
+            res = res.decode('utf-8').strip('\n')
+            # res = res.strip(SUBMENU_SIGN)
+            # res = res.strip(MENUENTRY_SIGN)
+            # res = res.split(': ', 1)[-1]
         return res
 
     def __call__(self, entries, prompt=None, filter_fnc=None):
         prompt = self.prepareprompt(prompt)
         labels = len(entries) and self.preparelabels(entries) or {}
-        cmd = self.preparecmd(prompt, labels)
-        res = self.sanitizeinput(self.run(cmd))
+        cmd = self.preparecmd(prompt, entries)
+        res = self.sanitizeinput(self.run(cmd, labels))
         if len(entries) == 0:
             return res
         entry = labels.get(res)
         return entry
 
+
+class DmenuMenuProvider(MenuProvider):
+    def __init__(self, cmd='dmenu', priority=0):
+        self.mp = which(cmd)
+        self.priority = priority
+
+    def preparecmd(self, prompt, entries=None):
+        cmdargs = '-p {prompt} -l {lines}'.format(
+            prompt=prompt, lines=len(entries))
+        return '{cmd} {cmdargs}'.format(
+            cmd=self.mp,
+            cmdargs=cmdargs,
+        )
+
+
+class RofiMenuProvider(MenuProvider):
+    def __init__(self, cmd='rofi', priority=0):
+        self.mp = which(cmd)
+        self.priority = priority
+
+    def preparecmd(self, prompt, entries=None):
+        cmdargs = '-p {prompt} -dmenu'.format(prompt=prompt)
+        allerrors = [(idx, e) for idx, e in enumerate(entries) if e.error]
+        missings = []
+        errors = []
+        for e in allerrors:
+            if isinstance(e[1].error, RequiredMissing):
+                missings.append(str(e[0]))
+            else:
+                errors.append(str(e[0]))
+        if errors:
+            cmdargs += ' -u {idxs}'.format(idxs=','.join(errors))
+        if missings:
+            cmdargs += ' -a {idxs}'.format(idxs=','.join(missings))
+
+        return '{cmd} {cmdargs}'.format(
+            cmd=self.mp,
+            cmdargs=cmdargs,
+        )
+
+
 dmenu = which('dmenu')
 if dmenu:
-    dmenump = MenuProvider(dmenu, 20)
+    dmenump = DmenuMenuProvider(dmenu, 20)
     gsm.registerUtility(dmenump, IMenuProvider, 'dmenu')
 rofi = which('rofi')
 if rofi:
-    rofimp = MenuProvider(rofi, 30)
+    rofimp = RofiMenuProvider(rofi, 30)
     gsm.registerUtility(rofimp, IMenuProvider, 'rofi')
 
 
@@ -188,15 +231,15 @@ class Context(object):
         choice = self.mp(entries, prompt=prompt)
         if choice:
             return choice
-        else:
-            sys.exit()
+        # else:
+        #     sys.exit()
 
     def textinput(self, prompt=None):
         text = self.mp(entries=[], prompt=prompt)
         if text:
             return text
-        else:
-            sys.exit()
+        # else:
+        #     sys.exit()
 
 
 gsm.registerUtility(Context())

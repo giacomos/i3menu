@@ -1,38 +1,37 @@
-from zope.interface import implementer
-from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.schema.vocabulary import getVocabularyRegistry
 from zope.schema.vocabulary import VocabularyRegistryError
 
 from i3menu import logger
 
 
-@implementer(IContextAwareDefaultFactory)
-class FocusedWindowFactory(object):
-    def __call__(self, context, vname='windows_vocabulary'):
+class BaseFactory(object):
+    _vname = u''
+
+    def terms(self):
         vr = getVocabularyRegistry()
         try:
-            vocab = vr.get(context, vname)
+            vocab = vr.get({}, self._vname)
         except VocabularyRegistryError:
-            logger.error('Vocabulary not found: ' + vname)
+            logger.error('Vocabulary not found: ' + self._vname)
             return
-        terms = [i for i in vocab]
-        for term in terms:
+        return [i for i in vocab]
+
+
+class FocusedWindowFactory(BaseFactory):
+    _vname = u'windows_vocabulary'
+
+    def __call__(self):
+        for term in self.terms():
             win = term.value
             if win.focused:
                 return win
 
 
-@implementer(IContextAwareDefaultFactory)
-class FocusedWorkspaceFactory(object):
-    def __call__(self, context, vname='workspaces_vocabulary'):
-        vr = getVocabularyRegistry()
-        try:
-            vocab = vr.get(context, vname)
-        except VocabularyRegistryError:
-            logger.error('Vocabulary not found: ' + vname)
-            return
-        terms = [i for i in vocab]
-        for term in terms:
+class FocusedWorkspaceFactory(BaseFactory):
+    _vname = u'workspaces_vocabulary'
+
+    def __call__(self):
+        for term in self.terms():
             ws = term.value
             if ws.workspace.focused:
                 return ws

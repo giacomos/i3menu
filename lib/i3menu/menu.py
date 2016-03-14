@@ -7,12 +7,14 @@ class MenuEntry(object):
     label = u''
     value = None
     cascade = False
+    error = None
 
-    def __init__(self, label=None, value=None, cascade=False):
+    def __init__(self, label=None, value=None, cascade=False, error=None):
         if label:
             self.label = label
         self.value = value
         self.cascade = cascade
+        self.error = error
 
 
 class DummyOutput(object):
@@ -43,8 +45,8 @@ class Menu(object):
         self.root = root
         self.filter_fnc = filter_fnc
 
-    def add_command(self, label, command):
-        newentry = MenuEntry(label=label, value=command)
+    def add_command(self, label, command, error=None):
+        newentry = MenuEntry(label=label, value=command, error=error)
         self._entries.append(newentry)
         return newentry
 

@@ -131,7 +131,7 @@ class BaseTestCase(unittest.TestCase):
         self.patch_outputs = patch_outputs.start()
         self.patch_outputs.return_value = MOCK_OUTPUTS_LIST
 
-        init_vocabs(self.context)
+        init_vocabs()
 
     def tearDown(self):
         mock.patch.stopall()

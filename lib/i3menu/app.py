@@ -23,6 +23,7 @@ class Application(object):
         self.context = getUtility(IContextManager)
         self.context.config = self.parse_args(args)
         self.context.mp = self.get_menu_provider()
+        init_vocabs()
 
     def parse_args(self, params=None):
         config = DEFAULTS
@@ -101,7 +102,6 @@ class Application(object):
         return root_menu
 
     def run(self):
-        init_vocabs(self.context)
         self.apply_config()
         parent_menu = self.tree
         res = self.context.selectinput(parent_menu)
@@ -110,7 +110,7 @@ class Application(object):
             menu = res.value
             menu.parent = parent_menu
             res = self.context.selectinput(menu)
-        if not res.value:
+        if not res or not res.value:
             logger.info(u'Done! Cheers, bye! :)')
             sys.exit()
         cmd_klass = res.value

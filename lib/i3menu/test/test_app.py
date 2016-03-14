@@ -15,4 +15,4 @@ class TestCommands(BaseTestCase):
     def test_build_menu_tree(self):
         app = Application()
         tree = app.build_menu_tree()
-        self.assertEqual(len(tree.entries), 3)
+        self.assertEqual(len(tree.entries), 7)

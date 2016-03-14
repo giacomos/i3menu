@@ -21,8 +21,7 @@ class OutputObject(object):
 
 
 class BaseVocabularyFactory(object):
-    def __init__(self, context):
-        self.context = context
+    def __init__(self):
         self._terms = [t for t in self.terms]
 
     @property
@@ -161,9 +160,9 @@ VOCABS = [
 ]
 
 
-def init_vocabs(context):
+def init_vocabs():
     vr = getVocabularyRegistry()
     for vobject in VOCABS:
-        vocab = vobject(context)
+        vocab = vobject()
         vr = getVocabularyRegistry()
         vr.register(vobject.name, vocab)

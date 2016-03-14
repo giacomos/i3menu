@@ -3,7 +3,7 @@ from zope.component import getGlobalSiteManager
 from zope.interface import implementer
 from zope.component import adapter
 from zope.schema.interfaces import IVocabulary
-from zope.schema.interfaces import IChoice, ITextLine
+from zope.schema.interfaces import IChoice, ITextLine, IInt
 
 from i3menu import _
 from i3menu.menu import Menu
@@ -15,7 +15,7 @@ gsm = getGlobalSiteManager()
 
 @implementer(IMenu)
 @adapter(IVocabulary)
-class MenuAdapter(object):
+class VocabToMenuAdapter(object):
     def __init__(self, vocab):
         self.vocab = vocab
 
@@ -27,7 +27,7 @@ class MenuAdapter(object):
             menu.add_command(label=label, command=command)
         return menu
 
-gsm.registerAdapter(MenuAdapter)
+gsm.registerAdapter(VocabToMenuAdapter)
 
 
 @implementer(IWidget)
@@ -64,3 +64,23 @@ class TextLineWidget(object):
 
 
 gsm.registerAdapter(TextLineWidget)
+
+
+@implementer(IWidget)
+@adapter(IInt)
+class IntWidget(object):
+    def __init__(self, field):
+        self.field = field
+
+    def __call__(self):
+        f = self.field
+        f = f.bind(f.context)
+        res = f.context.textinput(prompt=f.__name__)
+        if res:
+            try:
+                return int(res)
+            except:
+                return res
+
+
+gsm.registerAdapter(IntWidget)

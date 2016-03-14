@@ -1,5 +1,5 @@
 from zope.interface import Interface
-from zope.schema import Choice, TextLine
+from i3menu.fields import Choice, Int, TextLine
 from i3menu.factories import FocusedWindowFactory, FocusedWorkspaceFactory
 
 
@@ -59,38 +59,14 @@ class IBarCommand(ICommand):
     """"""
 
 
-class IFloating(IWindowCommand):
-    window = Choice(
-        title=u"Window",
-        required=True,
-        vocabulary="windows_vocabulary",
-        defaultFactory=FocusedWindowFactory()
-    )
-
-    action = Choice(
-        title=u"Action",
-        required=False,
-        default='toggle',
-        values=['enable', 'disable', 'toggle']
-    )
+###############################
+#
+# WORKSPACE ACTIONS
+#
+###############################
 
 
-class IMoveWindowToWorkspace(IWindowCommand):
-    window = Choice(
-        title=u"Window",
-        required=True,
-        vocabulary="windows_vocabulary",
-        defaultFactory=FocusedWindowFactory()
-    )
-
-    workspace = Choice(
-        title=u"Workspace",
-        required=False,
-        vocabulary="workspaces_vocabulary",
-    )
-
-
-class IMoveWorkspaceToOutput(IWorkspaceCommand):
+class IMoveWorkspaceToOutput(Interface):
     output = Choice(
         title=u"Output",
         required=True,
@@ -104,7 +80,7 @@ class IMoveWorkspaceToOutput(IWorkspaceCommand):
     # )
 
 
-class IRenameWorkspace(IWorkspaceCommand):
+class IRenameWorkspace(Interface):
 
     workspace = Choice(
         title=u"Workspace",
@@ -114,30 +90,77 @@ class IRenameWorkspace(IWorkspaceCommand):
     )
 
     value = TextLine(
-        title=u"Title",
+        title=u"New name",
         required=True,
     )
 
 
-class IKill(IWindowCommand):
+class ILayout(Interface):
+
+    action = Choice(
+        title=u"Action",
+        required=False,
+        default='toggle all',
+        values=[
+            u'default', u'tabbed', u'stacking', u'splitv', u'splith',
+            u'toggle split', u'toggle all']
+    )
+
+
+###############################
+#
+# window actions
+#
+###############################
+
+
+class IResize(Interface):
     window = Choice(
         title=u"Window",
         required=True,
         vocabulary="windows_vocabulary",
         defaultFactory=FocusedWindowFactory()
     )
-
-
-class IMoveWindowToScratchpad(IWindowCommand):
-    window = Choice(
-        title=u"Window",
+    action = Choice(
+        title=u"Action",
         required=True,
-        vocabulary="windows_vocabulary",
-        defaultFactory=FocusedWindowFactory()
+        values=['grow', 'shrink', 'set']
+    )
+    direction = Choice(
+        title=u"Direction",
+        required=False,
+        values=['up', 'down', 'left', 'right'],
+        visible_condition=lambda ctx: ctx.action in ['grow', 'shrink'],
+        required_condition=lambda ctx: ctx.action in ['grow', 'shrink']
+    )
+    pixels = Int(
+        title=u"Pixels",
+        required=False,
+        min=0,
+        visible_condition=lambda ctx: ctx.action in ['grow', 'shrink'] and not ctx.ppt,  # noqa
+    )
+    ppt = Int(
+        title=u"Ppt",
+        required=False,
+        min=0,
+        max=100,
+        visible_condition=lambda ctx: ctx.action in ['grow', 'shrink'] and not ctx.pixels,  # noqa
+    )
+    width = TextLine(
+        title=u"Width",
+        required=False,
+        visible_condition=lambda ctx: ctx.action in ['set'],
+        required_condition=lambda ctx: ctx.action in ['set']
+    )
+    height = TextLine(
+        title=u"Height",
+        required=False,
+        visible_condition=lambda ctx: ctx.action in ['set'],
+        required_condition=lambda ctx: ctx.action in ['set']
     )
 
 
-class IBorder(IWindowCommand):
+class IFloating(Interface):
     window = Choice(
         title=u"Window",
         required=True,
@@ -147,13 +170,62 @@ class IBorder(IWindowCommand):
 
     action = Choice(
         title=u"Action",
-        required=False,
+        required=True,
+        default='toggle',
+        values=['enable', 'disable', 'toggle']
+    )
+
+
+class IMoveWindowToWorkspace(Interface):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="windows_vocabulary",
+        defaultFactory=FocusedWindowFactory()
+    )
+
+    workspace = Choice(
+        title=u"Workspace",
+        required=True,
+        vocabulary="workspaces_vocabulary",
+    )
+
+
+class IKill(Interface):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="windows_vocabulary",
+        defaultFactory=FocusedWindowFactory()
+    )
+
+
+class IMoveWindowToScratchpad(Interface):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="windows_vocabulary",
+        defaultFactory=FocusedWindowFactory()
+    )
+
+
+class IBorder(Interface):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="windows_vocabulary",
+        defaultFactory=FocusedWindowFactory()
+    )
+
+    action = Choice(
+        title=u"Action",
+        required=True,
         default='toggle',
         values=[u'none', u'normal', u'pixel 1', u'pixel 3', u'toggle']
     )
 
 
-class ISticky(IWindowCommand):
+class ISticky(Interface):
     window = Choice(
         title=u"Window",
         required=True,
@@ -163,13 +235,13 @@ class ISticky(IWindowCommand):
 
     action = Choice(
         title=u"Action",
-        required=False,
+        required=True,
         default='toggle',
         values=[u'enable', u'disable', u'toggle']
     )
 
 
-class ISplit(IWindowCommand):
+class ISplit(Interface):
     window = Choice(
         title=u"Window",
         required=True,
@@ -179,12 +251,12 @@ class ISplit(IWindowCommand):
 
     action = Choice(
         title=u"Action",
-        required=False,
+        required=True,
         values=[u'vertical', u'horizontal']
     )
 
 
-class IFullscreen(IWindowCommand):
+class IFullscreen(Interface):
     window = Choice(
         title=u"Window",
         required=True,
@@ -194,45 +266,76 @@ class IFullscreen(IWindowCommand):
 
     action = Choice(
         title=u"Action",
-        required=False,
+        required=True,
         default='toggle',
         values=[u'enable', u'disable', u'toggle']
     )
 
 
-class IDebuglog(IGlobalCommand):
+###############################
+#
+# GLOBAL ACTIONS
+#
+###############################
+
+
+class IDebuglog(Interface):
     action = Choice(
         title=u"Action",
-        required=False,
+        required=True,
         default='toggle',
         values=[u'on', u'off', u'toggle']
     )
 
 
-class IShmlog(IGlobalCommand):
+class IShmlog(Interface):
     action = Choice(
         title=u"Action",
         required=False,
-        default='toggle',
-        values=[u'on', u'off', u'toggle']
+        # default='toggle',
+        values=[u'on', u'off', u'toggle'],
+        visible_condition=lambda ctx: not ctx.size,
+        required_condition=lambda ctx: not ctx.size
+    )
+    size = Int(
+        title=u"Size (bytes)",
+        required=False,
+        min=0,
+        visible_condition=lambda ctx: not ctx.action,
+        required_condition=lambda ctx: not ctx.action
     )
 
 
-class IReload(IGlobalCommand):
+class IReload(Interface):
     """"""
 
 
-class IRestart(IGlobalCommand):
+class IRestart(Interface):
     """"""
 
 
-class IExit(IGlobalCommand):
+class IExit(Interface):
     """"""
 
 
-class IGotoWorkspace(IGotoCommand):
+###############################
+#
+# GOTO ACTIONS
+#
+###############################
+
+
+class IGotoWindow(Interface):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="windows_vocabulary",
+    )
+
+
+class IGotoWorkspace(Interface):
     workspace = Choice(
         title=u"Workspace",
-        required=False,
+        required=True,
         vocabulary="workspaces_vocabulary",
     )

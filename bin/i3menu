@@ -31,17 +31,17 @@ def run():
         "--debug", action='store_true',
         help="Debug, print the i3 command before executing it"
     )
+    mps = [name for name, ut in get_available_menu_providers()]
     parser.add_argument(
         "--menu-provider", dest='menu_provider',
-        choices=['dmenu', 'rofi', 'shell'],
+        choices=mps,
         help="Force the use of a menu provider"
     )
-    options = [name for name, ut in get_available_menu_providers()]
     parser.add_argument(
         "menu",
-        choices=options,
+        # choices=options,
         nargs='?',
-        help="Menu to be executed. Allowed values are: " + ", ".join(options),
+        help="Menu to be executed. Allowed values are: ", # + ", ".join(options),
         metavar='<menu>')
     args = parser.parse_args()
     app = Application(args)

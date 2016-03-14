@@ -31,7 +31,7 @@ gsm = getGlobalSiteManager()
 class TestVocabs(BaseTestCase):
 
     def test_base_vocabulary_factory(self):
-        vocab_factory = BaseVocabularyFactory(self.context)
+        vocab_factory = BaseVocabularyFactory()
         vocab_factory._terms = [
             SimpleTerm('a', 'a', 'a'),
             SimpleTerm('b', 'b', 'b'),
@@ -41,21 +41,21 @@ class TestVocabs(BaseTestCase):
         self.assertEqual(len(terms), 2)
 
     def test_windows_vocabulary_factory(self):
-        vocab_factory = WindowsVocabularyFactory(self.context)
+        vocab_factory = WindowsVocabularyFactory()
         vocab = vocab_factory()
         terms = [t for t in vocab]
         self.assertEqual(len(terms), len(MOCK_WINDOWS_LIST))
         self.assertEqual(terms[0].value, MOCK_WINDOWS_LIST[0])
 
     def test_workspaces_vocabulary_factory(self):
-        vocab_factory = WorkspacesVocabularyFactory(self.context)
+        vocab_factory = WorkspacesVocabularyFactory()
         vocab = vocab_factory()
         terms = [t for t in vocab]
         self.assertEqual(len(terms), len(MOCK_WORKSPACES_LIST))
         self.assertEqual(terms[0].value.workspace, MOCK_WORKSPACES_LIST[0])
 
     def test_outputs_vocabulary_factory(self):
-        vocab_factory = OutputsVocabularyFactory(self.context)
+        vocab_factory = OutputsVocabularyFactory()
         vocab = vocab_factory()
         terms = [t for t in vocab]
         # -1 'cause 1 output is inactive
@@ -63,14 +63,14 @@ class TestVocabs(BaseTestCase):
         self.assertEqual(terms[0].value.output, MOCK_OUTPUTS_LIST[0])
 
     def test_windows_commands_vocabulary_factory(self):
-        vf = WindowCommandsVocabularyFactory(self.context)
+        vf = WindowCommandsVocabularyFactory()
         v = vf()
         terms = [t for t in v]
         cmd_uts = [ut for ut in getUtilitiesFor(IWindowCommand)]
         self.assertEqual(len(terms), len(cmd_uts))
 
     def test_init_vocabs(self):
-        init_vocabs(self.context)
+        init_vocabs()
         vr = getVocabularyRegistry()
         for v in VOCABS:
             error = False

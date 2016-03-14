@@ -1,213 +1,295 @@
-from zope.interface import implementer, providedBy
+from zope.interface import alsoProvides
+from zope.interface import provider
+from zope.interface.verify import verifyObject
 from zope.component import getAdapter, getGlobalSiteManager
 from zope.component import getUtility
-
+from zope.schema import getValidationErrors
+from zope.schema.interfaces import RequiredMissing
 
 from i3menu import _
 from i3menu import logger
 from i3menu import interfaces
 from i3menu.menu import Menu
 from i3menu.interfaces import II3Connector
-from i3menu.exceptions import MissingParamException
-from past.builtins import basestring
 
 gsm = getGlobalSiteManager()
 
 
+class Form(object):
+    def __init__(self, fields, data=None):
+        fields = [(fname, f.bind(self)) for fname, f in fields]
+        self._fields = fields
+        tmpdata = {k: None for k, v in fields}
+        tmpdata.update(data)
+        self._data = tmpdata
+
+    @property
+    def _fieldsdict(self):
+        return {f[0]: f[1] for f in self._fields}
+
+    def __getattr__(self, attr):
+        if attr == '_fieldsdict':
+            return self._fieldsdict
+        elif attr == '_fields':
+            return self._fields
+        elif attr in self._data:
+            return self._data[attr]
+
+    def add_field(self, fname, field):
+        self._fields.append((fname, field))
+        self._data[fname] = self._data.get(fname) or None
+
+    def missing_fields(self):
+        return [
+            (fname, field)
+            for fname, field in self._fields if not getattr(self, fname)]
+
+    def present_fields(self):
+        return [
+            (fname, field)
+            for fname, field in self._fields if getattr(self, fname)]
+
+    def fields(self):
+        missing_fields = self.missing_fields()
+        present_fields = self.present_fields()
+        fields = [(fname, f)
+                  for fname, f in missing_fields + present_fields if f.visible]
+        return fields
+
+
 class AbstractCmd(object):
     """ Abstract command """
-    __id__ = u'AbstractCmd'
+    __component_name__ = u'AbstractCmd'
     __title__ = _(u'Abstract Command')
     __url__ = u''
     __cmd__ = u''
+    schema = None
 
     def __init__(self, context):
         self.context = context
-        self.params = [p for p in self._get_params()]
-        self.data = self.get_defaults()
+        data = {}
+        fields = [p for p in self._get_fields_from_interfaces()]
+        data.update(self.get_defaults(fields))
+        self.form = Form(fields, data)
+        self.form.action
+        if self.schema:
+            alsoProvides(self.form, self.schema)
+            assert verifyObject(self.schema, self.form)
 
-    def get_defaults(self):
-        defaults = {}
-        for pname, param in self.params:
-            param.context = self.context
-            param.bind(self.context)
-            if param.default:
-                defaults[pname] = param.default
+    def _get_fields_from_interfaces(self):
+        fields = []
+        if self.schema:
+            fields = [(fname, field)
+                      for fname, field in self.schema.namesAndDescriptions()]
+        fields = sorted(fields, key=lambda f: f[1].order)
+        for fname, field in fields:
+            yield fname, field
+
+    def get_defaults(self, fields):
+        defaults = {fname: field.default
+                    for fname, field in fields if field.default}
         return defaults
 
-    def validate_data(self):
-        allparams = self.paramsdict()
-        for pname in allparams:
-            if pname not in self.data:
-                logger.info('Missing parameter: %s' % pname)
-                return False
-        return True
+    def validate(self):
+        # allfields = self.fieldsdict()
+        # # first we need to bind all fields to the data object
+        # for fname in allfields:
+        #     field = allfields[fname]
+        #     field.bind(self.form)
+        errors = []
+        errors = getValidationErrors(self.schema, self.form)
+        errorsdict = {}
+        for field, error in errors:
+            errorsdict[field] = error
+        return errorsdict
 
     def __call__(self):
         cmd_msg = None
-        self.request_params()
-        cmd_msg = self.cmd(**self.data)
+        self.request_fields()
+        cmd_msg = self.cmd()
         if cmd_msg:
             conn = getUtility(II3Connector)
             logger.debug('Run command: {cmd}'.format(cmd=cmd_msg))
             return conn.command(cmd_msg)
 
-    def cmd(self, *args, **kwargs):
-        params = kwargs.copy()
-        allparams = self.paramsdict()
-        for pname in allparams:
-            if pname not in params:
-                if allparams[pname].default:
-                    params[pname] = allparams[pname].default
-                else:
-                    error = u'Missing required parameter: {p}'.format(p=pname)
-                    raise MissingParamException(error)
-        return self.__cmd__.format(**params)
+    def cmd(self):
+        errors = self.validate()
+        if not errors:
+            return self.__cmd__.format(**self.form._data)
 
-    def _get_params(self):
-        interfaces = [i for i in providedBy(self).interfaces()]
-        for i in interfaces:
-            fields = [(fname, field)
-                      for fname, field in i.namesAndDescriptions()]
-            fields = sorted(fields, key=lambda f: f[1].order)
-            for fname, field in fields:
-                yield fname, field
-
-    def paramsdict(self):
-        res = {pname: p for pname, p in self.params}
-        return res
-
-    def _missing_params(self):
-        return [
-            (fname, field)
-            for fname, field in self.params if fname not in self.data]
-
-    def _present_params(self):
-        return [
-            (fname, field)
-            for fname, field in self.params if fname in self.data]
-
-    def params_summary_menu(self):
-        params_menu = Menu(u'params_menu', prompt=self.__title__)
-        if self.validate_data():
-            params_menu.add_command(label='Run!', command='run')
-        missing_params = self._missing_params()
-        present_params = self._present_params()
-        for fname, field in missing_params + present_params:
-            field.bind(self.context)
+    def fields_summary_menu(self):
+        fields_menu = Menu(u'fields_menu', prompt=self.__title__)
+        errors = self.validate()
+        if not errors:
+            fields_menu.add_command(label='Run!', command='run')
+        fields = self.form.fields()
+        for fname, field in fields:
+            field = field.bind(self.context)
             widget = getAdapter(field, interfaces.IWidget)
             current_value = 'N/A'
-            if fname in self.data:
-                val = self.data[fname]
-                if isinstance(val, basestring):
-                    current_value = val
-                else:
-                    current_value = val.name
-            label = u'{name} = {value}'.format(
-                name=fname, value=current_value)
-            entry = params_menu.add_command(
+            error_msg = ''
+            if fname in errors:
+                error = errors[fname]
+                if not isinstance(error, RequiredMissing):
+                    error_msg = ' [Error: {msg}]'.format(msg=repr(error))
+            val = getattr(self.form, fname)
+            if hasattr(val, 'name'):
+                current_value = val
+                current_value = val.name
+            elif val:
+                current_value = val
+            name = field.title or fname
+            label = u'{name} = {value}{error_msg}'.format(
+                name=name, value=current_value, error_msg=error_msg)
+            entry = fields_menu.add_command(
                 label=label,
-                command=widget)
+                command=widget,
+                error=errors.get(fname))
             entry.name = fname
-        return self.context.selectinput(params_menu)
+        return self.context.selectinput(fields_menu)
 
-    def param_menu(self, name, widget):
-        newvalue = widget()
-        if newvalue:
-            self.data[name] = newvalue
-
-    def request_params(self):
-        res = self.params_summary_menu()
+    def request_fields(self):
+        res = self.fields_summary_menu()
         if not res or res.value == 'run':
             return
         elif interfaces.IWidget.providedBy(res.value):
-            self.param_menu(res.name, res.value)
-        self.request_params()
+            widget = res.value
+            newvalue = widget()
+            self.form._data[res.name] = newvalue
+        self.request_fields()
 
 
-@implementer(interfaces.IFloating)
-class Floating(AbstractCmd):
-    __id__ = u'floating'
-    __title__ = _(u'Floating')
-    __url__ = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
-    __cmd__ = u'[id="{window.window}"] floating {action}'
+###############################
+#
+# WORKSPACE ACTIONS
+#
+###############################
 
 
-gsm.registerUtility(
-    Floating,
-    interfaces.IFloating,
-    name=Floating.__id__)
-
-
-@implementer(interfaces.IMoveWindowToWorkspace)
-class MoveWindowToWorkspace(AbstractCmd):
-    __id__ = u'move_window_to_workspace'
-    __title__ = _(u'Move Window To Workspace')
-    __cmd__ = u'[id="{window.window}"] move window to workspace '\
-        '"{workspace.workspace.name}"'
-
-
-gsm.registerUtility(
-    MoveWindowToWorkspace,
-    interfaces.IMoveWindowToWorkspace,
-    name=MoveWindowToWorkspace.__id__)
-
-
-@implementer(interfaces.IMoveWorkspaceToOutput)
+@provider(interfaces.IWorkspaceCommand)
 class MoveWorkspaceToOutput(AbstractCmd):
     """
     http://i3wm.org/docs/userguide.html#_moving_workspaces_to_a_different_screen
     """
     # XXX: it seems that it's not possible to specify a workspace other
     # than the current one. This needs to be investigated further
-    __id__ = u'move_workspace_to_output'
+    __component_name__ = u'move_workspace_to_output'
     __title__ = u'Move Workspace To Output'
     __cmd__ = u'move workspace to output "{output.output.name}"'
+    schema = interfaces.IMoveWorkspaceToOutput
+
+gsm.registerUtility(MoveWorkspaceToOutput)
 
 
-gsm.registerUtility(
-    MoveWorkspaceToOutput,
-    interfaces.IMoveWorkspaceToOutput,
-    MoveWorkspaceToOutput.__id__)
-
-
-@implementer(interfaces.IRenameWorkspace)
+@provider(interfaces.IWorkspaceCommand)
 class RenameWorkspace(AbstractCmd):
-    __id__ = u'rename'
+    __component_name__ = u'rename'
     __title__ = u'Rename workspace'
     __cmd__ = u'rename workspace "{workspace.workspace.name}" to "{value}"'
+    schema = interfaces.IRenameWorkspace
 
-gsm.registerUtility(
-    RenameWorkspace,
-    interfaces.IRenameWorkspace,
-    name=RenameWorkspace.__id__)
+gsm.registerUtility(RenameWorkspace)
 
 
-@implementer(interfaces.IKill)
+@provider(interfaces.IWorkspaceCommand)
+class Layout(AbstractCmd):
+    """ Use layout toggle split, layout stacking, layout tabbed,
+        layout splitv or layout splith to change the current container layout
+        to splith/splitv, stacking, tabbed layout, splitv or splith,
+        respectively.
+    """
+
+    __component_name__ = u'layout'
+    __title__ = u'Layout'
+    __cmd__ = u'layout {action}'
+    __url__ = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
+    schema = interfaces.ILayout
+
+gsm.registerUtility(Layout)
+
+
+###############################
+#
+# window actions
+#
+###############################
+
+
+@provider(interfaces.IWindowCommand)
+class Resize(AbstractCmd):
+    __component_name__ = u'resize'
+    __title__ = _(u'Resize')
+    __url__ = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
+    __cmd__ = u'resize {action} {direction}'
+    schema = interfaces.IResize
+
+    def cmd(self, *args, **kwargs):
+        cmd = ''
+        errors = self.validate()
+        if errors:
+            return cmd
+        data = self.data.__dict__.copy()
+        action = data.get('action')
+        if action in ['grow', 'shrink']:
+            cmd = '[id="{window.window}"] resize {action} {direction}'.format(
+                window=data.get('window'), action=action,
+                direction=data.get('direction'))
+            if 'pixels' in data:
+                cmd += ' {pixels} px'.format(pixels=data['pixels'])
+            elif 'ppt' in data:
+                cmd += ' {ppt}'.format(ppt=data['ppt'])
+        elif action == 'set':
+            cmd = '[id="{window.window}"] resize {action} {width} px {height} px'.format(  # noqa
+                window=data.get('window'), action=action,
+                width=data['width'], height=data['height'])
+        return cmd
+
+gsm.registerUtility(Resize)
+
+
+@provider(interfaces.IWindowCommand)
+class Floating(AbstractCmd):
+    __component_name__ = u'floating'
+    __title__ = _(u'Floating')
+    __url__ = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
+    __cmd__ = u'[id="{window.window}"] floating {action}'
+    schema = interfaces.IFloating
+
+gsm.registerUtility(Floating)
+
+
+@provider(interfaces.IWindowCommand)
+class MoveWindowToWorkspace(AbstractCmd):
+    __component_name__ = u'move_window_to_workspace'
+    __title__ = _(u'Move Window To Workspace')
+    __cmd__ = u'[id="{window.window}"] move window to workspace '\
+        '"{workspace.workspace.name}"'
+    schema = interfaces.IMoveWindowToWorkspace
+
+gsm.registerUtility(MoveWindowToWorkspace)
+
+
+@provider(interfaces.IWindowCommand)
 class Kill(AbstractCmd):
-    __id__ = u'kill'
+    __component_name__ = u'kill'
     __title__ = u'Kill'
     __cmd__ = u'[id="{window.window}"] kill'
+    schema = interfaces.IKill
 
-gsm.registerUtility(
-    Kill,
-    interfaces.IKill,
-    name=Kill.__id__)
+gsm.registerUtility(Kill)
 
 
-@implementer(interfaces.IMoveWindowToScratchpad)
+@provider(interfaces.IWindowCommand)
 class MoveWindowToScratchpad(AbstractCmd):
-    __id__ = u'move_window_to_scratchpad'
+    __component_name__ = u'move_window_to_scratchpad'
     __title__ = u'Move Window to Scratchpad'
     __cmd__ = u'[id="{window.window}"] move to scratchpad'
+    schema = interfaces.IMoveWindowToScratchpad
 
-gsm.registerUtility(
-    MoveWindowToScratchpad,
-    interfaces.IMoveWindowToScratchpad,
-    name=MoveWindowToScratchpad.__id__)
+gsm.registerUtility(MoveWindowToScratchpad)
 
 
-@implementer(interfaces.IBorder)
+@provider(interfaces.IWindowCommand)
 class Border(AbstractCmd):
     """ To change the border of the current client, you can use border normal
         to use the normal border (including window title), border pixel 1 to
@@ -218,176 +300,142 @@ class Border(AbstractCmd):
         styles.
     """
 
-    __id__ = u'border'
+    __component_name__ = u'border'
     __title__ = u'Border'
     _description = u'change the border style'
     __url__ = u'http://i3wm.org/docs/userguide.html#_changing_border_style'
     __cmd__ = u'[id="{window.window}"] border {action}'
+    schema = interfaces.IBorder
 
-gsm.registerUtility(
-    Border,
-    interfaces.IBorder,
-    name=Border.__id__)
+gsm.registerUtility(Border)
 
 
-@implementer(interfaces.ISticky)
+@provider(interfaces.IWindowCommand)
 class Sticky(AbstractCmd):
-    """ http://i3wm.org/docs/userguide.html#_sticky_floating_windows
-    """
-
-    __id__ = u'sticky'
+    __component_name__ = u'sticky'
     __title__ = u'Sticky'
     __cmd__ = u'[id="{window.window}"] sticky {action}'
+    __url__ = u'http://i3wm.org/docs/userguide.html#_sticky_floating_windows'
+    schema = interfaces.ISticky
 
-gsm.registerUtility(
-    Sticky,
-    interfaces.ISticky,
-    name=Sticky.__id__)
+gsm.registerUtility(Sticky)
 
 
-@implementer(interfaces.ISplit)
+@provider(interfaces.ISplit)
 class Split(AbstractCmd):
-    """ http://i3wm.org/docs/userguide.html#_splitting_containers
-    """
-
-    __id__ = u'split'
+    __component_name__ = u'split'
     __title__ = u'Split'
+    __url__ = u'http://i3wm.org/docs/userguide.html#_splitting_containers'
     __cmd__ = u'[id="{window.window}"] split {action}'
+    schema = interfaces.ISplit
 
-gsm.registerUtility(
-    Split,
-    interfaces.ISplit,
-    name=Split.__id__)
+gsm.registerUtility(Split)
 
 
-@implementer(interfaces.IFullscreen)
+@provider(interfaces.IWindowCommand)
 class Fullscreen(AbstractCmd):
-    """ To make the current window (!) fullscreen, use
-        fullscreen enable (or fullscreen enable global for the global mode),
-        to leave either fullscreen mode use fullscreen disable, and to toggle
-        between these two states use fullscreen toggle (or fullscreen toggle
-        global).
-    """
-
-    __id__ = u'fullscreen'
+    __component_name__ = u'fullscreen'
     __title__ = u'Fullscreen'
     __url__ = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
     __cmd__ = u'[id="{target.window}"] fullscreen {action}'
+    schema = interfaces.IFullscreen
 
-gsm.registerUtility(
-    Fullscreen,
-    interfaces.IFullscreen,
-    name=Fullscreen.__id__)
+gsm.registerUtility(Fullscreen)
 
 
-@implementer(interfaces.IDebuglog)
+###############################
+#
+# GLOBAL ACTIONS
+#
+###############################
+
+
+@provider(interfaces.IGlobalCommand)
 class Debuglog(AbstractCmd):
-    """ http://i3wm.org/docs/userguide.html#_enabling_debug_logging
-    """
-
-    __id__ = u'debuglog'
+    __component_name__ = u'debuglog'
     __title__ = u'Debug Log'
+    __url__ = u'http://i3wm.org/docs/userguide.html#_enabling_debug_logging'
     __cmd__ = u'debuglog {action}'
+    schema = interfaces.IDebuglog
 
-gsm.registerUtility(
-    Debuglog,
-    interfaces.IDebuglog,
-    name=Debuglog.__id__)
+gsm.registerUtility(Debuglog)
 
 
-@implementer(interfaces.IShmlog)
+@provider(interfaces.IGlobalCommand)
 class Shmlog(AbstractCmd):
-    """ http://i3wm.org/docs/userguide.html#shmlog
-    """
-    # TODO: add the possibility to specify the shared memory size
-
-    __id__ = u'shmlog'
+    __component_name__ = u'shmlog'
     __title__ = u'Shared memory Log'
+    __url__ = u'http://i3wm.org/docs/userguide.html#shmlog'
     __cmd__ = u'shmlog {action}'
-    _actions = [u'on', u'off', u'toggle']
+    schema = interfaces.IShmlog
 
-gsm.registerUtility(
-    Shmlog,
-    interfaces.IShmlog,
-    name=Shmlog.__id__)
+    def cmd(self, *args, **kwargs):
+        errors = self.validate()
+        if errors:
+            return ''
+        elif self.data.size:
+            return u'shmlog {size}'
+        elif self.data.action:
+            return u'shmlog {action}'
+
+gsm.registerUtility(Shmlog)
 
 
-@implementer(interfaces.IReload)
+@provider(interfaces.IGlobalCommand)
 class Reload(AbstractCmd):
-    """ http://i3wm.org/docs/userguide.html#_reloading_restarting_exiting
-    """
-
-    __id__ = u'reload'
+    __component_name__ = u'reload'
     __title__ = u'Reload'
+    __url__ = u'http://i3wm.org/docs/userguide.html#_reloading_restarting_exiting'  # noqa
     __cmd__ = u'reload'
+    schema = interfaces.IReload
 
-gsm.registerUtility(
-    Reload,
-    interfaces.IReload,
-    name=Reload.__id__)
+gsm.registerUtility(Reload)
 
 
-@implementer(interfaces.IRestart)
+@provider(interfaces.IGlobalCommand)
 class Restart(AbstractCmd):
-    """ http://i3wm.org/docs/userguide.html#_reloading_restarting_exiting
-    """
-
-    __id__ = u'restart'
+    __component_name__ = u'restart'
     __title__ = u'Restart'
+    __url__ = u'http://i3wm.org/docs/userguide.html#_reloading_restarting_exiting'  # noqa
     __cmd__ = u'restart'
+    schema = interfaces.IRestart
 
-gsm.registerUtility(
-    Restart,
-    interfaces.IRestart,
-    name=Restart.__id__)
+gsm.registerUtility(Restart)
 
 
-@implementer(interfaces.IExit)
+@provider(interfaces.IGlobalCommand)
 class Exit(AbstractCmd):
-    """ http://i3wm.org/docs/userguide.html#_reloading_restarting_exiting
-    """
-
-    __id__ = u'exit'
+    __component_name__ = u'exit'
     __title__ = u'Exit'
+    __url__ = u'http://i3wm.org/docs/userguide.html#_reloading_restarting_exiting'  # noqa
     __cmd__ = u'exit'
+    schema = interfaces.IExit
 
-gsm.registerUtility(
-    Exit,
-    interfaces.IExit,
-    name=Exit.__id__)
+gsm.registerUtility(Exit)
 
 
-@implementer(interfaces.IGotoWorkspace)
+###############################
+#
+# GOTO ACTIONS
+#
+###############################
+
+
+@provider(interfaces.IGotoCommand)
+class GotoWindow(AbstractCmd):
+    __component_name__ = u'goto_window'
+    __title__ = u'Goto Window'
+    __cmd__ = u'[id="{window.window}"] focus'
+    schema = interfaces.IGotoWindow
+
+gsm.registerUtility(GotoWindow)
+
+
+@provider(interfaces.IGotoCommand)
 class GotoWorkspace(AbstractCmd):
-
-    __id__ = u'goto_workspace'
+    __component_name__ = u'goto_workspace'
     __title__ = u'Goto Workspace'
     __cmd__ = u'workspace "{workspace.workspace.name}"'
+    schema = interfaces.IGotoWorkspace
 
-gsm.registerUtility(
-    GotoWorkspace,
-    interfaces.IGotoWorkspace,
-    name=GotoWorkspace.__id__)
-#
-#
-# @implementer(interfaces.ILayout)
-# class Layout(AbstractCmd):
-#     """ Use layout toggle split, layout stacking, layout tabbed,
-#         layout splitv or layout splith to change the current container layout
-#         to splith/splitv, stacking, tabbed layout, splitv or splith,
-#         respectively.
-#     """
-#
-#     __id__ = u'exit'
-#     __cmd__ = u'layout {action}'
-#     __url__ = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
-#     _actions = [
-#         u'default', u'tabbed', u'stacking', u'splitv', u'splith',
-#         u'toggle split', u'toggle all']
-#
-#
-# @implementer(interfaces.IRenameWorkspace)
-# class RenameWorkspace(AbstractCmd):
-#
-#     __id__ = u'rename'
-#     __cmd__ = u'rename workspace "{ws.name}" to "{value}"'
+gsm.registerUtility(GotoWorkspace)
