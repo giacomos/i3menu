@@ -90,7 +90,7 @@ class BaseCommandsVocabularyFactory(BaseVocabularyFactory):
         cmds = sorted(cmds, key=lambda i: i[1].priority, reverse=True)
         for utname, ut in cmds:
             # value, token, title
-            yield (ut, utname,ut.__title__)
+            yield (ut, utname, ut.__title__)
 
 
 class WindowCommandsVocabularyFactory(BaseCommandsVocabularyFactory):

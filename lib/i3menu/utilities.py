@@ -9,8 +9,8 @@ from zope.interface import implementer
 
 from i3menu import logger
 from i3menu.utils import safe_join, which, getch
-from i3menu.config import SUBMENU_SIGN
-from i3menu.config import MENUENTRY_SIGN
+# from i3menu.config import SUBMENU_SIGN
+# from i3menu.config import MENUENTRY_SIGN
 from i3menu.__about__ import __title__
 from i3menu.interfaces import IMenuProvider
 from i3menu.interfaces import IContextManager
