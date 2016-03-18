@@ -7,3 +7,11 @@ class MissingParamException(Exception):
 
 class MenuProviderNotFound(Exception):
     """"""
+
+
+class NoInputError(Exception):
+    """"""
+
+
+class SelectionNotValidError(Exception):
+    """"""

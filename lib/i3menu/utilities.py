@@ -15,6 +15,7 @@ from i3menu.__about__ import __title__
 from i3menu.interfaces import IMenuProvider
 from i3menu.interfaces import IContextManager
 from i3menu.interfaces import II3Connector
+from i3menu.exceptions import NoInputError, SelectionNotValidError
 from builtins import input
 
 
@@ -53,27 +54,28 @@ class ShellMenuProvider(object):
             escapes = ['\x03', '\x04', '\x1b']  # ctrl-c, ctrl-d, esc
             ch = getch()
             if ch in escapes:
-                return
+                raise NoInputError()
             return ch
         else:
             try:
                 return input()
             except KeyboardInterrupt:  # ctrl+c
-                return
+                raise NoInputError()
             except EOFError:  # ctrl+d
-                return
+                raise NoInputError()
 
     def display_menu(self, entries):
         labels = []
         idx2entry = OrderedDict()
         for i, e in enumerate(entries):
-            icon = e.cascade and SUBMENU_SIGN or MENUENTRY_SIGN
+            # icon = e.cascade and SUBMENU_SIGN or MENUENTRY_SIGN
+            icon = ''
             idx = i + 1
             label = u'{color}{idx}{endc}: {l}{icon}'.format(
                 color=self.green_text,
                 endc=self.end_colors,
                 idx=idx,
-                l=e.label,
+                l=e.title,
                 icon=icon)
             labels.append(label)
             idx2entry[str(idx)] = e
@@ -88,8 +90,10 @@ class ShellMenuProvider(object):
         res = self.getinput()
         if len(entries) == 0:
             return res
-        else:
-            return idx2entry.get(res)
+        entry = idx2entry.get(res)
+        if not entry:
+            raise SelectionNotValidError()
+        return entry
 
     def __call__(self, entries=None, prompt=None):
         if entries:
@@ -113,10 +117,11 @@ class MenuProvider(object):
     def preparelabels(self, entries):
         labels = OrderedDict()
         for i, e in enumerate(entries):
-            icon = e.cascade and SUBMENU_SIGN or MENUENTRY_SIGN
+            # icon = e.cascade and SUBMENU_SIGN or MENUENTRY_SIGN
+            icon = ''
             label = u'{idx}: {l}{icon}'.format(
                 idx=i,
-                l=e.label,
+                l=e.title and e.title or e.token,
                 icon=icon)
             labels[label] = e
         return labels
@@ -142,7 +147,7 @@ class MenuProvider(object):
                                stderr=subprocess.PIPE)
         out, err = cmd.communicate('\n'.join(options).encode('utf-8'))
         if cmd.returncode:
-            return None
+            raise NoInputError()
         return out
 
     def sanitizeinput(self, res):
@@ -153,7 +158,7 @@ class MenuProvider(object):
             # res = res.split(': ', 1)[-1]
         return res
 
-    def __call__(self, entries, prompt=None, filter_fnc=None):
+    def __call__(self, entries, prompt=None):
         prompt = self.prepareprompt(prompt)
         labels = len(entries) and self.preparelabels(entries) or {}
         cmd = self.preparecmd(prompt, entries)
@@ -161,6 +166,8 @@ class MenuProvider(object):
         if len(entries) == 0:
             return res
         entry = labels.get(res)
+        if not entry:
+            raise SelectionNotValidError()
         return entry
 
 
@@ -185,7 +192,8 @@ class RofiMenuProvider(MenuProvider):
 
     def preparecmd(self, prompt, entries=None):
         cmdargs = '-p {prompt} -dmenu'.format(prompt=prompt)
-        allerrors = [(idx, e) for idx, e in enumerate(entries) if e.error]
+        # allerrors = [(idx, e) for idx, e in enumerate(entries) if e.error]
+        allerrors = []
         missings = []
         errors = []
         for e in allerrors:
@@ -224,22 +232,22 @@ def get_available_menu_providers():
 @implementer(IContextManager)
 class Context(object):
     def selectinput(self, menu, prompt=None, filter_fnc=None):
-        entries = menu.entries
+        entries = [e for e in menu]
         prompt = prompt or menu.prompt
         if filter_fnc:
             entries = [e for e in filter(filter_fnc, entries)]
-        choice = self.mp(entries, prompt=prompt)
+        try:
+            choice = self.mp(entries, prompt=prompt)
+        except SelectionNotValidError:
+            return self.selectinput(
+                menu, prompt=prompt, filter_fnc=filter_fnc)
         if choice:
             return choice
-        # else:
-        #     sys.exit()
 
     def textinput(self, prompt=None):
         text = self.mp(entries=[], prompt=prompt)
         if text:
             return text
-        # else:
-        #     sys.exit()
 
 
 gsm.registerUtility(Context())

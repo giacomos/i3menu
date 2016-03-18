@@ -5,7 +5,7 @@ __metaclass__ = type
 
 from zope.component import getGlobalSiteManager
 from zope.component import getUtilitiesFor
-from zope.schema.vocabulary import SimpleTerm, VocabularyRegistryError
+from zope.schema.vocabulary import VocabularyRegistryError
 from zope.schema.vocabulary import getVocabularyRegistry
 
 from i3menu.test import BaseTestCase
@@ -33,8 +33,8 @@ class TestVocabs(BaseTestCase):
     def test_base_vocabulary_factory(self):
         vocab_factory = BaseVocabularyFactory()
         vocab_factory._terms = [
-            SimpleTerm('a', 'a', 'a'),
-            SimpleTerm('b', 'b', 'b'),
+            ('a', 'a', 'a'),
+            ('b', 'b', 'b'),
         ]
         vocab = vocab_factory()
         terms = [t for t in vocab]

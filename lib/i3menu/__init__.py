@@ -32,6 +32,7 @@ PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
 PY34 = sys.version_info[0:2] >= (3, 4)
 
+from i3menu import patches  # noqa
 from i3menu import factories  # noqa
 from i3menu import interfaces  # noqa
 from i3menu import utilities  # noqa

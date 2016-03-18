@@ -43,6 +43,10 @@ class IWorkspaceCommand(ICommand):
     """"""
 
 
+class IMoveCommand(ICommand):
+    """"""
+
+
 class IGlobalCommand(ICommand):
     """"""
 

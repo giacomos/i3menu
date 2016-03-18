@@ -1,15 +1,16 @@
 from zope.interface import alsoProvides
-from zope.interface import provider
+from zope.interface import implementer
 from zope.interface.verify import verifyObject
 from zope.component import getAdapter, getGlobalSiteManager
 from zope.component import getUtility
 from zope.schema import getValidationErrors
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
 from zope.schema.interfaces import RequiredMissing
 
 from i3menu import _
 from i3menu import logger
 from i3menu import interfaces
-from i3menu.menu import Menu
 from i3menu.interfaces import II3Connector
 
 gsm = getGlobalSiteManager()
@@ -64,6 +65,7 @@ class AbstractCmd(object):
     __url__ = u''
     __cmd__ = u''
     schema = None
+    priority = 0
 
     def __init__(self, context):
         self.context = context
@@ -105,9 +107,9 @@ class AbstractCmd(object):
 
     def __call__(self):
         cmd_msg = None
-        self.request_fields()
+        run = self.request_fields()
         cmd_msg = self.cmd()
-        if cmd_msg:
+        if cmd_msg and run:
             conn = getUtility(II3Connector)
             logger.debug('Run command: {cmd}'.format(cmd=cmd_msg))
             return conn.command(cmd_msg)
@@ -118,10 +120,10 @@ class AbstractCmd(object):
             return self.__cmd__.format(**self.form._data)
 
     def fields_summary_menu(self):
-        fields_menu = Menu(u'fields_menu', prompt=self.__title__)
+        terms = []
         errors = self.validate()
         if not errors:
-            fields_menu.add_command(label='Run!', command='run')
+            terms.append(('run', 'run', 'Run!'))
         fields = self.form.fields()
         for fname, field in fields:
             field = field.bind(self.context)
@@ -141,32 +143,54 @@ class AbstractCmd(object):
             name = field.title or fname
             label = u'{name} = {value}{error_msg}'.format(
                 name=name, value=current_value, error_msg=error_msg)
-            entry = fields_menu.add_command(
-                label=label,
-                command=widget,
-                error=errors.get(fname))
-            entry.name = fname
-        return self.context.selectinput(fields_menu)
+            terms.append((widget, fname, label))
+        vocab = SimpleVocabulary([SimpleTerm(*t) for t in terms])
+        return self.context.selectinput(vocab, prompt=self.__title__)
 
     def request_fields(self):
         res = self.fields_summary_menu()
-        if not res or res.value == 'run':
-            return
+        if not res:
+            return False
+        elif res.value == 'run':
+            return True
         elif interfaces.IWidget.providedBy(res.value):
             widget = res.value
-            newvalue = widget()
-            self.form._data[res.name] = newvalue
-        self.request_fields()
+            newres = widget()
+            self.form._data[res.token] = hasattr(newres, 'value') and \
+                newres.value or newres
+        return self.request_fields()
 
 
 ###############################
 #
-# WORKSPACE ACTIONS
+# MOVE ACTIONS
 #
 ###############################
 
+@implementer(interfaces.IMoveCommand)
+class MoveWindowToScratchpad(AbstractCmd):
+    __component_name__ = u'move_window_to_scratchpad'
+    __title__ = u'Move Window to Scratchpad'
+    __cmd__ = u'[id="{window.window}"] move to scratchpad'
+    priority = 20
+    schema = interfaces.IMoveWindowToScratchpad
 
-@provider(interfaces.IWorkspaceCommand)
+gsm.registerUtility(MoveWindowToScratchpad, interfaces.IMoveCommand)
+
+
+@implementer(interfaces.IMoveCommand)
+class MoveWindowToWorkspace(AbstractCmd):
+    __component_name__ = u'move_window_to_workspace'
+    __title__ = _(u'Move Window To Workspace')
+    __cmd__ = u'[id="{window.window}"] move window to workspace '\
+        '"{workspace.workspace.name}"'
+    priority = 10
+    schema = interfaces.IMoveWindowToWorkspace
+
+gsm.registerUtility(MoveWindowToWorkspace, interfaces.IMoveCommand)
+
+
+@implementer(interfaces.IMoveCommand)
 class MoveWorkspaceToOutput(AbstractCmd):
     """
     http://i3wm.org/docs/userguide.html#_moving_workspaces_to_a_different_screen
@@ -178,20 +202,27 @@ class MoveWorkspaceToOutput(AbstractCmd):
     __cmd__ = u'move workspace to output "{output.output.name}"'
     schema = interfaces.IMoveWorkspaceToOutput
 
-gsm.registerUtility(MoveWorkspaceToOutput)
+gsm.registerUtility(MoveWorkspaceToOutput, interfaces.IMoveCommand)
 
 
-@provider(interfaces.IWorkspaceCommand)
+###############################
+#
+# WORKSPACE ACTIONS
+#
+###############################
+
+
+@implementer(interfaces.IWorkspaceCommand)
 class RenameWorkspace(AbstractCmd):
     __component_name__ = u'rename'
     __title__ = u'Rename workspace'
     __cmd__ = u'rename workspace "{workspace.workspace.name}" to "{value}"'
     schema = interfaces.IRenameWorkspace
 
-gsm.registerUtility(RenameWorkspace)
+gsm.registerUtility(RenameWorkspace, interfaces.IWorkspaceCommand)
 
 
-@provider(interfaces.IWorkspaceCommand)
+@implementer(interfaces.IWorkspaceCommand)
 class Layout(AbstractCmd):
     """ Use layout toggle split, layout stacking, layout tabbed,
         layout splitv or layout splith to change the current container layout
@@ -203,9 +234,10 @@ class Layout(AbstractCmd):
     __title__ = u'Layout'
     __cmd__ = u'layout {action}'
     __url__ = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
+    priority = 10
     schema = interfaces.ILayout
 
-gsm.registerUtility(Layout)
+gsm.registerUtility(Layout, interfaces.IWorkspaceCommand)
 
 
 ###############################
@@ -215,12 +247,13 @@ gsm.registerUtility(Layout)
 ###############################
 
 
-@provider(interfaces.IWindowCommand)
+@implementer(interfaces.IWindowCommand)
 class Resize(AbstractCmd):
     __component_name__ = u'resize'
     __title__ = _(u'Resize')
     __url__ = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
     __cmd__ = u'resize {action} {direction}'
+    priority = 10
     schema = interfaces.IResize
 
     def cmd(self, *args, **kwargs):
@@ -244,52 +277,32 @@ class Resize(AbstractCmd):
                 width=data['width'], height=data['height'])
         return cmd
 
-gsm.registerUtility(Resize)
+gsm.registerUtility(Resize, interfaces.IWindowCommand)
 
 
-@provider(interfaces.IWindowCommand)
+@implementer(interfaces.IWindowCommand)
 class Floating(AbstractCmd):
     __component_name__ = u'floating'
     __title__ = _(u'Floating')
     __url__ = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
     __cmd__ = u'[id="{window.window}"] floating {action}'
+    priority = 40
     schema = interfaces.IFloating
 
-gsm.registerUtility(Floating)
+gsm.registerUtility(Floating, interfaces.IWindowCommand)
 
 
-@provider(interfaces.IWindowCommand)
-class MoveWindowToWorkspace(AbstractCmd):
-    __component_name__ = u'move_window_to_workspace'
-    __title__ = _(u'Move Window To Workspace')
-    __cmd__ = u'[id="{window.window}"] move window to workspace '\
-        '"{workspace.workspace.name}"'
-    schema = interfaces.IMoveWindowToWorkspace
-
-gsm.registerUtility(MoveWindowToWorkspace)
-
-
-@provider(interfaces.IWindowCommand)
+@implementer(interfaces.IWindowCommand)
 class Kill(AbstractCmd):
     __component_name__ = u'kill'
     __title__ = u'Kill'
     __cmd__ = u'[id="{window.window}"] kill'
     schema = interfaces.IKill
 
-gsm.registerUtility(Kill)
+gsm.registerUtility(Kill, interfaces.IWindowCommand)
 
 
-@provider(interfaces.IWindowCommand)
-class MoveWindowToScratchpad(AbstractCmd):
-    __component_name__ = u'move_window_to_scratchpad'
-    __title__ = u'Move Window to Scratchpad'
-    __cmd__ = u'[id="{window.window}"] move to scratchpad'
-    schema = interfaces.IMoveWindowToScratchpad
-
-gsm.registerUtility(MoveWindowToScratchpad)
-
-
-@provider(interfaces.IWindowCommand)
+@implementer(interfaces.IWindowCommand)
 class Border(AbstractCmd):
     """ To change the border of the current client, you can use border normal
         to use the normal border (including window title), border pixel 1 to
@@ -305,42 +318,46 @@ class Border(AbstractCmd):
     _description = u'change the border style'
     __url__ = u'http://i3wm.org/docs/userguide.html#_changing_border_style'
     __cmd__ = u'[id="{window.window}"] border {action}'
+    priority = 20
     schema = interfaces.IBorder
 
-gsm.registerUtility(Border)
+gsm.registerUtility(Border, interfaces.IWindowCommand)
 
 
-@provider(interfaces.IWindowCommand)
+@implementer(interfaces.IWindowCommand)
 class Sticky(AbstractCmd):
     __component_name__ = u'sticky'
     __title__ = u'Sticky'
     __cmd__ = u'[id="{window.window}"] sticky {action}'
     __url__ = u'http://i3wm.org/docs/userguide.html#_sticky_floating_windows'
+    priority = 30
     schema = interfaces.ISticky
 
-gsm.registerUtility(Sticky)
+gsm.registerUtility(Sticky, interfaces.IWindowCommand)
 
 
-@provider(interfaces.ISplit)
+@implementer(interfaces.IWindowCommand)
 class Split(AbstractCmd):
     __component_name__ = u'split'
     __title__ = u'Split'
     __url__ = u'http://i3wm.org/docs/userguide.html#_splitting_containers'
     __cmd__ = u'[id="{window.window}"] split {action}'
+    priority = 5
     schema = interfaces.ISplit
 
-gsm.registerUtility(Split)
+gsm.registerUtility(Split, interfaces.IWindowCommand)
 
 
-@provider(interfaces.IWindowCommand)
+@implementer(interfaces.IWindowCommand)
 class Fullscreen(AbstractCmd):
     __component_name__ = u'fullscreen'
     __title__ = u'Fullscreen'
     __url__ = u'http://i3wm.org/docs/userguide.html#_manipulating_layout'
     __cmd__ = u'[id="{target.window}"] fullscreen {action}'
+    priority = 50
     schema = interfaces.IFullscreen
 
-gsm.registerUtility(Fullscreen)
+gsm.registerUtility(Fullscreen, interfaces.IWindowCommand)
 
 
 ###############################
@@ -350,23 +367,25 @@ gsm.registerUtility(Fullscreen)
 ###############################
 
 
-@provider(interfaces.IGlobalCommand)
+@implementer(interfaces.IGlobalCommand)
 class Debuglog(AbstractCmd):
     __component_name__ = u'debuglog'
     __title__ = u'Debug Log'
     __url__ = u'http://i3wm.org/docs/userguide.html#_enabling_debug_logging'
     __cmd__ = u'debuglog {action}'
+    priority = 20
     schema = interfaces.IDebuglog
 
-gsm.registerUtility(Debuglog)
+gsm.registerUtility(Debuglog, interfaces.IGlobalCommand)
 
 
-@provider(interfaces.IGlobalCommand)
+@implementer(interfaces.IGlobalCommand)
 class Shmlog(AbstractCmd):
     __component_name__ = u'shmlog'
     __title__ = u'Shared memory Log'
     __url__ = u'http://i3wm.org/docs/userguide.html#shmlog'
     __cmd__ = u'shmlog {action}'
+    priority = 10
     schema = interfaces.IShmlog
 
     def cmd(self, *args, **kwargs):
@@ -378,32 +397,34 @@ class Shmlog(AbstractCmd):
         elif self.data.action:
             return u'shmlog {action}'
 
-gsm.registerUtility(Shmlog)
+gsm.registerUtility(Shmlog, interfaces.IGlobalCommand)
 
 
-@provider(interfaces.IGlobalCommand)
+@implementer(interfaces.IGlobalCommand)
 class Reload(AbstractCmd):
     __component_name__ = u'reload'
     __title__ = u'Reload'
     __url__ = u'http://i3wm.org/docs/userguide.html#_reloading_restarting_exiting'  # noqa
     __cmd__ = u'reload'
+    priority = 40
     schema = interfaces.IReload
 
-gsm.registerUtility(Reload)
+gsm.registerUtility(Reload, interfaces.IGlobalCommand)
 
 
-@provider(interfaces.IGlobalCommand)
+@implementer(interfaces.IGlobalCommand)
 class Restart(AbstractCmd):
     __component_name__ = u'restart'
     __title__ = u'Restart'
     __url__ = u'http://i3wm.org/docs/userguide.html#_reloading_restarting_exiting'  # noqa
     __cmd__ = u'restart'
+    priority = 30
     schema = interfaces.IRestart
 
-gsm.registerUtility(Restart)
+gsm.registerUtility(Restart, interfaces.IGlobalCommand)
 
 
-@provider(interfaces.IGlobalCommand)
+@implementer(interfaces.IGlobalCommand)
 class Exit(AbstractCmd):
     __component_name__ = u'exit'
     __title__ = u'Exit'
@@ -411,7 +432,7 @@ class Exit(AbstractCmd):
     __cmd__ = u'exit'
     schema = interfaces.IExit
 
-gsm.registerUtility(Exit)
+gsm.registerUtility(Exit, interfaces.IGlobalCommand)
 
 
 ###############################
@@ -421,21 +442,21 @@ gsm.registerUtility(Exit)
 ###############################
 
 
-@provider(interfaces.IGotoCommand)
+@implementer(interfaces.IGotoCommand)
 class GotoWindow(AbstractCmd):
     __component_name__ = u'goto_window'
     __title__ = u'Goto Window'
     __cmd__ = u'[id="{window.window}"] focus'
     schema = interfaces.IGotoWindow
 
-gsm.registerUtility(GotoWindow)
+gsm.registerUtility(GotoWindow, interfaces.IGotoCommand)
 
 
-@provider(interfaces.IGotoCommand)
+@implementer(interfaces.IGotoCommand)
 class GotoWorkspace(AbstractCmd):
     __component_name__ = u'goto_workspace'
     __title__ = u'Goto Workspace'
     __cmd__ = u'workspace "{workspace.workspace.name}"'
     schema = interfaces.IGotoWorkspace
 
-gsm.registerUtility(GotoWorkspace)
+gsm.registerUtility(GotoWorkspace, interfaces.IGotoCommand)

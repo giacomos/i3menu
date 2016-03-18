@@ -1,10 +1,13 @@
+from collections import OrderedDict
+from zope.interface import implementer
 from zope.schema.vocabulary import getVocabularyRegistry
-from zope.schema.vocabulary import SimpleTerm
-from zope.schema.vocabulary import SimpleVocabulary
+from zope.schema.vocabulary import SimpleTerm, TreeVocabulary, SimpleVocabulary
+from zope.schema.interfaces import IVocabularyFactory
 from zope.component import getUtilitiesFor, getUtility
 
 from i3menu.interfaces import IWindowCommand
 from i3menu.interfaces import IWorkspaceCommand
+from i3menu.interfaces import IMoveCommand
 from i3menu.interfaces import IGlobalCommand
 from i3menu.interfaces import IGotoCommand
 from i3menu.interfaces import IScratchpadCommand
@@ -20,6 +23,7 @@ class OutputObject(object):
     pass
 
 
+@implementer(IVocabularyFactory)
 class BaseVocabularyFactory(object):
     def __init__(self):
         self._terms = [t for t in self.terms]
@@ -29,7 +33,7 @@ class BaseVocabularyFactory(object):
         return []
 
     def __call__(self, *args, **kwargs):
-        return SimpleVocabulary(self._terms)
+        return SimpleVocabulary([SimpleTerm(*t) for t in self._terms])
 
 
 class WindowsVocabularyFactory(BaseVocabularyFactory):
@@ -41,7 +45,7 @@ class WindowsVocabularyFactory(BaseVocabularyFactory):
         terms = conn.get_windows()
         sortedterms = sorted(terms, key=lambda x: x.window_class)
         for t in sortedterms:
-            yield SimpleTerm(t, t, t.name)
+            yield (t, t, t.name)
 
 
 class WorkspacesVocabularyFactory(BaseVocabularyFactory):
@@ -57,7 +61,7 @@ class WorkspacesVocabularyFactory(BaseVocabularyFactory):
             ws_object = WorkspaceObject()
             ws_object.name = term.name
             ws_object.workspace = term
-            yield SimpleTerm(ws_object, ws_object, ws_object.name)
+            yield (ws_object, ws_object, ws_object.name)
 
 
 class OutputsVocabularyFactory(BaseVocabularyFactory):
@@ -73,79 +77,103 @@ class OutputsVocabularyFactory(BaseVocabularyFactory):
             out_object = OutputObject()
             out_object.name = term.name
             out_object.output = term
-            yield SimpleTerm(out_object, out_object, out_object.name)
+            yield (out_object, out_object, out_object.name)
 
 
-class WindowCommandsVocabularyFactory(BaseVocabularyFactory):
-    name = u'window_commands_vocabulary'
+class BaseCommandsVocabularyFactory(BaseVocabularyFactory):
 
-    @property
-    def terms(self):
-        cmds = [ut for ut in getUtilitiesFor(IWindowCommand)]
-        for utname, ut in cmds:
-            cname = ut.__title__
-            cmd = ut
-            yield SimpleTerm(cmd, cmd, cname)
-
-
-class WorkspaceCommandsVocabularyFactory(BaseVocabularyFactory):
-    name = u'workspace_commands_vocabulary'
+    interface = None
 
     @property
     def terms(self):
-        cmds = [ut for ut in getUtilitiesFor(IWorkspaceCommand)]
+        cmds = [ut for ut in getUtilitiesFor(self.interface)]
+        cmds = sorted(cmds, key=lambda i: i[1].priority, reverse=True)
         for utname, ut in cmds:
-            cname = ut.__title__
-            cmd = ut
-            yield SimpleTerm(cmd, cmd, cname)
+            # value, token, title
+            yield (ut, utname,ut.__title__)
 
 
-class GlobalCommandsVocabularyFactory(BaseVocabularyFactory):
-    name = u'global_commands_vocabulary'
+class WindowCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
+    name = u'window_actions'
+    title = u'Windows'
 
-    @property
-    def terms(self):
-        cmds = [ut for ut in getUtilitiesFor(IGlobalCommand)]
-        for utname, ut in cmds:
-            cname = ut.__title__
-            cmd = ut
-            yield SimpleTerm(cmd, cmd, cname)
+    interface = IWindowCommand
 
 
-class GotoCommandsVocabularyFactory(BaseVocabularyFactory):
-    name = u'goto_commands_vocabulary'
+class WorkspaceCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
+    name = u'workspace_actions'
+    title = u'Workspaces'
 
-    @property
-    def terms(self):
-        cmds = [ut for ut in getUtilitiesFor(IGotoCommand)]
-        for utname, ut in cmds:
-            cname = ut.__title__
-            cmd = ut
-            yield SimpleTerm(cmd, cmd, cname)
+    interface = IWorkspaceCommand
 
 
-class ScratchpadCommandsVocabularyFactory(BaseVocabularyFactory):
-    name = u'scratchpad_commands_vocabulary'
+class MoveCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
+    name = u'move_actions'
+    title = u'Move...'
 
-    @property
-    def terms(self):
-        cmds = [ut for ut in getUtilitiesFor(IScratchpadCommand)]
-        for utname, ut in cmds:
-            cname = ut.__title__
-            cmd = ut
-            yield SimpleTerm(cmd, cmd, cname)
+    interface = IMoveCommand
 
 
-class BarCommandsVocabularyFactory(BaseVocabularyFactory):
-    name = u'bar_commands_vocabulary'
+class GlobalCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
+    name = u'global_actions'
+    title = u'i3'
 
-    @property
-    def terms(self):
-        cmds = [ut for ut in getUtilitiesFor(IBarCommand)]
-        for utname, ut in cmds:
-            cname = ut.__title__
-            cmd = ut
-            yield SimpleTerm(cmd, cmd, cname)
+    interface = IGlobalCommand
+
+
+class GotoCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
+    name = u'goto_actions'
+    title = u'Go to...'
+
+    interface = IGotoCommand
+
+
+class ScratchpadCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
+    name = u'scratchpad_actions'
+    title = u'Scratchpad'
+
+    interface = IScratchpadCommand
+
+
+class BarCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
+    name = u'bar_actions'
+    title = u'Bars'
+
+    interface = IBarCommand
+
+
+class RootMenu(object):
+    subvocabs = [
+        GotoCommandsVocabularyFactory,
+        MoveCommandsVocabularyFactory,
+        WindowCommandsVocabularyFactory,
+        WorkspaceCommandsVocabularyFactory,
+        ScratchpadCommandsVocabularyFactory,
+        BarCommandsVocabularyFactory,
+        GlobalCommandsVocabularyFactory
+    ]
+
+    def __call__(self):
+        # terms = []
+        # for vf_klass in self.subvocabs:
+        #     term = SimpleTerm(vf_klass, vf_klass.name, vf_klass.title)
+        #     terms.append(term)
+        # return SimpleVocabulary(terms)
+        menus = OrderedDict()
+        for submenucls in self.subvocabs:
+            submenu = submenucls()
+            # (value, token, title)
+            entry = (submenu.name, submenu, submenu.title)
+            values = OrderedDict()
+            for cmd in submenu.terms:
+                values[cmd] = {}
+            menus[entry] = values
+        tv = TreeVocabulary.fromDict(menus)
+        return tv
+
+
+# menu = RootMenu()
+# menu()
 
 VOCABS = [
     WindowsVocabularyFactory,
@@ -153,6 +181,7 @@ VOCABS = [
     OutputsVocabularyFactory,
     WindowCommandsVocabularyFactory,
     WorkspaceCommandsVocabularyFactory,
+    MoveCommandsVocabularyFactory,
     GlobalCommandsVocabularyFactory,
     GotoCommandsVocabularyFactory,
     ScratchpadCommandsVocabularyFactory,
@@ -164,5 +193,4 @@ def init_vocabs():
     vr = getVocabularyRegistry()
     for vobject in VOCABS:
         vocab = vobject()
-        vr = getVocabularyRegistry()
         vr.register(vobject.name, vocab)
