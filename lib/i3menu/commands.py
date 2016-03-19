@@ -1,5 +1,5 @@
 from zope.interface import alsoProvides
-from zope.interface import implementer
+from zope.interface import implementer, Interface
 from zope.interface.verify import verifyObject
 from zope.component import getAdapter, getGlobalSiteManager
 from zope.component import getUtility
@@ -167,16 +167,6 @@ class AbstractCmd(object):
 #
 ###############################
 
-@implementer(interfaces.IMoveCommand)
-class MoveWindowToScratchpad(AbstractCmd):
-    __component_name__ = u'move_window_to_scratchpad'
-    __title__ = u'Move Window to Scratchpad'
-    __cmd__ = u'[id="{window.window}"] move to scratchpad'
-    priority = 20
-    schema = interfaces.IMoveWindowToScratchpad
-
-gsm.registerUtility(MoveWindowToScratchpad, interfaces.IMoveCommand)
-
 
 @implementer(interfaces.IMoveCommand)
 class MoveWindowToWorkspace(AbstractCmd):
@@ -188,6 +178,16 @@ class MoveWindowToWorkspace(AbstractCmd):
     schema = interfaces.IMoveWindowToWorkspace
 
 gsm.registerUtility(MoveWindowToWorkspace, interfaces.IMoveCommand)
+
+
+@implementer(interfaces.IMoveCommand)
+class MoveContainerToOutput(AbstractCmd):
+    __component_name__ = u'move_container_to_output'
+    __title__ = u'Move Container To Output'
+    __cmd__ = u'move container to output "{output.output.name}"'
+    schema = interfaces.IMoveContainerToOutput
+
+gsm.registerUtility(MoveContainerToOutput, interfaces.IMoveCommand)
 
 
 @implementer(interfaces.IMoveCommand)
@@ -360,6 +360,30 @@ class Fullscreen(AbstractCmd):
 gsm.registerUtility(Fullscreen, interfaces.IWindowCommand)
 
 
+@implementer(interfaces.IWindowCommand)
+class Mark(AbstractCmd):
+    __component_name__ = u'mark'
+    __title__ = u'Mark'
+    __url__ = u'http://i3wm.org/docs/userguide.html#vim_like_marks'
+    __cmd__ = u'mark {mark}'
+    priority = 5
+    schema = interfaces.IMark
+
+gsm.registerUtility(Mark, interfaces.IWindowCommand)
+
+
+@implementer(interfaces.IWindowCommand)
+class Unmark(AbstractCmd):
+    __component_name__ = u'unmark'
+    __title__ = u'Unmark'
+    __url__ = u'http://i3wm.org/docs/userguide.html#vim_like_marks'
+    __cmd__ = u'unmark {mark}'
+    priority = 4
+    schema = interfaces.IUnmark
+
+gsm.registerUtility(Unmark, interfaces.IWindowCommand)
+
+
 ###############################
 #
 # GLOBAL ACTIONS
@@ -437,26 +461,105 @@ gsm.registerUtility(Exit, interfaces.IGlobalCommand)
 
 ###############################
 #
-# GOTO ACTIONS
+# FOCUS ACTIONS
 #
 ###############################
 
 
-@implementer(interfaces.IGotoCommand)
-class GotoWindow(AbstractCmd):
-    __component_name__ = u'goto_window'
-    __title__ = u'Goto Window'
+@implementer(interfaces.IFocusCommand)
+class FocusParent(AbstractCmd):
+    __component_name__ = u'focus_parent'
+    __title__ = u'Focus Parent'
+    __cmd__ = u'focus parent'
+    schema = Interface
+    priority = 20
+
+gsm.registerUtility(FocusParent, interfaces.IFocusCommand)
+
+
+@implementer(interfaces.IFocusCommand)
+class FocusMark(AbstractCmd):
+    __component_name__ = u'focus_mark'
+    __title__ = u'Focus Mark'
+    __cmd__ = u'[con_mark="{value}"] focus'
+    schema = interfaces.IFocusMark
+    priority = 30
+
+gsm.registerUtility(FocusMark, interfaces.IFocusCommand)
+
+
+@implementer(interfaces.IFocusCommand)
+class FocusWindow(AbstractCmd):
+    __component_name__ = u'focus_window'
+    __title__ = u'Focus Window'
     __cmd__ = u'[id="{window.window}"] focus'
-    schema = interfaces.IGotoWindow
+    schema = interfaces.IFocusWindow
+    priority = 50
 
-gsm.registerUtility(GotoWindow, interfaces.IGotoCommand)
+gsm.registerUtility(FocusWindow, interfaces.IFocusCommand)
 
 
-@implementer(interfaces.IGotoCommand)
-class GotoWorkspace(AbstractCmd):
-    __component_name__ = u'goto_workspace'
-    __title__ = u'Goto Workspace'
+@implementer(interfaces.IFocusCommand)
+class FocusWorkspace(AbstractCmd):
+    __component_name__ = u'focus_workspace'
+    __title__ = u'Focus Workspace'
     __cmd__ = u'workspace "{workspace.workspace.name}"'
-    schema = interfaces.IGotoWorkspace
+    schema = interfaces.IFocusWorkspace
+    priority = 40
 
-gsm.registerUtility(GotoWorkspace, interfaces.IGotoCommand)
+gsm.registerUtility(FocusWorkspace, interfaces.IFocusCommand)
+
+
+###############################
+#
+# BAR ACTIONS
+#
+###############################
+
+
+@implementer(interfaces.IBarCommand)
+class BarMode(AbstractCmd):
+    __component_name__ = u'bar_mode'
+    __title__ = u'Bar Mode'
+    __cmd__ = u'bar mode {action}'
+    schema = interfaces.IBarMode
+
+gsm.registerUtility(BarMode, interfaces.IBarCommand)
+
+
+@implementer(interfaces.IBarCommand)
+class BarHiddenState(AbstractCmd):
+    __component_name__ = u'bar_hidden_state'
+    __title__ = u'Bar HiddenState'
+    __cmd__ = u'bar hidden_state {action}'
+    schema = interfaces.IBarHiddenState
+
+gsm.registerUtility(BarHiddenState, interfaces.IBarCommand)
+
+
+###############################
+#
+# SCRATCHPAD ACTIONS
+#
+###############################
+
+@implementer(interfaces.IScratchpadCommand)
+class MoveWindowToScratchpad(AbstractCmd):
+    __component_name__ = u'move_window_to_scratchpad'
+    __title__ = u'Move Window to Scratchpad'
+    __cmd__ = u'[id="{window.window}"] move to scratchpad'
+    priority = 20
+    schema = interfaces.IMoveWindowToScratchpad
+
+gsm.registerUtility(MoveWindowToScratchpad, interfaces.IScratchpadCommand)
+
+
+@implementer(interfaces.IScratchpadCommand)
+class ScratchpadShow(AbstractCmd):
+    __component_name__ = u'scratchpad_show'
+    __title__ = u'Scratchpad Show'
+    __cmd__ = u'[id="{window.window}"] scratchpad show'
+    priority = 10
+    schema = interfaces.IScratchpadShow
+
+gsm.registerUtility(ScratchpadShow, interfaces.IScratchpadCommand)

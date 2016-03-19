@@ -9,12 +9,6 @@ from os.path import join
 from os.path import abspath
 from os.path import splitext
 
-# sys.path.insert(0, abspath('lib'))
-# from i3menu.__about__ import (
-#     __author__, __email__, __license__, __summary__, __title__,
-#     __uri__, __version__
-# )
-
 here = abspath(dirname(__file__))
 
 with open(join(here, 'README.rst'), encoding='utf-8') as f:
@@ -22,9 +16,6 @@ with open(join(here, 'README.rst'), encoding='utf-8') as f:
 with open(join(here, 'CHANGELOG.rst'), encoding='utf-8') as f:
     long_description = '\n'.join((long_description, f.read()))
 
-# needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
-# pytest_runner = ['pytest-runner'] if needs_pytest else []
-# pytest_runner = ['pytest-runner']
 about = {}
 with open(join(here, 'lib', 'i3menu', '__about__.py'), encoding='utf-8') as f:
     exec(f.read(), about)

@@ -277,6 +277,17 @@ class I3Connector(object):
         tree = self.get_tree()
         return tree and tree.leaves() or []
 
+    def get_marks(self):
+        if self.i3:
+            try:
+                import json
+                from i3ipc import MessageType
+                data = self.i3.message(MessageType.GET_MARKS, '')
+                return json.loads(data)
+            except:
+                pass
+        return []
+
     def get_focused_window(self):
         tree = self.get_tree()
         return tree and tree.find_focused() or None

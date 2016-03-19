@@ -9,7 +9,7 @@ from i3menu.interfaces import IWindowCommand
 from i3menu.interfaces import IWorkspaceCommand
 from i3menu.interfaces import IMoveCommand
 from i3menu.interfaces import IGlobalCommand
-from i3menu.interfaces import IGotoCommand
+from i3menu.interfaces import IFocusCommand
 from i3menu.interfaces import IScratchpadCommand
 from i3menu.interfaces import IBarCommand
 from i3menu.interfaces import II3Connector
@@ -46,6 +46,29 @@ class WindowsVocabularyFactory(BaseVocabularyFactory):
         sortedterms = sorted(terms, key=lambda x: x.window_class)
         for t in sortedterms:
             yield (t, t, t.name)
+
+
+class ScratchpadWindowsVocabularyFactory(BaseVocabularyFactory):
+    name = u'scratchpad_windows_vocabulary'
+
+    @property
+    def terms(self):
+        conn = getUtility(II3Connector)
+        terms = conn.get_scratchpad_windows()
+        sortedterms = sorted(terms, key=lambda x: x.window_class)
+        for t in sortedterms:
+            yield (t, t, t.name)
+
+
+class MarksVocabularyFactory(BaseVocabularyFactory):
+    name = u'marks_vocabulary'
+
+    @property
+    def terms(self):
+        conn = getUtility(II3Connector)
+        terms = conn.get_marks()
+        for t in terms:
+            yield (t, t, t)
 
 
 class WorkspacesVocabularyFactory(BaseVocabularyFactory):
@@ -121,11 +144,11 @@ class GlobalCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
     interface = IGlobalCommand
 
 
-class GotoCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
-    name = u'goto_actions'
-    title = u'Go to...'
+class FocusCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
+    name = u'focus_actions'
+    title = u'Focus...'
 
-    interface = IGotoCommand
+    interface = IFocusCommand
 
 
 class ScratchpadCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
@@ -144,7 +167,7 @@ class BarCommandsVocabularyFactory(BaseCommandsVocabularyFactory):
 
 class RootMenu(object):
     subvocabs = [
-        GotoCommandsVocabularyFactory,
+        FocusCommandsVocabularyFactory,
         MoveCommandsVocabularyFactory,
         WindowCommandsVocabularyFactory,
         WorkspaceCommandsVocabularyFactory,
@@ -183,9 +206,11 @@ VOCABS = [
     WorkspaceCommandsVocabularyFactory,
     MoveCommandsVocabularyFactory,
     GlobalCommandsVocabularyFactory,
-    GotoCommandsVocabularyFactory,
+    FocusCommandsVocabularyFactory,
     ScratchpadCommandsVocabularyFactory,
     BarCommandsVocabularyFactory,
+    ScratchpadWindowsVocabularyFactory,
+    MarksVocabularyFactory
 ]
 
 

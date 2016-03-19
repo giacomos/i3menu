@@ -44,6 +44,10 @@ def run():
         help="Menu to be executed. Allowed values are: ", # + ", ".join(options),
         metavar='<menu>')
     args = parser.parse_args()
+    config = {}
+    if args.menu:
+        config['menu'] = args.menu
+
     app = Application(args)
     sys.exit(app.run())
 

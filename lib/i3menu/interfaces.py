@@ -51,7 +51,7 @@ class IGlobalCommand(ICommand):
     """"""
 
 
-class IGotoCommand(ICommand):
+class IFocusCommand(ICommand):
     """"""
 
 
@@ -68,6 +68,14 @@ class IBarCommand(ICommand):
 # WORKSPACE ACTIONS
 #
 ###############################
+
+
+class IMoveContainerToOutput(Interface):
+    output = Choice(
+        title=u"Output",
+        required=True,
+        vocabulary="outputs_vocabulary",
+    )
 
 
 class IMoveWorkspaceToOutput(Interface):
@@ -276,6 +284,30 @@ class IFullscreen(Interface):
     )
 
 
+class IMark(Interface):
+
+    # action = Choice(
+    #     title=u"Action",
+    #     required=True,
+    #     default='add',
+    #     values=[u'add', u'replace', u'toggle']
+    # )
+
+    value = TextLine(
+        title=u"Mark name",
+        required=True,
+    )
+
+
+class IUnmark(Interface):
+
+    mark = Choice(
+        title=u"Mark",
+        required=True,
+        vocabulary="marks_vocabulary",
+    )
+
+
 ###############################
 #
 # GLOBAL ACTIONS
@@ -324,12 +356,20 @@ class IExit(Interface):
 
 ###############################
 #
-# GOTO ACTIONS
+# FOCUS ACTIONS
 #
 ###############################
 
 
-class IGotoWindow(Interface):
+class IFocusMark(Interface):
+    mark = Choice(
+        title=u"Mark",
+        required=True,
+        vocabulary="marks_vocabulary",
+    )
+
+
+class IFocusWindow(Interface):
     window = Choice(
         title=u"Window",
         required=True,
@@ -337,9 +377,53 @@ class IGotoWindow(Interface):
     )
 
 
-class IGotoWorkspace(Interface):
+class IFocusWorkspace(Interface):
     workspace = Choice(
         title=u"Workspace",
         required=True,
         vocabulary="workspaces_vocabulary",
+    )
+
+
+###############################
+#
+# BAR ACTIONS
+#
+###############################
+
+
+class IBarMode(Interface):
+
+    action = Choice(
+        title=u"Action",
+        required=False,
+        default='toggle',
+        values=[
+            u'dock', u'hide', u'invisible', u'toggle']
+    )
+
+
+class IBarHiddenState(Interface):
+
+    action = Choice(
+        title=u"Action",
+        required=False,
+        default='toggle',
+        values=[
+            u'hide', u'show', u'toggle']
+    )
+
+
+###############################
+#
+# SCRATCHPAD ACTIONS
+#
+###############################
+
+
+class IScratchpadShow(Interface):
+    window = Choice(
+        title=u"Window",
+        required=True,
+        vocabulary="scratchpad_windows_vocabulary",
     )

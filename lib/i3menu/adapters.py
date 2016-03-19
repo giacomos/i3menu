@@ -21,7 +21,7 @@ class ChoiceWidget(object):
         f = self.field
         f = f.bind(f.context)
         return f.context.selectinput(
-            f.vocabulary, prompt=_(u'Select one entry'))
+            f.vocabulary, prompt=f.title)
 
 gsm.registerAdapter(ChoiceWidget)
 
